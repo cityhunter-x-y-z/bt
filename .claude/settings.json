@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node tools/process-sprite.js)",
+      "Bash(node -e \":*)",
+      "Bash(npm run:*)",
+      "Bash(grep -rn \"480\\\\|270\" e:projectsnamma-questsrc --include=*.ts)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(curl -s http://localhost:3002)",
+      "Bash(curl -s http://localhost:3003)",
+      "Bash(node tools/generate-placeholder-tileset.js)",
+      "Bash(curl -s http://localhost:3004)",
+      "Bash(node tools/fix-tileset-paths.js)",
+      "Bash(curl -s http://localhost:3005)",
+      "Bash(grep -o \"100vw\\\\|100vh\\\\|FIT\\\\|CENTER_BOTH\" e:/projects/namma-quest/dist/index.html e:/projects/namma-quest/dist/assets/index-*.js)"
+    ]
+  }
+}
