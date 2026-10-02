@@ -2,46 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Namma Quest</title>
+
+    <!-- PWA: installable, fullscreen, dark chrome to match the canvas. -->
+    <meta name="theme-color" content="#0e0f13" />
+    <meta name="description" content="A top-down pixel RPG set in Bengaluru." />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Namma Quest</title>
+    <meta name="apple-mobile-web-app-title" content="Namma Quest" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: #000000;
-      }
-
-      #game-container {
-        width: 100vw;
-        height: 100vh;
-        position: relative;
-        background: #000000;
-      }
-
-      /* Center the Phaser canvas dead-center in the viewport */
-      #game-container canvas {
-        image-rendering: pixelated !important;
-        image-rendering: crisp-edges !important;
-        -ms-interpolation-mode: nearest-neighbor !important;
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-      }
+      html, body, #root { margin: 0; height: 100%; background: #0e0f13; }
     </style>
   </head>
   <body>
-    <div id="game-container"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

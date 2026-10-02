@@ -1,258 +1,299 @@
-# Namma Quest - Tech Stack
+# Namma Quest — tech stack
 
-## Core Architecture
+Aligned with the `v1.0` branch of [`cityhunter-x-y-z/bt`](https://github.com/cityhunter-x-y-z/bt)
+(commit `19899fd`, 2026-07-13). That commit added `TECH_STACK.md` and
+`ARCHITECTURE.md` and **no code** — the reference implementation on that branch
+is from `090627c` (2026-03-29). So the newest statement of direction in that
+repo is the stack description, and this package follows it.
 
-### Frontend Stack
-- **Engine:** Phaser 3.70+
-- **UI Framework:** React 18+
-- **State Management:** Zustand
-- **Build Tool:** Vite
-- **Mobile:** Capacitor 6
+## Current
 
-### Backend Stack
-- **Database:** Firebase Realtime Database
-- **Authentication:** Firebase Authentication
-- **Notifications:** Firebase Cloud Messaging
-- **Functions:** Firebase Cloud Functions (minimal)
-- **Hosting:** Firebase Hosting (for web)
+| Layer | Choice | Reference spec | Here |
+| --- | --- | --- | --- |
+| Engine | Phaser | 3.70+ | **3.90** |
+| UI | React | 18+ | **19.1** |
+| State | Zustand | yes | **5.0** |
+| Build | Vite | 5.x | **7.2** |
+| Language | TypeScript | yes | 5.9 |
+| PWA | vite-plugin-pwa + Workbox | Phase 1 | 1.3 |
 
-## Game Features
+Where this package is on a newer major than the spec's floor, the newer version
+wins — the spec sets a minimum, not a ceiling.
 
-### AI Bots
-- **Engine:** Local Phaser AI (no server required!)
-- **Pathfinding:** Simple random walk
-- **Name Generation:** Indian name generator (local)
-- **Cost:** ₹0 (runs on player's device)
+## Rendering
 
-### Multiplayer System
-- **Type:** Pseudo-multiplayer (instanced)
-- **Sync:** Firebase Realtime DB (lightweight)
-- **Sessions:** Temporary 5-min co-op
-- **Complexity:** ⭐⭐ (Very manageable!)
+640×360 native, `Scale.FIT`, `pixelArt: true`, `roundPixels: true`, every
+antialias path off. Integer-scales to 720p (2×), 1080p (3×) and 1440p (4×).
+Tiles are 32px; character sprites are 32×48.
 
-### Social Features
-- **Profiles:** Firebase Firestore
-- **Discovery:** Query-based filtering
-- **Friends:** Persistent connections
-- **Style:** Dating app UX
+The reference `main.ts` also re-acquires the WebGL context after boot to set
+`TEXTURE_2D` filtering to `NEAREST`. That is omitted here: it applies to
+whichever texture happens to be bound at that moment rather than to the atlas,
+and Phaser's `pixelArt` flag already sets `NEAREST` on every texture it uploads.
+The canvas-level `image-rendering: pixelated` is kept, since that governs the
+browser's own upscale of the 640×360 backing store.
 
-## Key Advantages
-✅ Looks like MMO, but isn't (smart illusion!)  
-✅ Bots provide atmosphere (no cost)  
-✅ Real players add authenticity (light sync)  
-✅ 5-min sessions keep it casual (no commitment)  
-✅ Dating app style is trendy (fits target audience)  
-✅ Leaderboard creates competition (engagement)  
-✅ Story + tasks (core gameplay)  
-✅ In-app purchases (monetization)  
-✅ Solo dev friendly (no complex server)  
-✅ Bangalore context (unique selling point)  
+## Layout
 
-## Development & Deployment
+Follows the conventions in the reference `docs/AI_CONTEXT.md`:
 
-### PWA Deployment (Phase 1 - Weeks 1-4)
-**Purpose:** Initial soft launch, rapid user testing
-
-Tools:
-- `vite-plugin-pwa` (PWA generation)
-- `Workbox` (Service workers for offline caching)
-- Web App Manifest (installability configuration)
-- PWA Asset Generator (icon generation)
-
-Hosting Options:
-- **Vercel** (primary - free tier, auto-deploy)
-- **Netlify** (backup - free tier)
-- **Cloudflare Pages** (alternative - global CDN)
-
-Features Enabled:
-- ✅ Add to home screen (Android & iOS)
-- ✅ Offline play (cached assets)
-- ✅ Push notifications (Firebase Cloud Messaging)
-- ✅ App-like experience (fullscreen, splash screen)
-- ✅ Auto-updates (no store approval needed)
-- ✅ Share link to install (viral growth potential)
-
-**Advantages:**
-- Launch in 1 day (no store approval)
-- Update anytime (instant deployment)
-- Cross-platform (one URL, works everywhere)
-- Zero distribution cost
-- Perfect for beta testing
-- Works on any modern browser
-
-**Cost:** ₹0
-
-### Native Apps via Capacitor (Phase 2 - Production)
-
-#### Framework
-- @capacitor/core (core runtime)
-- @capacitor/cli (build tools)
-- @capacitor/android (Android platform)
-- @capacitor/ios (iOS platform)
-- Ionic Native plugins (optional)
-
-#### Android Requirements
-- Android Studio (IDE & emulator)
-- Android SDK Platform 33+ (Target API level)
-- Gradle 8+ (build system)
-- Java JDK 17+
-
-#### iOS Requirements (if App Store)
-- Xcode 15+ (IDE & simulator)
-- macOS Ventura+ (required)
-- CocoaPods (dependency manager)
-- Apple Developer Account ($99/year)
-- Physical iPhone (for testing)
-
-#### Build Process
 ```
-npm run build                    # Vite production build
-npx cap sync                     # Sync web assets to native
-npx cap open android             # Open in Android Studio
-npx cap open ios                 # Open in Xcode
-# Build APK/IPA from respective IDEs
+src/
+├── assets/     art + tilemap, imported as ?url    (see "Assets" below)
+├── entities/   Phaser.GameObjects subclasses      (Player)
+├── scenes/     one file per screen, static KEY
+├── systems/    singleton managers, getInstance()  (StatsManager, SaveManager)
+├── utils/      constants.ts, types.ts, placeholders.ts
+└── store.ts    zustand — the single source of truth
 ```
 
-### Essential Capacitor Plugins
-- @capacitor/app (app state, deep links)
-- @capacitor/splash-screen (native splash)
-- @capacitor/status-bar (status bar styling)
-- @capacitor/keyboard (keyboard behavior)
-- @capacitor/push-notifications (FCM integration)
-- @capacitor/network (online/offline detection)
+## Scene flow
 
-### Optional Capacitor Plugins
-- @capacitor/haptics (vibration feedback)
-- @capacitor/geolocation (location services)
-- @capacitor/share (share achievements)
-- @capacitor/local-notifications (offline reminders)
-- @capacitor/camera (profile picture upload)
-- @capacitor/filesystem (save screenshots)
-- @capacitor-community/firebase-analytics
-- cordova-plugin-purchase (in-app purchases)
-- @capacitor-community/admob (ads)
+```
+BootScene ──► TitleScene ──► CharacterSelectScene ──► AirportScene
+                  │                                        │
+                  └── Continue (restores a save) ───────────┘
 
-## App Store Configuration
+WhitefieldScene — MVP-1 bot sandbox, reachable via the startScene prop
+```
 
-### Google Play Store
-**Timeline:** 3-7 days review
+BootScene always runs first: it owns every asset and animation, so no later
+transition ever stalls on a fetch. It then starts whichever scene the
+`startScene` registry key names (default `TitleScene`), which is how
+`<BangaloreTimes startScene="WhitefieldScene" />` drops straight into the
+sandbox without a separate scene list.
 
-**Requirements:**
-- Developer account (₹1,500 one-time)
-- App bundle (.aab file, not .apk)
-- Privacy policy URL
-- Target API level 33+ (Android 13+)
-- Content rating questionnaire
+One deliberate divergence: the reference has no React, so its managers own
+state directly. Here the managers delegate to the zustand store, so Phaser and
+the React HUD read the same state instead of drifting apart.
 
-**Assets:**
-- App icon (512x512 PNG)
-- Feature graphic (1024x500 PNG)
-- Screenshots (min 2, up to 8)
-- Short description (80 chars)
-- Full description (4000 chars max)
+## Assets
 
-### Apple App Store
-**Timeline:** 2-7 days (stricter review)
+Ported from the reference: the player spritesheet (128×192, 16 frames of 32×48),
+`airport_interior.tmj` (30×20 tiles, 5 layers, 7 spawn points) and the 8
+tilesets it references — 1.8 MB in total.
 
-**Requirements:**
-- Developer account ($99/year)
-- .ipa file (built on macOS)
-- Privacy policy URL
-- Age rating classification
-- App review guidelines compliance
+They live in `src/assets/` and are pulled in through `src/assets/index.ts` with
+`?url` imports rather than sitting in `public/`. The reference loads them by
+relative path, which works only when the game is the site root; this package is
+also consumed as a library by personal-doc, whose build does not copy this
+package's `public/` directory, and where a relative `assets/…` path would
+resolve against the host route and 404. Letting the bundler emit them fixes both
+cases at once.
 
-**Assets:**
-- App icon (1024x1024 PNG)
-- Screenshots (multiple sizes)
-- App preview video (optional, recommended)
-- App description
+`utils/placeholders.ts` still generates flat textures at the real pixel
+dimensions for entities with no art (bots, NPCs), and `Player` guards animation
+playback with `anims.exists()`, so an entity works before and after its art
+arrives.
 
-## Distribution Strategy
+**Not ported:** ~10 MB of unreferenced source art in the reference repo
+(`Air one.png`, `air two.png`, the four large sprite sheets, `test-sprite.png`)
+plus `tools/debug-frames/`. No scene loads any of it. It is working material
+rather than runtime assets, and committing it would weigh the repo down
+permanently — easy to add later, hard to remove from history.
 
-### Phase 1 (Weeks 1-4): PWA Only
-- Deploy to Vercel
-- Share URL on social media
-- Gather feedback quickly
-- Iterate based on response
-- **Cost:** ₹0
+### Pixel art and the image optimizer
 
-### Phase 2 (Weeks 5-8): Android Priority
-- Build .aab with Capacitor
-- Submit to Play Store
-- Continue PWA updates in parallel
-- 95% of Indian mobile gamers on Android
-- **Cost:** ₹1,500 one-time
+personal-doc runs `vite-plugin-image-optimizer`, whose `png: { quality: 80 }`
+palette-quantises PNGs — measured at ~78% of subpixels altered on the player
+spritesheet, which visibly corrupts pixel art. personal-doc's Vite config now
+routes this package's art into `assets/game/` and excludes that folder from the
+optimizer. Every ported file is byte-identical in that build; if the layout
+changes, re-check with a checksum against `src/assets/`.
 
-### Phase 3 (Weeks 9+): iOS (if demand exists)
-- Build .ipa (requires Mac/Mac cloud service)
-- Submit to App Store
-- Maintain parity across platforms
-- **Cost:** ₹8,000/year (Apple Developer)
+## Deferred
 
-## Development Tools
+Phases 2 and 3 of the reference plan are **not** installed here, because each
+needs an account or toolchain that is a decision rather than a dependency:
 
-### IDE & Editor
-**Primary:** VS Code / Cursor
-- Extensions:
-  - ESLint (code linting)
-  - Prettier (code formatting)
-  - Phaser 3 Snippets (game dev shortcuts)
-  - Firebase (Firebase integration)
-  - GitLens (Git visualization)
-  - Error Lens (inline error display)
-  - Thunder Client (API testing)
-- Settings:
-  - Auto-save enabled
-  - Format on save
-  - ESLint auto-fix
+- **Firebase** (Realtime DB, Auth, Cloud Messaging, Functions) — needs a
+  Firebase project and config credentials. Gates MVP 2 (accounts, online panel)
+  and MVP 3 (co-op sessions, push).
+- **Capacitor 6** (`@capacitor/core`, `cli`, `android`, `ios`) — needs Android
+  Studio / Xcode. The PWA is the Phase 1 distribution channel and works today.
 
-**Alternative:** WebStorm (paid, powerful for JS)
 
-### Terminal & CLI Tools
-- Node.js 18 LTS or 20 LTS (JavaScript runtime)
-- npm 9+ or pnpm 8+ (package managers, pnpm faster)
-- Git 2.40+ (version control)
-- Firebase CLI (firebase-tools via npm)
+## Fixes applied during the port
 
-### Browser DevTools
-- Chrome DevTools (primary testing)
-- Firefox Developer Edition (alternative)
-- Device emulation (mobile viewport testing)
-- Lighthouse (performance auditing)
-- Network throttling (simulate 3G/4G)
+The scenes are ported faithfully except where the reference would misbehave
+here. Each of these is a real defect, not a style preference:
 
-## Development Milestones
+- **`BootScene` loaded `assets/tilesets/airport_tiles.png`, which does not exist
+  in the reference repo.** It was a fallback placeholder that was never created,
+  so every boot took a 404. Removed, and a `loaderror` handler now reports any
+  future missing asset instead of leaving the loading bar stalled.
+- **`CharacterSelectScene` defined `shutdown()` as a plain method.** Phaser does
+  not call that — it emits a `SHUTDOWN` event — so the `window` keydown listener
+  used for name entry outlived the scene. Harmless on a standalone page, a real
+  leak when the game is embedded and unmounted. Now bound to the actual
+  `SHUTDOWN`/`DESTROY` events.
+- **The name filter accepted any key matching `/[a-zA-Z0-9 ]/`,** which also
+  matches multi-character key names. Now requires `key.length === 1`.
+- **`zone_exit` fired its overlap callback every frame** the player stood in it.
+  Now fires once and emits `zone-exit-reached`.
+- **Phase-2 arrow navigation hard-coded the card count** (`Math.min(3, …)`).
+  Now derived from the number of cards.
+- **`addTilesetImage` failures were pushed silently**, which renders an empty
+  layer with no clue why. Now reported.
 
-### MVP 1: Core Gameplay (Week 1-2)
-- Whitefield area with 100 bot sprites
-- Player can walk around
-- Bots walk randomly
-- Simple task system (collect X, go to Y)
-- Point tracking
-- Leaderboard (fake data)
-- **Goal:** Prove core gameplay is fun
+## Map pipeline
 
-### MVP 2: Social & Authentication (Week 3-4)
-- Firebase setup
-- User authentication
-- "Online Players" panel (shows real users)
-- Profile creation
-- Mark 10 bots as "real players" (testing)
-- **Goal:** Social UI works and looks good
+Maps are data, not code. `src/assets/maps.manifest.json` is the contract; both
+the runtime registry (`src/assets/maps.ts`) and the build-time validator
+(`scripts/validate-maps.mjs`) read it, so they cannot drift.
 
-### MVP 3: Co-op Multiplayer (Week 5-6)
-- Friend request flow
-- Push notifications
-- 5-min session creation
-- Position sync (2 players)
-- Timer and auto-end
-- Add to friends list
-- **Goal:** End-to-end co-op working
+Tilesets and tilemaps are discovered with `import.meta.glob`. Adding a map is:
 
----
+1. Export the `.tmj` from Tiled into `src/assets/tilemaps/` (embed tilesets).
+2. Drop each tileset PNG into `src/assets/tilesets/`, named to match the
+   tileset's `name` field in Tiled.
+3. Add an entry to `maps.manifest.json` naming the required layers and spawns.
 
-**Project:** Namma Quest  
-**Target:** Indian mobile gamers (casual, social)  
-**Platform Priority:** Android → iOS (if demand)  
-**Solo Dev Friendly:** Yes  
-**Scalability:** Handled by Firebase + pseudo-multiplayer design
+No import to add, no loader line in `BootScene`, no tileset list in the scene.
+
+### Why the validator exists
+
+Tiled failure modes are silent: a renamed layer renders an empty floor, a
+tileset whose `name` stops matching its PNG renders nothing, a missing spawn
+drops the player at a hard-coded fallback. None of them throw. Both bugs already
+found in the reference code were of exactly this kind — `BootScene` loading an
+`airport_tiles.png` that does not exist, and a spawn named `gaurd` that only
+works because the typo is matched verbatim.
+
+`node scripts/validate-maps.mjs` runs first in `build` and checks: tile size,
+orthogonal orientation, non-infinite, every required layer present (with a
+case/spacing near-miss hint), the collision stencil hidden, the spawn layer
+being an object layer, required spawns present, every declared tileset having a
+matching image, and no external `.tsx` references.
+
+## Scaling strategy
+
+Coverage of the low-cost scaling strategy document lives in
+[STRATEGY_COVERAGE.md](./STRATEGY_COVERAGE.md), including what is deliberately
+deferred and an open genre question.
+
+The shape it asks for, and the shape here: one system per concern, fed by data.
+A new district should need a map, tiles, NPC records, quest records, dialogue
+and items — and no core code.
+
+## Event-driven core
+
+Gameplay systems communicate through one typed event bus (`src/core/events.ts`),
+not direct calls. Scenes announce facts — `dialogue:ended`, `item:added`,
+`zone:reached`, `entity:interacted` — and systems draw conclusions:
+
+```
+scene / DialogueBox ──emit──►  gameEvents  ──on──►  QuestManager   (objectives)
+InventoryManager    ──emit──►      │       ──on──►  (future: achievements,
+DialogueManager     ──emit──►      │                 analytics, ghost recorder,
+                                   ▼                 multiplayer relay)
+```
+
+AirportScene does not know the quest system exists; QuestManager has never
+heard of Phaser. New systems subscribe instead of being wired into scene code,
+and the bus is deliberately engine-free so every subscriber stays unit-testable
+in Node. Listener errors are isolated — one broken handler cannot kill the
+frame. Recording this event stream is the planned Stage-0 ghost format.
+
+State split: managers own the **rules** (stack limits, prerequisites, gating);
+the zustand store owns the **data**, in exactly the shape SaveData persists —
+so the React HUD, Phaser scenes and the save file can never disagree.
+
+Current managers: `StatsManager` (stats, xp, effects), `InventoryManager`
+(stacking rules, all-or-nothing add/remove, consumable use), `QuestManager`
+(bus-driven objective tracking, rewards, scene-unlock flags), `DialogueManager`
+(tree traversal, choice gating), `SaveManager` (localStorage, versioned).
+`ui/DialogueBox` is the thin Phaser presentation over DialogueManager.
+
+## Art pipeline
+
+Full detail, including the conventions it pins and what an imported pack would
+need, is in [docs/asset-pipeline.md](./docs/asset-pipeline.md).
+
+The pixel art is generated by code, not stored as opaque PNGs:
+
+```
+scripts/art/palette.mjs    the project palette — nothing may use a colour outside it
+scripts/art/canvas.mjs     integer-addressed RGBA buffer, deterministic noise
+scripts/art/tiles.mjs      35 modular street tiles, appended in id order
+scripts/art/character.mjs  32x48 rig, 4 directions x 4 frames
+scripts/generate-art.mjs   writes tilesets/ and sprites/, plus street.tiles.json
+scripts/generate-street-map.mjs  composes a 30x20 street block as a .tmj
+```
+
+Run with `npm run art`.
+
+Three reasons this beats hand-managed PNGs at this stage: it is reproducible
+(identical output every run, so a rerun never dirties the repo), editable
+(change one palette entry and every tile follows), and it cannot drift
+off-palette. Hand-authoring in Tiled remains the normal path for maps — the
+generator exists to prove the tileset composes and to keep the sandbox scene
+built from real tiles.
+
+### Palette discipline, measured
+
+| Asset | Colours | Max per 32x32 tile | Size |
+| --- | --- | --- | --- |
+| `street.png` (generated) | **33** | **7** | 3 KB |
+| `citizen.png` (generated) | **11** | 9 | 1 KB |
+| `airport.png` (reference art) | 254,535 | 1,020 | 1,163 KB |
+| `player.png` (reference art) | 5,875 | 456 | 25 KB |
+
+The reference art is continuous-tone imagery, not pixel art — which is why it
+cannot be palette-compressed and why nearest-neighbour scaling makes it
+shimmer. The generated art is what the renderer is actually configured for.
+
+### Adding a character
+
+Drop a 128x192 sheet (4x4 grid of 32x48 frames, rows down/left/right/up) into
+`src/assets/sprites/`. BootScene discovers it and registers
+`<name>-walk-<dir>` and `<name>-idle-<dir>` automatically; `Player` and the
+ambient citizens take a sheet name, so nothing else changes. The three citizen
+variants are one rig recoloured — a mixed crowd for no extra drawing.
+
+## Content pipeline
+
+Dialogue, quests and items are authored as JSON in `src/data/` and discovered by
+glob, the same way maps are. Writing content never means editing a scene:
+
+```
+src/data/
+├── dialogue/<id>.json   one conversation; entry node is always "start"
+├── quests/<id>.json     one quest
+└── items/<group>.json   an array of item definitions
+```
+
+Filenames must match the `id` inside. `DialogueManager` walks a tree, applies
+`StatEffect`s through `StatsManager`, and gates choices on skill tier —
+returning locked choices with a reason rather than hiding them, so the player
+can see what a skill would have unlocked.
+
+### Why the content validator exists
+
+`utils/types.ts` types the *shape* of a JSON import, but TypeScript cannot check
+its *contents*. A dialogue node whose `next` points at a node that was renamed
+type-checks perfectly and soft-locks the conversation in a shipped build. There
+is no compiler error and no runtime error — the player simply cannot continue.
+
+`node scripts/validate-content.ts` runs before every build and checks what the
+compiler cannot: dangling `next` and choice targets, nodes unreachable from
+`start`, missing entry nodes, unknown item ids in effects, unknown quest
+triggers, skill branches and tiers outside the defined range, xp granted with no
+branch, reward items that do not exist, `unlock_scene` values absent from
+`SCENE_KEYS`, duplicate ids, filename/id drift, `stackable`/`max_stack`
+incoherence, and prerequisite cycles between quests.
+
+Node 22.6+ (with `--experimental-strip-types`, which the npm scripts pass) runs the validator's TypeScript directly, so it imports `SCENE_KEYS`
+and `SKILL_TIER_NAMES` from `utils/constants.ts` rather than duplicating them —
+the lists cannot drift apart.
+
+## Commands
+
+```bash
+npm run dev          # http://localhost:6174
+npm test             # vitest
+npm run validate     # maps + content
+npm run build        # validate → typecheck → build
+```
+
+Port 6174 is fixed with `strictPort` (no port starting with 4 or 5).

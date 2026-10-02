@@ -1,12 +1,24 @@
 import Phaser from 'phaser';
-import { SCENE_KEYS, GAME_WIDTH, GAME_HEIGHT } from '../utils/constants';
+import {
+  GAME_HEIGHT,
+  GAME_WIDTH,
+  SCENE_KEYS,
+  SPRITE_HEIGHT,
+  SPRITE_WIDTH,
+  TILE_SIZE,
+} from '../utils/constants';
+import { SPRITE_URLS, TILESET_URLS } from '../assets';
+import { STREET_FRAMES_KEY } from '../entities/PlacedObject';
+import { MAPS } from '../assets/maps';
+import { useGameStore } from '../store';
+import { QuestManager } from '../systems/QuestManager';
 
 /**
- * BootScene: Asset preloading with loading bar
- * - Displays loading progress as assets load
- * - Generates placeholder textures for development (colored rectangles)
- * - Creates idle animations for player character
- * - Transitions to TitleScene when complete
+ * BootScene — preloads every shared asset behind a loading bar, registers the
+ * player animations, then hands off to the scene named in the registry.
+ *
+ * Everything the game needs is loaded here rather than per-scene, so a scene
+ * transition never stalls on a fetch.
  */
 export class BootScene extends Phaser.Scene {
   static readonly KEY = SCENE_KEYS.BOOT;
@@ -19,63 +31,77 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    // Create loading bar UI
     this.createLoadingBar();
 
-    // Listen to load progress
     this.load.on('progress', (value: number) => {
-      this.loadingBarFill.width = value * 200; // Fill 0-200px
+      this.loadingBarFill.width = value * 200;
     });
 
     this.load.on('complete', () => {
       this.loadingText.setText('Ready!');
     });
 
-    // Load player spritesheet (128×192, 4 cols × 4 rows, each frame 32×48)
-    this.load.spritesheet('player', 'assets/sprites/player.png', {
-      frameWidth: 32,
-      frameHeight: 48,
+    // A failed asset must not leave the player staring at a stalled bar.
+    this.load.on('loaderror', (file: Phaser.Loader.File) => {
+      console.error(`[BootScene] failed to load "${file.key}" from ${file.url}`);
     });
 
-    // Load Tiled map
-    this.load.tilemapTiledJSON('airport_map', 'assets/tilemaps/airport_interior.tmj');
+    // Every character sheet: 128×192 = 4 columns × 4 rows of 32×48 frames.
+    for (const [key, url] of Object.entries(SPRITE_URLS)) {
+      this.load.spritesheet(key, url, {
+        frameWidth: SPRITE_WIDTH,
+        frameHeight: SPRITE_HEIGHT,
+      });
+    }
 
-    // Load all 8 tilesets (names MUST match "name" field in airport_interior.tmj)
-    this.load.image('airport', 'assets/tilesets/airport.png');
-    this.load.image('wall', 'assets/tilesets/wall.png');
-    this.load.image('skirting', 'assets/tilesets/skirting.png');
-    this.load.image('airport-exitgate', 'assets/tilesets/airport-exitgate.png');
-    this.load.image('tourist-info-desk', 'assets/tilesets/tourist-info-desk.png');
-    this.load.image('luggage-belt', 'assets/tilesets/luggage-belt.png');
-    this.load.image('objects', 'assets/tilesets/objects.png');
-    this.load.image('shops', 'assets/tilesets/shops.png');
+    // Every map in the registry, and every tileset on disk. Tilesets are keyed
+    // by basename, which the validator guarantees matches the `name` field of
+    // the corresponding tileset in each .tmj.
+    for (const map of Object.values(MAPS)) {
+      this.load.tilemapTiledJSON(map.key, map.url);
+    }
 
-    // Load procedural tileset placeholder (for fallback)
-    this.load.image('airport_tiles', 'assets/tilesets/airport_tiles.png');
+    for (const [key, url] of Object.entries(TILESET_URLS)) {
+      this.load.image(key, url);
+    }
+
+    // The street tileset is loaded a second time as a spritesheet. Tilemap
+    // layers index it by name through the image cache; placed objects index
+    // individual tiles by frame number, which needs a frame grid.
+    if (TILESET_URLS.street) {
+      this.load.spritesheet(STREET_FRAMES_KEY, TILESET_URLS.street, {
+        frameWidth: TILE_SIZE,
+        frameHeight: TILE_SIZE,
+      });
+    }
   }
 
   create(): void {
-    // Force NEAREST filter on all textures for crisp pixel rendering
+    useGameStore.getState().setActiveScene(BootScene.KEY);
+
+    // The quest system reacts to bus events; instantiate it before any scene
+    // can emit one, or the first objective of a run could be missed.
+    QuestManager.getInstance();
+
     this.setAllTexturesNearest();
-
-    // Generate placeholder textures for development
     this.createPlaceholderTextures();
+    this.createCharacterAnimations();
 
-    // Create idle animations for player
-    this.createIdleAnimations();
+    // Which scene follows is set by PhaserGame via the registry, so a host can
+    // drop straight into a scene (e.g. the Whitefield sandbox) without editing
+    // the scene list. Falls back to the title screen.
+    const next = (this.registry.get('startScene') as string | undefined) ?? SCENE_KEYS.TITLE;
 
-    // Transition to TitleScene after a brief delay (show the loading bar)
     this.time.delayedCall(300, () => {
-      this.scene.start(SCENE_KEYS.TITLE);
+      this.scene.start(next);
     });
   }
 
   /**
-   * Set all textures to use NEAREST filter for crisp pixel-perfect rendering
-   * This ensures no bilinear/trilinear smoothing at the texture level
+   * Force NEAREST filtering on every loaded texture. Phaser's pixelArt flag
+   * covers textures it creates; this catches the ones the loader brought in.
    */
   private setAllTexturesNearest(): void {
-    // Iterate through all loaded textures and set to NEAREST
     Object.values(this.textures.list).forEach((texture) => {
       if (texture && typeof texture.setFilter === 'function') {
         texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
@@ -83,177 +109,123 @@ export class BootScene extends Phaser.Scene {
     });
   }
 
-  /**
-   * Create the loading bar UI
-   */
   private createLoadingBar(): void {
     const centerX = GAME_WIDTH / 2;
     const centerY = GAME_HEIGHT / 2;
 
-    // Background (204x16)
     const bgBar = this.add.rectangle(centerX, centerY - 20, 204, 16, 0x1e293b);
     bgBar.setStrokeStyle(1, 0x64748b);
 
-    // Fill bar (starts at 0 width)
-    this.loadingBarFill = this.add.rectangle(
-      centerX - 100,
-      centerY - 20,
-      0,
-      12,
-      0x3b82f6
-    );
+    this.loadingBarFill = this.add.rectangle(centerX - 100, centerY - 20, 0, 12, 0x3b82f6);
     this.loadingBarFill.setOrigin(0, 0.5);
 
-    // Loading text
-    this.loadingText = this.add.text(
-      centerX,
-      centerY + 15,
-      'Loading...',
-      {
+    this.loadingText = this.add
+      .text(centerX, centerY + 15, 'Loading...', {
         font: '8px monospace',
         color: '#94a3b8',
         align: 'center',
-      }
-    );
-    this.loadingText.setOrigin(0.5);
+      })
+      .setOrigin(0.5);
   }
 
-  /**
-   * Create placeholder textures for development
-   */
+  /** Stand-in textures for entities that have no art yet (NPCs, items, tiles). */
   private createPlaceholderTextures(): void {
-    // Player placeholder: 16x32 blue with yellow head
     this.createCharacterPlaceholder('player_placeholder', 0x3b82f6);
-
-    // NPC placeholder: 16x32 green with yellow head
     this.createCharacterPlaceholder('npc_placeholder', 0x22c55e);
-
-    // Item/Interactable placeholder: 16x16 yellow
     this.createItemPlaceholder('item_placeholder', 0xf59e0b);
 
-    // Tile placeholders: 16x16 with grid
     this.createTilePlaceholder('tile_floor', 0x94a3b8);
     this.createTilePlaceholder('tile_wall', 0x475569);
     this.createTilePlaceholder('tile_grass', 0x22c55e);
     this.createTilePlaceholder('tile_road', 0x64748b);
   }
 
-  /**
-   * Create a character placeholder: 32x48 rectangle with head, body, and legs
-   */
+  /** A 32×48 character silhouette: head, torso, two legs. */
   private createCharacterPlaceholder(key: string, bodyColor: number): void {
-    const gfx = this.add.graphics();
+    if (this.textures.exists(key)) return;
 
-    // Head: 16x12 yellow at top
+    const gfx = this.make.graphics({ x: 0, y: 0 }, false);
+
     gfx.fillStyle(0xfbbf24);
     gfx.fillRect(8, 0, 16, 12);
 
-    // Torso: 24x30
     gfx.fillStyle(bodyColor);
     gfx.fillRect(4, 6, 24, 30);
 
-    // Left leg: 8x12
     gfx.fillStyle(0x1e293b);
     gfx.fillRect(6, 36, 8, 12);
-
-    // Right leg: 8x12
     gfx.fillRect(18, 36, 8, 12);
 
-    gfx.generateTexture(key, 32, 48);
+    gfx.generateTexture(key, SPRITE_WIDTH, SPRITE_HEIGHT);
     gfx.destroy();
   }
 
-  /**
-   * Create an item placeholder: 32x32 square
-   */
   private createItemPlaceholder(key: string, color: number): void {
-    const gfx = this.add.graphics();
+    if (this.textures.exists(key)) return;
 
+    const gfx = this.make.graphics({ x: 0, y: 0 }, false);
     gfx.fillStyle(color);
     gfx.fillRect(0, 0, 32, 32);
-
     gfx.generateTexture(key, 32, 32);
     gfx.destroy();
   }
 
-  /**
-   * Create a tile placeholder: 32x32 square with subtle grid
-   */
   private createTilePlaceholder(key: string, color: number): void {
-    const gfx = this.add.graphics();
+    if (this.textures.exists(key)) return;
 
-    // Fill
+    const gfx = this.make.graphics({ x: 0, y: 0 }, false);
     gfx.fillStyle(color);
     gfx.fillRect(0, 0, 32, 32);
-
-    // Subtle grid line at 0.3 alpha
     gfx.lineStyle(1, 0x1e293b, 0.3);
     gfx.strokeRect(0, 0, 32, 32);
-
     gfx.generateTexture(key, 32, 32);
     gfx.destroy();
   }
 
   /**
-   * Create walk and idle animations for each direction
-   * Spritesheet layout: 64×128 = 4 cols × 4 rows
-   * Row 0 (frames 0-3): Walk Down, Row 1 (frames 4-7): Walk Left
-   * Row 2 (frames 8-11): Walk Right, Row 3 (frames 12-15): Walk Up
-   * Each row: [stride-left, idle, stride-right, idle-duplicate]
+   * Walk and idle animations for every loaded character sheet.
+   *
+   * Rows: 0 = down (frames 0-3), 1 = left (4-7), 2 = right (8-11), 3 = up
+   * (12-15). Each row runs [stride, idle, opposite stride, idle], so the
+   * middle frame doubles as that direction's idle pose.
+   *
+   * Keys are `<sheet>-walk-<dir>` and `<sheet>-idle-<dir>`, which is what
+   * Player and the ambient citizens look up — so a new sheet is animated
+   * without touching this method.
    */
-  private createIdleAnimations(): void {
-    // Walk animations (4 frames each at 8 fps = 0.5 sec per cycle)
-    this.anims.create({
-      key: 'player-walk-down',
-      frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
-      frameRate: 8,
-      repeat: -1,
-    });
+  private createCharacterAnimations(): void {
+    const rows: Array<{ dir: string; start: number }> = [
+      { dir: 'down', start: 0 },
+      { dir: 'left', start: 4 },
+      { dir: 'right', start: 8 },
+      { dir: 'up', start: 12 },
+    ];
 
-    this.anims.create({
-      key: 'player-walk-left',
-      frames: this.anims.generateFrameNumbers('player', { start: 4, end: 7 }),
-      frameRate: 8,
-      repeat: -1,
-    });
+    for (const sheet of Object.keys(SPRITE_URLS)) {
+      if (!this.textures.exists(sheet)) continue; // load failed; already reported
 
-    this.anims.create({
-      key: 'player-walk-right',
-      frames: this.anims.generateFrameNumbers('player', { start: 8, end: 11 }),
-      frameRate: 8,
-      repeat: -1,
-    });
+      for (const { dir, start } of rows) {
+        const walkKey = `${sheet}-walk-${dir}`;
+        if (!this.anims.exists(walkKey)) {
+          this.anims.create({
+            key: walkKey,
+            frames: this.anims.generateFrameNumbers(sheet, { start, end: start + 3 }),
+            frameRate: 8,
+            repeat: -1,
+          });
+        }
 
-    this.anims.create({
-      key: 'player-walk-up',
-      frames: this.anims.generateFrameNumbers('player', { start: 12, end: 15 }),
-      frameRate: 8,
-      repeat: -1,
-    });
-
-    // Idle animations (single frame: frame 1=down, 5=left, 9=right, 13=up)
-    this.anims.create({
-      key: 'player-idle-down',
-      frames: [{ key: 'player', frame: 1 }],
-      frameRate: 1,
-    });
-
-    this.anims.create({
-      key: 'player-idle-left',
-      frames: [{ key: 'player', frame: 5 }],
-      frameRate: 1,
-    });
-
-    this.anims.create({
-      key: 'player-idle-right',
-      frames: [{ key: 'player', frame: 9 }],
-      frameRate: 1,
-    });
-
-    this.anims.create({
-      key: 'player-idle-up',
-      frames: [{ key: 'player', frame: 13 }],
-      frameRate: 1,
-    });
+        const idleKey = `${sheet}-idle-${dir}`;
+        if (!this.anims.exists(idleKey)) {
+          this.anims.create({
+            key: idleKey,
+            frames: [{ key: sheet, frame: start + 1 }],
+            frameRate: 1,
+          });
+        }
+      }
+    }
   }
 }
+
+export default BootScene;
