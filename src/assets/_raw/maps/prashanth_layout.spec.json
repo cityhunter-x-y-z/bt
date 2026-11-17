@@ -1,0 +1,827 @@
+{
+  "$comment": "Source-pixel spec (1536x1024 render) → 36x24 tiles. Blocks trace where things MEET THE GROUND (gate bottoms, pole bases, bin, dog, cart wheels, table legs, scooters); air is never blocked. Occluders are what stands up in front of a character behind them (lamp, poles, canopies, gate pillars, cart). Main road x 0-110 runs the full height; lane y 470-645; Shanthamma's yard x 635-775 y 385-420 ends at the gate; bottom shops face south onto the front pavement y 940+, reached down the road and past the corner tree. Migrated to ADR-125: both house rows are `buildings`; poles, lamp, bin, cart, dog, trees, pillars, tables, drum, scooters and pots are sorted cut-outs with footprints; the lane's cables hang `above`. 4.3b (ADR-153): `raju_call`, the road behind the darshini — Raju's back window.",
+  "name": "prashanth_layout",
+  "cols": 36,
+  "rows": 24,
+  "units": "px",
+  "blocks": [],
+  "spawns": [
+    {
+      "name": "lane_mouth",
+      "x": 95,
+      "y": 540
+    },
+    {
+      "name": "gate10_out",
+      "x": 705,
+      "y": 450
+    },
+    {
+      "name": "gate_owner",
+      "x": 420,
+      "y": 442
+    },
+    {
+      "name": "neighbour",
+      "x": 552,
+      "y": 446
+    },
+    {
+      "name": "shanthamma",
+      "x": 835,
+      "y": 448
+    },
+    {
+      "name": "coliving_desk",
+      "x": 1270,
+      "y": 402
+    },
+    {
+      "name": "darshini",
+      "x": 325,
+      "y": 948
+    },
+    {
+      "name": "provision",
+      "x": 712,
+      "y": 948
+    },
+    {
+      "name": "auto_1",
+      "x": 55,
+      "y": 700
+    },
+    {
+      "name": "auto_2",
+      "x": 55,
+      "y": 790
+    },
+    {
+      "name": "auto_3",
+      "x": 55,
+      "y": 880
+    },
+    {
+      "name": "raju_shut",
+      "x": 300,
+      "y": 945
+    }
+  ],
+  "zones": [
+    {
+      "name": "main_road",
+      "x": 0,
+      "y": 0,
+      "w": 110,
+      "h": 40
+    },
+    {
+      "name": "lane_arrival",
+      "x": 0,
+      "y": 420,
+      "w": 240,
+      "h": 230
+    },
+    {
+      "name": "gate10",
+      "x": 640,
+      "y": 385,
+      "w": 130,
+      "h": 30
+    },
+    {
+      "name": "ambient_area",
+      "x": 150,
+      "y": 475,
+      "w": 1360,
+      "h": 120
+    },
+    {
+      "name": "auto_stand",
+      "x": 0,
+      "y": 930,
+      "w": 110,
+      "h": 94
+    },
+    {
+      "name": "raju_call",
+      "x": 330,
+      "y": 500,
+      "w": 100,
+      "h": 50
+    }
+  ],
+  "buildings": [
+    [
+      110,
+      0,
+      525,
+      420
+    ],
+    [
+      635,
+      0,
+      140,
+      385
+    ],
+    [
+      775,
+      0,
+      365,
+      420
+    ],
+    [
+      1140,
+      0,
+      240,
+      380
+    ],
+    [
+      1380,
+      0,
+      156,
+      420
+    ],
+    [
+      140,
+      645,
+      1396,
+      295
+    ]
+  ],
+  "sorted": [
+    {
+      "name": "lamp",
+      "rect": [
+        60,
+        245,
+        90,
+        210
+      ],
+      "base": 422,
+      "footprint": [
+        95,
+        400,
+        22,
+        22
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          0,
+          300,
+          70,
+          120
+        ],
+        [
+          82,
+          300,
+          26,
+          120
+        ],
+        [
+          145,
+          425,
+          100,
+          40
+        ]
+      ],
+      "bgShare": 0.03
+    },
+    {
+      "name": "pole_west",
+      "rect": [
+        150,
+        400,
+        60,
+        230
+      ],
+      "base": 627,
+      "footprint": [
+        168,
+        605,
+        22,
+        22
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          220,
+          535,
+          500,
+          60
+        ],
+        [
+          900,
+          535,
+          450,
+          60
+        ],
+        [
+          220,
+          425,
+          300,
+          18
+        ],
+        [
+          220,
+          600,
+          300,
+          40
+        ]
+      ],
+      "bgShare": 0.03
+    },
+    {
+      "name": "pole_mid",
+      "rect": [
+        755,
+        440,
+        60,
+        195
+      ],
+      "base": 632,
+      "footprint": [
+        772,
+        610,
+        24,
+        22
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          220,
+          535,
+          500,
+          60
+        ],
+        [
+          900,
+          535,
+          450,
+          60
+        ],
+        [
+          220,
+          425,
+          300,
+          18
+        ],
+        [
+          220,
+          600,
+          300,
+          40
+        ]
+      ],
+      "bgShare": 0.03
+    },
+    {
+      "name": "pole_east",
+      "rect": [
+        1450,
+        440,
+        55,
+        165
+      ],
+      "base": 603,
+      "footprint": [
+        1468,
+        580,
+        22,
+        24
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          900,
+          535,
+          450,
+          60
+        ],
+        [
+          900,
+          425,
+          300,
+          18
+        ]
+      ],
+      "bgShare": 0.03
+    },
+    {
+      "name": "bin",
+      "rect": [
+        186,
+        505,
+        56,
+        88
+      ],
+      "base": 590,
+      "footprint": [
+        192,
+        560,
+        44,
+        30
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          220,
+          535,
+          500,
+          60
+        ],
+        [
+          900,
+          535,
+          450,
+          60
+        ],
+        [
+          220,
+          425,
+          300,
+          18
+        ],
+        [
+          220,
+          600,
+          300,
+          40
+        ]
+      ],
+      "bgShare": 0.03
+    },
+    {
+      "name": "dog",
+      "rect": [
+        243,
+        540,
+        70,
+        45
+      ],
+      "base": 582,
+      "footprint": [
+        250,
+        555,
+        55,
+        25
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "cart",
+      "rect": [
+        318,
+        570,
+        175,
+        92
+      ],
+      "base": 660,
+      "footprint": [
+        325,
+        615,
+        165,
+        45
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          220,
+          535,
+          500,
+          60
+        ],
+        [
+          900,
+          535,
+          450,
+          60
+        ],
+        [
+          220,
+          425,
+          300,
+          18
+        ],
+        [
+          220,
+          600,
+          300,
+          40
+        ]
+      ],
+      "bgShare": 0.03
+    },
+    {
+      "name": "neem",
+      "rect": [
+        895,
+        555,
+        290,
+        95
+      ],
+      "base": 850,
+      "footprint": [
+        1010,
+        640,
+        60,
+        8
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          220,
+          535,
+          500,
+          60
+        ],
+        [
+          300,
+          520,
+          560,
+          30
+        ],
+        [
+          220,
+          600,
+          300,
+          40
+        ],
+        [
+          560,
+          600,
+          200,
+          40
+        ]
+      ],
+      "seeds": [
+        [
+          1040,
+          600
+        ],
+        [
+          960,
+          620
+        ],
+        [
+          1120,
+          620
+        ]
+      ]
+    },
+    {
+      "name": "banana",
+      "rect": [
+        1365,
+        545,
+        171,
+        105
+      ],
+      "base": 700,
+      "footprint": [
+        1430,
+        640,
+        60,
+        8
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          220,
+          535,
+          500,
+          60
+        ],
+        [
+          300,
+          520,
+          560,
+          30
+        ],
+        [
+          220,
+          600,
+          300,
+          40
+        ],
+        [
+          560,
+          600,
+          200,
+          40
+        ]
+      ],
+      "seeds": [
+        [
+          1440,
+          600
+        ],
+        [
+          1500,
+          620
+        ],
+        [
+          1400,
+          580
+        ]
+      ]
+    },
+    {
+      "name": "corner_tree",
+      "rect": [
+        18,
+        740,
+        118,
+        215
+      ],
+      "base": 975,
+      "footprint": [
+        60,
+        940,
+        40,
+        30
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          0,
+          600,
+          78,
+          130
+        ],
+        [
+          80,
+          600,
+          28,
+          140
+        ],
+        [
+          108,
+          600,
+          30,
+          140
+        ],
+        [
+          0,
+          960,
+          75,
+          64
+        ]
+      ],
+      "seeds": [
+        [
+          90,
+          850
+        ],
+        [
+          60,
+          800
+        ],
+        [
+          120,
+          820
+        ]
+      ]
+    },
+    {
+      "name": "pillar_left",
+      "rect": [
+        600,
+        268,
+        36,
+        154
+      ],
+      "base": 422,
+      "footprint": [
+        600,
+        385,
+        36,
+        37
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "pillar_right",
+      "rect": [
+        774,
+        265,
+        33,
+        157
+      ],
+      "base": 422,
+      "footprint": [
+        774,
+        385,
+        33,
+        37
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "corner_shrub",
+      "rect": [
+        118,
+        950,
+        105,
+        74
+      ],
+      "base": 1024,
+      "footprint": [
+        120,
+        990,
+        100,
+        30
+      ],
+      "mode": "key",
+      "bg": [
+        [
+          260,
+          985,
+          560,
+          39
+        ],
+        [
+          450,
+          945,
+          300,
+          25
+        ],
+        [
+          0,
+          960,
+          75,
+          64
+        ]
+      ],
+      "seeds": [
+        [
+          165,
+          1000
+        ],
+        [
+          150,
+          985
+        ],
+        [
+          190,
+          1010
+        ]
+      ]
+    },
+    {
+      "name": "table_1",
+      "rect": [
+        240,
+        878,
+        72,
+        88
+      ],
+      "base": 965,
+      "footprint": [
+        245,
+        935,
+        60,
+        30
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "table_2",
+      "rect": [
+        348,
+        878,
+        78,
+        88
+      ],
+      "base": 965,
+      "footprint": [
+        355,
+        935,
+        65,
+        30
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "drum",
+      "rect": [
+        425,
+        848,
+        62,
+        96
+      ],
+      "base": 942,
+      "footprint": [
+        430,
+        930,
+        52,
+        12
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "scooter_1",
+      "rect": [
+        1025,
+        848,
+        130,
+        118
+      ],
+      "base": 965,
+      "footprint": [
+        1030,
+        935,
+        120,
+        30
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "scooter_2",
+      "rect": [
+        1305,
+        848,
+        136,
+        118
+      ],
+      "base": 965,
+      "footprint": [
+        1312,
+        935,
+        125,
+        30
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "pot_coliving_1",
+      "rect": [
+        1145,
+        328,
+        60,
+        92
+      ],
+      "base": 415,
+      "footprint": [
+        1150,
+        370,
+        50,
+        45
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "pot_coliving_2",
+      "rect": [
+        1320,
+        328,
+        70,
+        92
+      ],
+      "base": 415,
+      "footprint": [
+        1325,
+        370,
+        60,
+        45
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "corner_plant",
+      "rect": [
+        1433,
+        868,
+        103,
+        112
+      ],
+      "base": 980,
+      "footprint": [
+        1440,
+        935,
+        96,
+        45
+      ],
+      "mode": "rect"
+    },
+    {
+      "name": "stand_board",
+      "rect": [
+        70,
+        900,
+        45,
+        80
+      ],
+      "base": 980,
+      "footprint": [
+        78,
+        945,
+        28,
+        35
+      ],
+      "mode": "rect"
+    }
+  ],
+  "above": []
+}

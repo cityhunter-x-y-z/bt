@@ -1,0 +1,107 @@
+{
+  "$comment": "Containers (Act 4 plan §3.9, ADR-149): what a place holds, found once (`looted:<id>`). A trigger opens `search:<id>`; what doesn't fit stays behind.",
+  "loot": {
+    "bench_kitchen": {
+      "label": "the kitchen shelf",
+      "items": {
+        "steel_tumbler": 1,
+        "cloth": 2,
+        "bottle": 1
+      }
+    },
+    "bench_drawer": {
+      "label": "the drawer",
+      "items": {
+        "flashlight": 1,
+        "batteries": 1
+      }
+    },
+    "bench_bag": {
+      "label": "a bag by the door",
+      "items": {
+        "food_packet": 2,
+        "water_bottle": 1,
+        "stones": 1,
+        "uv_led": 1
+      }
+    },
+    "hill_kitchen": {
+      "label": "what's left in the kitchen",
+      "items": {
+        "steel_tumbler": 1,
+        "bottle": 1,
+        "food_packet": 1
+      }
+    },
+    "hill_drawer": {
+      "label": "the drawer they missed",
+      "items": {
+        "flashlight": 1,
+        "cloth": 1
+      }
+    },
+    "hill_bag": {
+      "label": "your office bag, kicked under the shelf",
+      "items": {
+        "laptop": 1,
+        "water_bottle": 1
+      }
+    },
+    "hill_chai_store": {
+      "label": "Mani's store behind the stall",
+      "items": {
+        "steel_tumbler": 2,
+        "stones": 2
+      }
+    },
+    "ward4_cabinet": {
+      "label": "the end drawer of the nurses' desk: one strip of antivirals, the rest gone",
+      "items": {
+        "antivirals": 1
+      }
+    },
+    "cafe_kitchen": {
+      "label": "the tiffin room's kitchen",
+      "items": {
+        "bottle": 2,
+        "cloth": 2
+      }
+    },
+    "office_server": {
+      "label": "the server room behind the lobby: a printer still warm, one stack of AMR-07 telemetry from March",
+      "items": {
+        "amr07_log": 1
+      }
+    },
+    "hebbal_stores": {
+      "label": "the slot shop's stockroom, through the slot: one taped medical crate",
+      "items": {
+        "med_crate": 1
+      }
+    },
+    "majestic_kiosk": {
+      "label": "the depot kiosk behind the counter: a two-way radio",
+      "items": {
+        "radio_set": 1
+      }
+    },
+    "digital_cores": {
+      "label": "the Reliable Digital service counter, behind a broken shutter: four battery cores",
+      "items": {
+        "battery_cores": 1
+      }
+    },
+    "hivr_emitter": {
+      "label": "the steriliser over the glove station: its tube and driver board",
+      "items": {
+        "uv_emitter_parts": 1
+      }
+    },
+    "krishnamurthy_house": {
+      "label": "Dr. Krishnamurthy's study, off the verandah: a hard drive labelled in pencil",
+      "items": {
+        "calibration_data": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "card_leaving_ward",
+  "$comment": "Story 3.5 F4 (ADR-143) → 4.0 (ADR-148): out of Ward 4, Act 3 ends and Act 4 begins at the hospital gate (sets `act4`: Act 4 day 0).",
+  "panels": [
+    {
+      "title": "HEBBAL GENERAL · 08:20",
+      "text": "The corridor. The stairs. A guard at the bottom who doesn't look up from his phone.",
+      "ms": 4600
+    },
+    {
+      "title": "HEBBAL GENERAL · THE GATE",
+      "text": "The glass doors. The heat. No autos at the gate. Nobody waiting for anybody.",
+      "ms": 4600,
+      "setFlags": [
+        "act3_done"
+      ]
+    },
+    {
+      "style": "title",
+      "title": "CURFEW",
+      "text": "ACT 4",
+      "cue": "a.sting.turn",
+      "setFlags": [
+        "act4",
+        "janata_out"
+      ]
+    }
+  ],
+  "then": {
+    "district": "hebbal_gate",
+    "spawn": "hospital_steps",
+    "minute": 510
+  }
+}

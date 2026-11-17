@@ -1,6 +1,9 @@
+import { carryRefuses } from './carry';
+import { InventoryManager } from './InventoryManager';
 import { gameEvents } from '../core/events';
 import { DIALOGUE_ENTRY_NODE, getDialogue } from '../data';
 import { StatsManager } from './StatsManager';
+import { NegotiationManager, type Negotiation } from './NegotiationManager';
 import { useGameStore } from '../store';
 import { SKILL_TIER_NAMES } from '../utils/constants';
 import type {
@@ -32,6 +35,8 @@ export interface DialogueView {
   canAdvance: boolean;
   /** True when this node ends the conversation. */
   isEnd: boolean;
+  /** The bill under negotiation ("Deposit ₹10,000 + Rent ₹8,000 = ₹18,000"), drawn apart from the line. */
+  ledger?: string;
 }
 
 const SKILL_LABELS: Record<string, string> = {
@@ -61,6 +66,8 @@ export class DialogueManager {
   private file: DialogueFile | null = null;
   private nodeId: string | null = null;
   private questTriggers: string[] = [];
+  /** A haggle running inside the current node (ADR-95). */
+  private negotiation: Negotiation | null = null;
 
   get isActive(): boolean {
     return this.file !== null;
@@ -73,15 +80,21 @@ export class DialogueManager {
 
   /** Begin a conversation. Applies the entry node's effect, if any. */
   start(dialogueId: string): DialogueView {
-    this.file = getDialogue(dialogueId);
+    const st = useGameStore.getState();
+    this.file = getDialogue(dialogueId, st.counters, { inventory: st.inventory, flags: st.flags });
     this.questTriggers = [];
+    this.negotiation = null;
 
-    const entry = this.file.nodes[DIALOGUE_ENTRY_NODE];
+    // NPCs remember: the first `enter` branch whose flag is set picks the
+    // opening node (the owner who already took your token, ADR-96).
+    const { flags } = useGameStore.getState();
+    const entryId = this.file.enter?.find((b) => flags[b.flag])?.node ?? DIALOGUE_ENTRY_NODE;
+    const entry = this.file.nodes[entryId];
     if (!entry) {
-      throw new Error(`Dialogue "${dialogueId}" has no "${DIALOGUE_ENTRY_NODE}" node`);
+      throw new Error(`Dialogue "${dialogueId}" has no "${entryId}" node`);
     }
 
-    this.nodeId = DIALOGUE_ENTRY_NODE;
+    this.nodeId = entryId;
     gameEvents.emit('dialogue:started', { dialogueId });
     this.applyNode(entry);
     return this.view();
@@ -93,10 +106,22 @@ export class DialogueManager {
    */
   choose(index: number): DialogueView {
     const node = this.requireNode();
+
+    if (this.negotiation) {
+      const option = this.negotiation.options()[index];
+      if (!option) throw new Error(`Negotiation option ${index} does not exist`);
+      if (!option.enabled) throw new Error(`Negotiation option ${index} is locked`);
+      const outcome = this.negotiation.choose(index);
+      if (!outcome) return this.view();
+      this.negotiation = null;
+      return this.goTo(outcome === 'deal' ? node.negotiate!.deal : node.negotiate!.walk);
+    }
+
     const choice = node.choices?.[index];
     if (!choice) throw new Error(`Choice ${index} does not exist on node "${this.nodeId}"`);
 
-    if (!this.meetsRequirement(choice.requires)) {
+    const cost = choice.effect?.wallet !== undefined && choice.effect.wallet < 0 ? -choice.effect.wallet : 0;
+    if (!this.meetsRequirement(choice.requires) || !StatsManager.getInstance().canAfford(cost) || this.flagLock(choice)) {
       throw new Error(`Choice ${index} on node "${this.nodeId}" is locked`);
     }
 
@@ -123,6 +148,7 @@ export class DialogueManager {
     this.file = null;
     this.nodeId = null;
     this.questTriggers = [];
+    this.negotiation = null;
     gameEvents.emit('dialogue:ended', result);
     return result;
   }
@@ -132,13 +158,43 @@ export class DialogueManager {
     const file = this.requireFile();
     const node = this.requireNode();
 
+    if (this.negotiation) {
+      const neg = this.negotiation;
+      return {
+        dialogueId: file.id,
+        nodeId: this.nodeId!,
+        speaker: file.speaker,
+        portrait: file.portrait,
+        portraitExpression: node.portrait_expression ?? 0,
+        text: neg.line ?? node.text,
+        choices: neg.options().map((o, index) => ({
+          index,
+          text: o.text,
+          enabled: o.enabled,
+          ...(o.lockedReason ? { lockedReason: o.lockedReason } : {}),
+        })),
+        canAdvance: false,
+        isEnd: false,
+        ledger: neg.ledger,
+      };
+    }
+
     const choices = (node.choices ?? []).map((choice, index) => {
-      const enabled = this.meetsRequirement(choice.requires);
+      // A choice can be locked by a skill tier or by the wallet. Both are
+      // shown greyed with the reason — the player sees what they are missing.
+      const skillOk = this.meetsRequirement(choice.requires);
+      const cost = choice.effect?.wallet !== undefined && choice.effect.wallet < 0 ? -choice.effect.wallet : 0;
+      const walletOk = cost === 0 || StatsManager.getInstance().canAfford(cost);
+      const flagLock = this.flagLock(choice);
+      const enabled = skillOk && walletOk && !flagLock;
+      const lockedReason = !skillOk
+        ? this.describeRequirement(choice.requires!)
+        : flagLock ?? (!walletOk ? `Needs ₹${cost.toLocaleString('en-IN')}` : undefined);
       return {
         index,
         text: choice.text,
         enabled,
-        ...(enabled ? {} : { lockedReason: this.describeRequirement(choice.requires!) }),
+        ...(enabled ? {} : { lockedReason }),
       } satisfies DialogueChoiceView;
     });
 
@@ -169,13 +225,31 @@ export class DialogueManager {
 
   private applyNode(node: DialogueNode): void {
     this.applyEffects(node);
+    if (node.negotiate) this.negotiation = NegotiationManager.begin(node.negotiate.id);
   }
 
   private applyEffects(source: DialogueNode | DialogueChoice): void {
-    if (source.effect) StatsManager.getInstance().applyEffect(source.effect);
+    // The speaker is who the money went to on the UPI ledger ("Chai Anna").
+    if (source.effect) StatsManager.getInstance().applyEffect(source.effect, this.file?.speaker);
     if (source.quest_trigger && !this.questTriggers.includes(source.quest_trigger)) {
       this.questTriggers.push(source.quest_trigger);
     }
+  }
+
+  /** A flag- or carry-locked choice's reason (ADR-132), or null when it is open. */
+  private flagLock(choice: DialogueChoice): string | null {
+    const flags = useGameStore.getState().flags;
+    if (choice.unlessFlag && flags[choice.unlessFlag]) return choice.lockedText ?? 'Done';
+    if (choice.requiresFlag && !flags[choice.requiresFlag]) return choice.lockedText ?? 'Not yet';
+    if (choice.effect?.carry && carryRefuses(choice.effect.carry)) return 'Not enough space';
+    // A recipe's ingredients, a trade's price (ADR-149): locked unless you carry them.
+    if (choice.requiresItems) {
+      const inv = InventoryManager.getInstance();
+      if (Object.entries(choice.requiresItems).some(([id, n]) => inv.count(id) < n)) return choice.lockedText ?? 'Not carried';
+    }
+    // Act 4's 8 slots (ADR-151): a swap that would not fit is shown locked, never half done.
+    if (choice.effect?.items_add && !InventoryManager.getInstance().fits(choice.effect.items_add, choice.effect.items_remove)) return 'No room in the bag';
+    return null;
   }
 
   private meetsRequirement(requires?: SkillRequirement): boolean {

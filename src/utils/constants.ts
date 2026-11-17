@@ -1,4 +1,4 @@
-// Game-wide constants. Ported from the Namma Quest v1.0 spec (docs/AI_CONTEXT.md,
+// Game-wide constants. Ported from the Bangalore Times v1.0 spec (docs/AI_CONTEXT.md,
 // TECH_STACK.md) so this package and the reference repo agree on the numbers.
 
 // --- Rendering -------------------------------------------------------------
@@ -11,6 +11,9 @@ export const TILE_SIZE = 32; // 20 tiles wide × 11.25 tall visible
 // Character sprites are one tile wide and one and a half tall.
 export const SPRITE_WIDTH = 32;
 export const SPRITE_HEIGHT = 48;
+/** The one large character class (ADR-159): the Host's sheets (`inf_host*`) are 48×64 frames. */
+export const LARGE_SHEET = /^inf_host/;
+export const LARGE_FRAME = Object.freeze({ w: 48, h: 64 });
 
 // --- Movement --------------------------------------------------------------
 export const PLAYER_SPEED = 120; // pixels/second
@@ -18,6 +21,18 @@ export const PLAYER_RUN_SPEED = 190; // pixels/second (SHIFT)
 
 export const CAMERA_DEADZONE_X = 160;
 export const CAMERA_DEADZONE_Y = 100;
+
+// --- World -----------------------------------------------------------------
+/** Where a new run begins. Every district must be reachable from here. */
+export const START_DISTRICT = 'airport';
+/** Area-transition fade (design system §7). */
+export const FADE_MS = 400;
+/** How long a transit card stays up before continuing on its own. */
+export const TRANSIT_CARD_MS = 1800;
+/** A point zone in Tiled becomes a square this many tiles across. */
+export const ZONE_DEFAULT_TILES = 3;
+/** Reach for E-to-interact, in px — 2.25 tiles, enough to talk across a counter. */
+export const INTERACT_RANGE_PX = 72;
 
 // --- Whitefield sandbox (MVP 1) --------------------------------------------
 // Sized in tiles so the world stays on the 32px grid.
@@ -32,12 +47,141 @@ export const BOT_SPEED_MAX = 70;
 export const BOT_TURN_INTERVAL_MIN = 1000; // ms
 export const BOT_TURN_INTERVAL_MAX = 3000; // ms
 
-// --- Stats and resources ---------------------------------------------------
-export const MAX_ENERGY = 100;
-export const MAX_STRESS = 100;
-export const STARTING_MONEY = 5000; // ₹
-export const STARTING_ENERGY = 70;
-export const STARTING_STRESS = 20;
+// --- Stats and resources (profile doc §2, ADR-17) --------------------------
+export const STARTING_WALLET = 35_000; // ₹
+export const STARTING_HEALTH = 100;
+export const STARTING_FOOD = 100;
+export const STARTING_STRESS = 0;
+export const STARTING_BATTERY = 100;
+export const STARTING_STAMINA = 3;
+export const STAMINA_MAX = 8;
+/** Inclusive bounds every adjustable stat is clamped to. */
+export const STAT_BOUNDS = {
+  health: [0, 100],
+  food: [0, 100],
+  stress: [0, 100],
+  battery: [0, 100],
+  stamina: [STARTING_STAMINA, STAMINA_MAX],
+} as const;
+
+// --- Time (game_components §11, profile doc §3) ---------------------------
+/** Real ms per in-game minute while walking around: an hour passes in 2 real minutes. */
+export const GAME_MINUTE_MS = 2000;
+export const MINUTES_PER_DAY = 24 * 60;
+/** Mornings start here after a sleep. */
+export const WAKE_MINUTE = 7 * 60;
+/** Sleep: +30 health, food back up to 70 (Acts 1–3 table). */
+export const SLEEP_HEALTH = 30;
+export const SLEEP_FOOD_RESET = 70;
+/** The company pays for this many hotel nights (story 0.2). */
+export const HOTEL_NIGHTS = 3;
+/** After the company's nights, the receptionist's rate (dlg_hotel_reception). */
+export const HOTEL_EXTRA_NIGHT = 1800;
+
+// --- Office (story 1.1 / 1.3; ADR-120) --------------------------------------
+/** Divya said 9:30. Clock in later than this on the first day and it is noticed. */
+export const OFFICE_START_MINUTE = 9 * 60 + 30;
+/** The workday skip lands here, same day. */
+export const OFFICE_END_MINUTE = 18 * 60;
+/** A workday costs this much food (canteen lunch implied) instead of the awake drain. */
+export const WORKDAY_FOOD_COST = 20;
+/** First day nerves. */
+export const FIRST_DAY_STRESS = 5;
+/** Walking in late on day one. */
+export const LATE_STRESS = 10;
+/** Shanthamma's notice period, in nights (story 1.3). */
+export const PG_NOTICE_DAYS = 7;
+/** Folding table + chair from the lane shop (story 1.3). */
+export const FURNITURE_PRICE = 1800;
+/** What the meter would read Whitefield lane → office (story 1.1 autos). */
+export const AUTO_METER_FARE = 80;
+
+// --- Hill flat (story 1.4; ADR-122) -----------------------------------------
+/** Days from signing the flat to the first salary ping (story 1.4 F3). */
+export const SALARY_DAYS = 12;
+/** First month in hand, ₹ — a fresher's Bengaluru salary (my call, ADR-122; the user may retune). */
+export const SALARY = 42_000;
+/** Steel cot with mattress at the hill furniture shop. */
+export const COT_PRICE = 4_500;
+/** Induction stove at the hill furniture shop. */
+export const STOVE_PRICE = 2_200;
+
+// Story 1.5 / 1.6 (ADR-123): the bus to town, Cubbon Park.
+/** BMTC 500-D fare, ₹ (story: ₹35 UPI/cash). */
+export const BUS_500D_FARE = 35;
+/** Seconds between 500-D arrivals at the Whitefield stop (story: "every 90 s"). */
+export const BUS_EVERY_S = 90;
+/** Seconds the bus waits at the stop before leaving. */
+export const BUS_DWELL_S = 20;
+/** Seconds the bus-interior ride lasts (story: "25-s ride"). */
+export const RIDE_SECONDS = 25;
+/** The cycle rental's hourly fee, ₹ — what Ananya cannot pay (story 1.6 F2). */
+export const CYCLE_FEE = 60;
+/** The Church Street guitar, ₹ (story 1.6 F4). */
+export const GUITAR_PRICE = 6_500;
+
+// Story 2.1 "Credited" (ADR-126): the scooter, the EMI, the fuel.
+/** Nights between salaries after the first (the routine). */
+export const PAYDAY_DAYS = 30;
+/** Noor's sticker price for the second-hand scooter, ₹ (floor in neg_scooter). */
+export const SCOOTER_PRICE = 38_000;
+/** EMI: down payment, instalment on each salary day, number of instalments. */
+export const EMI_DOWN = 6_000;
+export const EMI_INSTALMENT = 3_200;
+export const EMI_MONTHS = 10;
+/** Fuel gauge 0–100; a full tank is about three Whitefield ↔ Indiranagar round trips (≈ 60 km). */
+export const FUEL_TANK = 100;
+export const FUEL_PER_KM = 100 / 60;
+/** A full tank at the bunk, ₹; a ₹100 top-up adds FUEL_TOPUP points. */
+export const FUEL_FULL_PRICE = 350;
+export const FUEL_TOPUP_PRICE = 100;
+export const FUEL_TOPUP = 30;
+/** Scooter: game minutes per km (about 24 km/h through Whitefield traffic). */
+export const SCOOTER_MINUTES_PER_KM = 2.5;
+
+// ── The metro (story 2.2, ADR-115/127) ──────────────────────────────────────
+/** Namma Metro's fare: ₹10 + ₹2/km, rounded up to ₹5, capped. */
+export const METRO_FARE_BASE = 10;
+export const METRO_FARE_PER_KM = 2;
+export const METRO_FARE_CAP = 60;
+/** Game minutes Whitefield ↔ Cubbon Park takes on the train. */
+export const METRO_RIDE_MINUTES = 40;
+
+// --- Food (profile doc §2, components §7; ADR-97) --------------------------
+/**
+ * Game minutes per food point while awake. 6 → a full meter lasts ten game
+ * hours (~20 real minutes): two or three meals a day, like Stardew. The
+ * profile doc's "−1 per game-minute" would empty it in 3 real minutes at
+ * ADR-91's clock — see ADR-97.
+ */
+export const FOOD_MINUTES_PER_POINT = 6;
+/** Below this the player is hungry: a toast once, and walking slows. */
+export const HUNGRY_AT = 25;
+/** Walk/run speed multiplier while hungry ("low food = slower walk"). */
+export const HUNGRY_SPEED = 0.8;
+
+// --- Negotiation (ADR-22, ADR-95) ------------------------------------------
+/**
+ * How each temperament answers each kind of argument: the share of the gap
+ * between their price and your offer that they give up, and how much
+ * patience the argument costs. `walk` is what happens when you get up to
+ * leave. One table, every haggle in the game.
+ *
+ * - warm (Shanthamma): moved by a real reason, insulted by a lowball, lets you go.
+ * - firm (the gate owner, autos later): moves on comparisons, calls you back once.
+ * - slick (sales desks): starts high, drops fast, drops to the floor when you leave.
+ */
+export const TEMPERAMENTS = {
+  warm: { give: { reason: 0.6, compare: 0.3, lowball: 0 }, cost: { reason: 1, compare: 1, lowball: 2 }, walk: 'stay' },
+  firm: { give: { reason: 0.25, compare: 0.5, lowball: 0.15 }, cost: { reason: 1, compare: 1, lowball: 1 }, walk: 'callback' },
+  slick: { give: { reason: 0.15, compare: 0.4, lowball: 0.5 }, cost: { reason: 1, compare: 1, lowball: 1 }, walk: 'drop' },
+} as const;
+/** Local standing (reputation in the NPC's district) adds this much give per point… */
+export const NEGOTIATION_REP_GIVE = 0.015;
+/** …up to this cap. */
+export const NEGOTIATION_REP_CAP = 0.15;
+/** Prices move in steps of ₹100 — nobody says ₹6,437. */
+export const NEGOTIATION_STEP = 100;
 
 // --- Skill system ----------------------------------------------------------
 export const SKILL_XP_THRESHOLDS = [0, 100, 300, 600, 1000]; // 5 tiers (0-indexed)
@@ -88,42 +232,34 @@ export const NPC_TIERS = [1, 2, 3] as const;
 // --- Scene registry --------------------------------------------------------
 // Scenes that exist today are wired up in PhaserGame; the rest are declared so
 // transitions can be written against a stable key before the scene lands.
+// Places are NOT scenes: every district renders through WORLD (ADR-15).
 export const SCENE_KEYS = Object.freeze({
   BOOT: 'BootScene',
   TITLE: 'TitleScene',
   CHARACTER_SELECT: 'CharacterSelectScene',
-  AIRPORT: 'AirportScene',
-  WHITEFIELD: 'WhitefieldScene',
-  PG: 'PGScene',
-  NEIGHBORHOOD: 'NeighborhoodScene',
-  INTERVIEW: 'InterviewScene',
+  WORLD: 'WorldScene',
+  /** The grade's screen edges (ADR-144): just above the world, so the world's colour drain never greys them; below everything else. Launched by `stabilityLook`. */
+  GRADE: 'GradeScene',
+  TRANSIT: 'TransitScene',
+  /** Runs above WorldScene: the closed phone button, and the phone overlay (ADR-114). */
+  PHONE: 'PhoneScene',
+  /** The fullscreen map (ADR-113): M, the phone's Maps app, Pause → Map. */
+  MAP: 'MapScene',
+  /** The in-canvas HUD (P6c, ADR-118): plates, prompt bubble, toasts, dialogue box, touch controls. Launched by WorldScene. */
+  HUD: 'HudScene',
+  /** Pause / Settings / Save / Load / About (P6d, ADR-119). Started by Boot, never stopped; opens over the world or the title. */
+  MENU: 'MenuScene',
+  /** The workday skyline time-lapse (story 1.1 F4, ADR-121), shown inside the office door's fade. */
+  WORKDAY: 'WorkdayScene',
+  /** The guitar's rhythm lane (story 2.3, ADR-131), launched over the flat by a `rhythm` trigger. */
+  RHYTHM: 'RhythmScene',
+  /** Card sequences (story 3.1, ADR-136): text panels over a still — a day off-screen, a told ride, an act title. */
+  CARD: 'CardScene',
+  /** The "My Bangalore" end card (story 4.6, ADR-158): the run in numbers, SHARE, then the title. */
+  MY_BANGALORE: 'MyBangaloreScene',
+  /** "Rotate your phone" over everything while a touch device is held in portrait (mobile foundation rule 4). */
+  ORIENTATION: 'OrientationScene',
 });
-
-// --- Player backgrounds ----------------------------------------------------
-export const PLAYER_BACKGROUNDS = {
-  architecture: {
-    label: 'Architecture Graduate',
-    description: 'Trained in spatial design and visual thinking',
-    statBonuses: { creativity: 2, spatial_awareness: 1 },
-  },
-  engineering: {
-    label: 'Engineering/Tech Graduate',
-    description: 'Strong in problem-solving and logic',
-    statBonuses: { technical: 2, logic: 1 },
-  },
-  design: {
-    label: 'Design/Creative Graduate',
-    description: 'Expert in visual communication',
-    statBonuses: { creativity: 2, communication: 1 },
-  },
-  commerce: {
-    label: 'Commerce/Business Graduate',
-    description: 'Skilled in negotiation and finance',
-    statBonuses: { negotiation: 2, finance: 1 },
-  },
-} as const;
-
-export type PlayerBackground = keyof typeof PLAYER_BACKGROUNDS;
 
 // --- Depth layers ----------------------------------------------------------
 export const DEPTH = {
@@ -132,22 +268,79 @@ export const DEPTH = {
   OBJECTS: 2,
   ENTITIES: 3,
   ABOVE_PLAYER: 10,
+  EFFECTS: 11,
+  FOREGROUND: 12,
   UI: 100,
   DIALOGUE: 200,
 } as const;
 
+/**
+ * The render model (ADR-125): the seven layers every map has, in draw order.
+ * Tile layers draw at a fixed depth; `sorted` is the Y-sort band (an object
+ * layer: everything that stands on the ground, depth = feet Y); `props_above`
+ * hangs over the street; `collision` is invisible; `fx` tints and weather.
+ */
+export const LAYERS = Object.freeze({
+  ground: 'ground',
+  groundDetail: 'ground_detail',
+  buildings: 'buildings',
+  sorted: 'sorted',
+  propsAbove: 'props_above',
+  collision: 'collision',
+  fx: 'fx',
+  /** Spawn points and zones (an object layer outside the draw order). */
+  spawns: 'spawns',
+});
+
+/**
+ * Draw depth per layer name in maps.manifest.json#layerOrder. WorldScene never
+ * names a layer itself — it walks layerOrder and looks the depth up here. The
+ * sorted band lives between DEPTH.ENTITIES and DEPTH.ENTITIES + 1 (core/depth.ts).
+ */
+export const LAYER_DEPTH: Record<string, number> = {
+  [LAYERS.ground]: DEPTH.GROUND,
+  [LAYERS.groundDetail]: DEPTH.WALLS,
+  [LAYERS.buildings]: DEPTH.OBJECTS,
+  [LAYERS.sorted]: DEPTH.ENTITIES,
+  [LAYERS.collision]: DEPTH.OBJECTS, // hidden stencil; depth is irrelevant but must exist
+  [LAYERS.propsAbove]: DEPTH.ABOVE_PLAYER,
+  [LAYERS.fx]: DEPTH.EFFECTS,
+};
+
+/**
+ * The feet box (ADR-125, design-system token): the only part of a 32×48
+ * character that collides — 20×12 px at the bottom of the frame. The head may
+ * overlap a wall behind; that is correct 3/4 depth. Player, NPCs, crowd and
+ * vehicles all use it.
+ */
+export const FEET_BOX = Object.freeze({ w: 20, h: 12, offsetX: 6, offsetY: 35 });
+
 // --- Defaults --------------------------------------------------------------
 export const DEFAULT_PLAYER_NAME = 'You';
-export const DEFAULT_HOME_STATE = 'Other';
 export const DEFAULT_DIRECTION = 'down';
+/** Sheet used before character creation has run (= defaultProfile()). */
+export const DEFAULT_PLAYER_SHEET = 'player_m_3';
 
 // Save format version, bumped when SaveData changes shape.
-export const SAVE_VERSION = '1.1.0';
+// 1.2.0: position is a district id + x/y, not a scene class name; appearance added.
+// 1.3.0: player.profile replaces name/background/homeState (P2 character creation).
+// 1.4.0: stats are health/wallet/social/stamina/food/stress/battery; `met` ledger added.
+// 1.5.0: clock + counters (TimeSystem, behaviours).
+// 1.6.0: UPI ledger (transactions), phone delivered/read, real playtime; slots via platform.saves.
+export const SAVE_VERSION = '1.7.0';
 
 /**
  * Older formats that can be upgraded forward rather than discarded. Refusing a
  * save is correct when its shape is unknown; throwing away a player's run
  * because a field was added is not.
  */
-export const MIGRATABLE_SAVE_VERSIONS = ['1.0.0'] as const;
-export const SAVE_KEY = 'namma-quest:save';
+export const MIGRATABLE_SAVE_VERSIONS = ['1.0.0', '1.1.0', '1.2.0', '1.3.0', '1.4.0', '1.5.0', '1.6.0'] as const;
+
+/** Scene class names that pre-1.2.0 saves recorded, mapped to the district they meant. */
+export const LEGACY_SCENE_DISTRICTS: Record<string, string> = {
+  AirportScene: 'airport',
+  WhitefieldScene: 'whitefield_street',
+};
+export const SAVE_KEY = 'bangalore-times:save';
+/** Save slots (settings_and_saveload §2): one autosave + three manual. */
+export const SAVE_SLOTS = ['autosave', 'slot1', 'slot2', 'slot3'] as const;

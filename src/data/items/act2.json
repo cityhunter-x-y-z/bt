@@ -1,0 +1,21 @@
+[
+  {
+    "id": "guitar",
+    "name": "Acoustic guitar",
+    "description": "Spruce top, decent tuners. Six-five, no bargaining. Loud enough to annoy a neighbour — or anything else that listens.",
+    "icon": "item_placeholder",
+    "type": "key_item",
+    "stackable": false,
+    "act4_value": 0,
+    "tradeable": false
+  },
+  {
+    "id": "chord_chart",
+    "name": "Chord chart + pick",
+    "description": "Thrown in by the shop. G, C and D circled in pen.",
+    "icon": "item_placeholder",
+    "type": "key_item",
+    "stackable": false,
+    "act4_value": 0
+  }
+]

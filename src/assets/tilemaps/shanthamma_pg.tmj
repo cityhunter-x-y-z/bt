@@ -1,0 +1,1041 @@
+{
+ "compressionlevel": -1,
+ "height": 7,
+ "infinite": false,
+ "layers": [
+  {
+   "data": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70
+   ],
+   "height": 7,
+   "id": 1,
+   "name": "ground",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 10,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "height": 7,
+   "id": 2,
+   "name": "ground_detail",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 10,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "height": 7,
+   "id": 3,
+   "name": "buildings",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 10,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 4,
+   "name": "sorted",
+   "objects": [
+    {
+     "id": 12,
+     "name": "cot_left_top",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 8,
+     "y": 53,
+     "width": 44,
+     "height": 77,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__cot_left_top"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 129
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 8
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 55
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 73
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "name": "cot_left_bottom",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 8,
+     "y": 130,
+     "width": 44,
+     "height": 86,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__cot_left_bottom"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 215
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 8
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 131
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 84
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "name": "almirah",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 68,
+     "y": 5,
+     "width": 37,
+     "height": 72,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__almirah"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 77
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 69
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 54
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 36
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 22
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "name": "cot_top",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 110,
+     "y": 45,
+     "width": 81,
+     "height": 47,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__cot_top"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 92
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 110
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 54
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 81
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 38
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "name": "desk",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 195,
+     "y": 53,
+     "width": 43,
+     "height": 43,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__desk"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 95
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 196
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 54
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 41
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 41
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "name": "chair",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 205,
+     "y": 71,
+     "width": 24,
+     "height": 35,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__chair"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 106
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 206
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 95
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 22
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 11
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "name": "buckets",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 219,
+     "y": 167,
+     "width": 23,
+     "height": 30,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__buckets"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 197
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 220
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 173
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 21
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 24
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "name": "purifier_stand",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 293,
+     "y": 3,
+     "width": 21,
+     "height": 72,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__purifier_stand"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 75
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 293
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 34
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 21
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 41
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "name": "shoe_rack",
+     "type": "cutout",
+     "rotation": 0,
+     "visible": true,
+     "x": 292,
+     "y": 84,
+     "width": 22,
+     "height": 56,
+     "properties": [
+      {
+       "name": "image",
+       "type": "string",
+       "value": "shanthamma_pg__shoe_rack"
+      },
+      {
+       "name": "baseY",
+       "type": "int",
+       "value": 140
+      },
+      {
+       "name": "footX",
+       "type": "int",
+       "value": 293
+      },
+      {
+       "name": "footY",
+       "type": "int",
+       "value": 84
+      },
+      {
+       "name": "footW",
+       "type": "int",
+       "value": 21
+      },
+      {
+       "name": "footH",
+       "type": "int",
+       "value": 56
+      }
+     ]
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "height": 7,
+   "id": 5,
+   "name": "props_above",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 10,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 6,
+   "name": "collision",
+   "objects": [
+    {
+     "id": 5,
+     "name": "",
+     "type": "building",
+     "rotation": 0,
+     "visible": true,
+     "x": 0,
+     "y": 0,
+     "width": 246,
+     "height": 54,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "building"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "",
+     "type": "building",
+     "rotation": 0,
+     "visible": true,
+     "x": 246,
+     "y": 0,
+     "width": 74,
+     "height": 34,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "building"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "",
+     "type": "building",
+     "rotation": 0,
+     "visible": true,
+     "x": 0,
+     "y": 0,
+     "width": 8,
+     "height": 224,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "building"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "",
+     "type": "building",
+     "rotation": 0,
+     "visible": true,
+     "x": 313,
+     "y": 0,
+     "width": 7,
+     "height": 224,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "building"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "",
+     "type": "building",
+     "rotation": 0,
+     "visible": true,
+     "x": 245,
+     "y": 0,
+     "width": 9,
+     "height": 90,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "building"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "",
+     "type": "building",
+     "rotation": 0,
+     "visible": true,
+     "x": 243,
+     "y": 137,
+     "width": 11,
+     "height": 87,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "building"
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "name": "",
+     "type": "building",
+     "rotation": 0,
+     "visible": true,
+     "x": 253,
+     "y": 0,
+     "width": 14,
+     "height": 72,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "building"
+      }
+     ]
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": false,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "height": 7,
+   "id": 7,
+   "name": "fx",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 10,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 8,
+   "name": "spawns",
+   "objects": [
+    {
+     "id": 1,
+     "name": "door",
+     "point": true,
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "x": 277,
+     "y": 145,
+     "width": 0,
+     "height": 0
+    },
+    {
+     "id": 2,
+     "name": "exit",
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "x": 259,
+     "y": 175,
+     "width": 54,
+     "height": 49
+    },
+    {
+     "id": 3,
+     "name": "doorway",
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "x": 242,
+     "y": 91,
+     "width": 14,
+     "height": 46
+    },
+    {
+     "id": 4,
+     "name": "bed",
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "x": 125,
+     "y": 92,
+     "width": 52,
+     "height": 13
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  }
+ ],
+ "nextlayerid": 9,
+ "nextobjectid": 21,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.11.0",
+ "tileheight": 32,
+ "tilewidth": 32,
+ "type": "map",
+ "version": "1.10",
+ "width": 10,
+ "tilesets": [
+  {
+   "columns": 8,
+   "firstgid": 1,
+   "image": "../tilesets/shanthamma_pg.png",
+   "imageheight": 288,
+   "imagewidth": 256,
+   "margin": 0,
+   "name": "shanthamma_pg",
+   "spacing": 0,
+   "tilecount": 70,
+   "tileheight": 32,
+   "tilewidth": 32
+  }
+ ]
+}

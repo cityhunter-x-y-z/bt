@@ -1,0 +1,35 @@
+{
+  "id": "dlg_office_guard",
+  "speaker": "Security Guard",
+  "portrait": "npc_placeholder",
+  "enter": [
+    {
+      "flag": "ravi_decided",
+      "node": "badge"
+    },
+    {
+      "flag": "ravi_called",
+      "node": "night"
+    },
+    {
+      "flag": "id_card_issued",
+      "node": "badge"
+    }
+  ],
+  "nodes": {
+    "start": {
+      "text": "New joinee? No ID, no entry — rule is rule. Admin block, left side, ground floor. Ask for Prakash sir. Tell him I sent you — he will still make you wait.",
+      "effect": {
+        "flags": {
+          "office_guard_met": true
+        }
+      }
+    },
+    "badge": {
+      "text": "Ah, card is there. Tap, tap. Lift is on the right. Welcome, saar-madam."
+    },
+    "night": {
+      "text": "(The night guard's torch finds you.) That boy has been there since eleven. I gave him tea. He didn't drink it. Generator's only for the gate — whole Whitefield is dark tonight."
+    }
+  }
+}

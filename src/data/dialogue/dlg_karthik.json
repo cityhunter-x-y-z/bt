@@ -1,0 +1,59 @@
+{
+  "id": "dlg_karthik",
+  "speaker": "Karthik",
+  "portrait": "crowd_techie",
+  "nodes": {
+    "start": {
+      "text": "(Karthik from the second floor, a rucksack half packed.) They're evacuating from Vidhana Soudha. The army. Buses, they're saying. We should go.",
+      "choices": [
+        {
+          "text": "Go how? Nothing runs.",
+          "next": "how"
+        },
+        {
+          "text": "Maybe.",
+          "next": "maybe"
+        }
+      ]
+    },
+    "how": {
+      "text": "Walk to Cubbon. Twenty kilometres. People do it. (He doesn't believe it either.) I'm going. Soon.",
+      "effect": {
+        "flags": {
+          "karthik_met": true
+        }
+      }
+    },
+    "maybe": {
+      "text": "Don't 'maybe' too long.",
+      "effect": {
+        "flags": {
+          "karthik_met": true
+        }
+      }
+    },
+    "camp": {
+      "text": "Told you. Vidhana Soudha. They say trucks will run from the Palace soon."
+    },
+    "palace": {
+      "text": "Trucks. Every night. One of them is ours, if you'd only say so."
+    },
+    "lalbagh": {
+      "text": "The trucks go from Yelahanka. That's all I'm going to say. Again."
+    }
+  },
+  "enter": [
+    {
+      "flag": "base_lalbagh_set",
+      "node": "lalbagh"
+    },
+    {
+      "flag": "base_palace_set",
+      "node": "palace"
+    },
+    {
+      "flag": "base_cubbon_set",
+      "node": "camp"
+    }
+  ]
+}

@@ -1,46 +1,56 @@
 [
   {
     "id": "receptionist",
-    "name": "Airport Receptionist",
+    "name": "Information Desk",
     "tier": 2,
-    "district": "airport",
     "dialogue": "receptionist",
-    "spawn": "receptionist"
+    "sheet": "npc_airport_info",
+    "voice": "adult_f"
   },
   {
     "id": "airport_helper",
-    "name": "Airport Helper",
+    "name": "Porter",
     "tier": 2,
-    "district": "airport",
     "dialogue": "airport_helper",
-    "spawn": "helper",
-    "tint": 2278750
+    "sheet": "npc_airport_porter",
+    "voice": "adult_m"
   },
   {
     "id": "security_guard",
     "name": "Security Guard",
     "tier": 2,
-    "district": "airport",
     "dialogue": "security_guard",
-    "spawn": "gaurd",
-    "tint": 6579625
+    "sheet": "npc_security_guard",
+    "voice": "adult_m"
   },
   {
     "id": "shopkeeper_kiosk",
     "name": "Kiosk Shopkeeper",
     "tier": 2,
-    "district": "airport",
     "dialogue": "shopkeeper",
-    "spawn": "shopkeeper_1",
-    "tint": 16095515
+    "sheet": "npc_kiosk_shopkeeper",
+    "voice": "adult_m"
   },
   {
-    "id": "shopkeeper_food",
-    "name": "Food Kiosk Vendor",
+    "id": "npc_chai_anna",
+    "name": "Chai Anna",
     "tier": 2,
-    "district": "airport",
-    "dialogue": "shopkeeper",
-    "spawn": "shopkeeper_2",
-    "tint": 16095515
+    "dialogue": "dlg_chai_anna",
+    "sheet": "npc_chai_anna",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_cab_tout_1",
+    "name": "Cab Tout",
+    "tier": 2,
+    "dialogue": "dlg_cab_tout",
+    "sheet": "npc_cab_tout",
+    "voice": "adult_m"
+  },
+  {
+    "id": "ambient_hivr_lanyard",
+    "name": "Man in a lanyard",
+    "tier": 1,
+    "sheet": "npc_hivr_courier"
   }
 ]

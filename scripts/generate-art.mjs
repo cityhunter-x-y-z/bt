@@ -6,16 +6,31 @@
  * the repo), it is editable (change the palette once, every tile follows), and
  * it cannot drift off-palette. Run it with:
  *
- *   npm run art
+ *   corepack pnpm art
  */
 import sharp from 'sharp';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 import { Canvas } from './art/canvas.mjs';
-import { P } from './art/palette.mjs';
+import { T as TOK } from './art/palette.mjs';
 import { T, TILES } from './art/tiles.mjs';
-import { CH, CW, buildCharacterSheet } from './art/character.mjs';
+import { CH, CW } from './art/character.mjs';
+import { importSheet } from './import-sheet.mjs';
+import { importMap } from './import-map.mjs';
+import { importTitle } from './import-title.mjs';
+import { importBreath } from './import-breath.mjs';
+import { importProps } from './import-props.mjs';
+import { importBackdrops } from './import-backdrop.mjs';
+import { runAudioPipe } from './audio-pipe.mjs';
+import { importFont } from './import-font.mjs';
+
+// Tokens first: palette.gpl + tokens.mjs → tokens.json, which the runtime reads.
+execFileSync(process.execPath, [join(dirname(fileURLToPath(import.meta.url)), 'generate-tokens.mjs')], { stdio: 'inherit' });
+
+// UI font (ADR-114): Pixelify Sans outlines → bitmap font on its own pixel grid.
+await importFont();
 
 const here = dirname(fileURLToPath(import.meta.url));
 const assets = resolve(here, '../src/assets');
@@ -45,30 +60,52 @@ TILES.forEach(([, draw], i) => {
 await write(sheet, join(assets, 'tilesets/street.png'));
 
 // ── Characters ─────────────────────────────────────────────────────────────
-// One rig, recoloured. Cheap variety: a crowd of visibly different people
-// without a second sprite sheet to draw or maintain.
+// One rig, many looks (P1_P2 §2.2): base body (gender) × skin tone × attire ×
+// bag. The player gets every gender × skin × age combination so character
+// creation can *assign* a sheet rather than customise one; `sheetForProfile`
+// in src/utils/profile.ts must produce exactly these keys.
 //
-// A whole-sprite hue rotation is the tempting shortcut here, and it is wrong
-// for characters: it rotates skin and hair along with clothing, which at 300
-// degrees turns a brown-skinned character magenta. Because the rig stores
-// semantic cells rather than colours, an explicit palette costs one entry and
-// keeps skin, hair and clothing independent. Hue rotation is still used, but
-// only for objects the manifest marks colorEditable — fabric and painted
-// metal, never skin.
-const VARIANTS = {
-  citizen: {},
-  citizen_teal: { shirt: '#2f8a7a', shirtShade: '#1f6357', skin: '#b87c50' },
-  citizen_ochre: { shirt: '#c98a2f', shirtShade: '#9c6a1f', hair: '#3a2f28' },
-  citizen_maroon: { shirt: '#9c3f4f', shirtShade: '#732c39', skin: '#c98d62' },
-  citizen_olive: { shirt: '#6b7a3a', shirtShade: '#4d5a28', hair: '#1f1a17' },
-  citizen_slate: { shirt: '#55606e', shirtShade: '#3d4650', skin: '#a86f45' },
-  citizen_violet: { shirt: '#6a4f9c', shirtShade: '#4d3873', skin: '#e0b183', hair: '#3a2f28' },
-  citizen_sand: { shirt: '#c9b07a', shirtShade: '#9c8757', skin: '#8f5f3a', hair: '#1f1a17' },
-};
+// Citizens used to reuse this rig; the P5 audit found them off-style next to
+// the generated cast, so the crowd is now imported like every other
+// character (`_raw/characters/crowd_*.png`, AUDIT_LOG P5). The rig module
+// stays for placeholders only.
 
-for (const [name, palette] of Object.entries(VARIANTS)) {
-  await write(buildCharacterSheet(palette), join(assets, `sprites/${name}.png`));
+// ── Player sheets: imported, not drawn (AUDIT_LOG P2 round 1) ──────────────
+// Each raw in _raw/characters/ is a generated 3×4 sheet in the reference
+// style; import-sheet keys, snaps and quantises it into the 4×4 contract and
+// writes the five skin tones. Regenerating from the raws is what keeps
+// `pnpm art` reproducible for these too.
+// Player bases (and the infected bases) get the five skin tones; an NPC is one person, one sheet.
+const rawDir = join(assets, '_raw/characters');
+const imported = [];
+for (const file of readdirSync(rawDir).filter((f) => f.endsWith('.png')).sort()) {
+  const name = file.replace(/\.png$/, '');
+  // The infected bases (ADR-146) carry all five tones too; their action sheets are one person each.
+  const toned = name.startsWith('player_') || (name.startsWith('inf_base_') && !name.endsWith('_actions'));
+  imported.push(...(await importSheet(join(rawDir, file), name, { skins: toned, still: name.endsWith('_bed') })));
 }
+
+// ── The infected recipe (ADR-147): Fresh / Degraded sheets derived from people's own sheets ──
+const { runInfectedRecipe } = await import('./infected-recipe.mjs');
+await runInfectedRecipe();
+
+// ── Breathing: derived F1–F3 from each sheet's idle (breath.json lines) ──
+await importBreath();
+
+// ── Generated maps: imported from _raw/maps/<name>.png + <name>.spec.json ──
+const mapRaw = join(assets, '_raw/maps');
+for (const file of readdirSync(mapRaw).filter((f) => f.endsWith('.spec.json')).sort()) {
+  await importMap(join(mapRaw, file));
+}
+
+// ── Props: luggage and other behaviour-placed objects ──────────────────────
+await importProps();
+await importBackdrops();
+// Audio placeholders + LICENSES.md (ADR-139): rendered from src/data/audio like the art.
+await runAudioPipe();
+
+// ── Title screen: imported from _raw/title/ (ADR-101) ──────────────────────
+await importTitle();
 
 // ── Tile id manifest ───────────────────────────────────────────────────────
 // Named ids so map generation and scene code never hard-code a bare number.
@@ -92,5 +129,5 @@ writeFileSync(
 console.log(
   `✓ street.png — ${TILES.length} tiles (${COLS}x${rows} @ ${T}px = ${COLS * T}x${rows * T})`,
 );
-console.log(`✓ ${Object.keys(VARIANTS).length} character sheets (${CW}x${CH} frames, 4x4)`);
+console.log(`✓ ${imported.length} character sheets imported (${CW}x${CH} frames)`);
 console.log(`✓ street.tiles.json — ${Object.keys(ids).length} named tile ids`);

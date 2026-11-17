@@ -1,0 +1,125 @@
+{
+  "id": "act2_breadcrumbs",
+  "district": "hill_flat",
+  "act": 2,
+  "seq": "2.7",
+  "title": "Breadcrumbs",
+  "status": "P16",
+  "time": "21:00 — the evening 2.6 ends; four nights in the flat bring four mornings of news (nights 1–4 after act2_app_done)",
+  "player_goal": "Live the routine while the News app escalates.",
+  "design_goal": "Quiet dread (the Feed / World War Z method): nothing happens to you, everything happens around you. Each morning the News app has one more headline, a Reel echoes it, and something small at the office is off — Sameer's cough, his empty desk, a data glitch the client wants buried, the night guard saluting nobody. Reveal: the News app. Progress: Act 2 closes; Act 3 opens on the Outer Ring Road.",
+  "pacing": [
+    "Calm",
+    "Curious",
+    "Tense",
+    "Engaged",
+    "Calm"
+  ],
+  "cast": [
+    {
+      "npc": "npc_sameer",
+      "tier": 3,
+      "district": "office_gate",
+      "spawn": "gate_evening",
+      "role": "Day 1 at the gate in the evening, coughing ('PG food. It's always the PG food.'). Days 2–3 absent — his chat: 'fever 102. doctor says viral. dont tell divya i'm watching reels.' Day 4 back, pale, a mask in his pocket he doesn't wear: 'Tested for everything. Negative for everything. They said viral.'"
+    },
+    {
+      "npc": "npc_office_guard",
+      "tier": 2,
+      "district": "office_gate",
+      "spawn": "guard",
+      "role": "Day 3, evening: standing at attention, saluting the empty gate. A full minute. He doesn't answer. Then he blinks, lowers his hand, and asks if you've had dinner. (The Severance beat — no explanation, ever.)"
+    },
+    {
+      "npc": "npc_divya",
+      "tier": 3,
+      "district": "office_gate",
+      "spawn": "lobby",
+      "role": "Phone, day 2: 'Can you check why Batch AMR-07 shows status overwritten in the HIVR tracker? Client's asking. Don't escalate yet.' — the first clue (clue_amr07) of the employer's paper trail."
+    }
+  ],
+  "quests": [
+    "q_act2_breadcrumbs"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Calm",
+      "what": "Morning 1: a new app on the phone — News. First headline: 'Mystery fever: 11 admitted at Hebbal General; doctors say viral, no cause for alarm.' A Reel (@north_blr_updates): a hospital queue at night, sped up. Workday at the office; in the evening Sameer at the gate, coughing.",
+      "interact": "phone + workday",
+      "flag": "news_taught, bc_fever"
+    },
+    {
+      "id": "F2",
+      "pacing": "Curious",
+      "what": "Morning 2: 'HIVR calls leak rumours baseless; Project Amrita purely agricultural, says director Dr. Meera Krishnamurthy.' Sameer's desk is empty (his chat: fever 102). Divya's message after the workday: Batch AMR-07, status overwritten — 'don't escalate yet.'",
+      "interact": "phone + workday",
+      "flag": "bc_denial, sameer_sick, clue_amr07"
+    },
+    {
+      "id": "F3",
+      "pacing": "Tense",
+      "what": "Morning 3: 'Ward sealed at Hebbal General; families wait outside overnight.' A Reel: a taped door, a nurse shaking her head at the camera. At the gate when you arrive: the guard saluting nobody, a full minute.",
+      "interact": "phone + workday + zone",
+      "flag": "bc_sealed, guard_salute_seen"
+    },
+    {
+      "id": "F4",
+      "pacing": "Engaged",
+      "what": "Morning 4: 'Yelahanka schools shut as a precaution after staff fall ill.' Sameer is back, pale. Reel: two aunties versus the last rice bag.",
+      "interact": "phone + workday",
+      "flag": "bc_schools, sameer_back"
+    },
+    {
+      "id": "F5",
+      "pacing": "Calm",
+      "what": "Evening 4, the flat: Amma calls. 'Come home for a few weeks? Your father won't say it, so I'm saying it.' — 'Work won't let me, Amma.' / 'Maybe next month.' Either way she says 'Eat properly' and hangs up. You sleep; Act 2 ends (act2_done). (Act 3 opens on the Outer Ring Road at night.)",
+      "interact": "zone → dialogue",
+      "flag": "amma_worried_called, act2_done"
+    }
+  ],
+  "economy": [
+    {
+      "trigger": "bus / auto to the office and back, four days (existing fares)",
+      "spend": "existing",
+      "canAfford": true
+    }
+  ],
+  "exits": [
+    {
+      "zone": "(existing)",
+      "to": "office_gate",
+      "transit": "auto",
+      "note": "no new places: the flat, the hill, the office gate"
+    }
+  ],
+  "save_flags": [
+    "news_taught",
+    "bc_fever",
+    "bc_denial",
+    "sameer_sick",
+    "clue_amr07",
+    "bc_sealed",
+    "guard_salute_seen",
+    "bc_schools",
+    "sameer_back",
+    "amma_worried_called",
+    "act2_done"
+  ],
+  "assets_needed": [
+    "no new art",
+    "the News app screen (done)",
+    "four Reels (done)",
+    "sleepEvents 'nights' (done)"
+  ],
+  "acceptance": [
+    "the first night after act2_app_done unlocks News with headline 1; each later night in the flat adds one headline (four in all) and a matching Reel",
+    "Sameer: coughing at the gate (day 1), absent with a chat (days 2–3), back pale (day 4)",
+    "Divya's AMR-07 message after the day-2 workday sets clue_amr07",
+    "day 3 at the gate: the guard's salute (once)",
+    "day 4 evening at the flat: Amma's call; both answers set act2_done",
+    "the walkthrough bot plays the four days and the headless run stays green (17 of 17)"
+  ],
+  "open_questions": [],
+  "decided": "User 2026-10-17: 'take the defaults.' — every open question resolved by the draft's default (ADR-135)."
+}

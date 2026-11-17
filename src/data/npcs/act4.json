@@ -1,0 +1,229 @@
+[
+  {
+    "id": "npc_gate_constable",
+    "name": "Constable",
+    "tier": 2,
+    "dialogue": "dlg_gate_constable",
+    "sheet": "npc_gate_constable",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_slot_shop",
+    "name": "Medical store",
+    "tier": 2,
+    "dialogue": "dlg_slot_shop",
+    "sheet": "npc_kiosk_shopkeeper",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_balcony_watcher",
+    "name": "Old man",
+    "tier": 1,
+    "sheet": "crowd_elder"
+  },
+  {
+    "id": "npc_balcony_1",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_homemaker"
+  },
+  {
+    "id": "npc_balcony_2",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_elder"
+  },
+  {
+    "id": "npc_balcony_3",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_student"
+  },
+  {
+    "id": "npc_balcony_4",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_officegoer"
+  },
+  {
+    "id": "npc_balcony_5",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_techie"
+  },
+  {
+    "id": "npc_balcony_6",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_hoodie"
+  },
+  {
+    "id": "npc_balcony_7",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_homemaker"
+  },
+  {
+    "id": "npc_balcony_8",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_delivery"
+  },
+  {
+    "id": "npc_balcony_9",
+    "name": "Neighbour",
+    "tier": 1,
+    "sheet": "crowd_elder"
+  },
+  {
+    "id": "npc_bench_manju",
+    "name": "Manju",
+    "tier": 2,
+    "dialogue": "trade:trader_manju",
+    "sheet": "npc_manju",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_suresh",
+    "name": "Suresh",
+    "tier": 3,
+    "dialogue": "dlg_suresh",
+    "sheet": "npc_suresh",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_karthik",
+    "name": "Karthik",
+    "tier": 2,
+    "dialogue": "dlg_karthik",
+    "sheet": "crowd_techie",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_manju_act4",
+    "name": "Manju",
+    "tier": 2,
+    "dialogue": "dlg_manju_act4",
+    "sheet": "npc_manju",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_manju_trade",
+    "name": "Manju",
+    "tier": 2,
+    "dialogue": "trade:trader_manju",
+    "sheet": "npc_manju",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_deepa",
+    "name": "Deepa",
+    "tier": 3,
+    "dialogue": "dlg_deepa",
+    "sheet": "npc_deepa",
+    "voice": "adult_f"
+  },
+  {
+    "id": "npc_uncle",
+    "name": "Uncle",
+    "tier": 3,
+    "dialogue": "dlg_uncle",
+    "sheet": "npc_uncle",
+    "voice": "elder"
+  },
+  {
+    "id": "npc_kumar_trapped",
+    "name": "Kumar",
+    "tier": 1,
+    "sheet": "npc_auto_driver"
+  },
+  {
+    "id": "npc_kumar",
+    "name": "Kumar",
+    "tier": 3,
+    "dialogue": "dlg_kumar_cafe",
+    "sheet": "npc_auto_driver",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_raju_shut",
+    "name": "Raju",
+    "tier": 1,
+    "sheet": "npc_darshini_raju"
+  },
+  {
+    "id": "npc_raju_cafe",
+    "name": "Raju",
+    "tier": 2,
+    "dialogue": "dlg_raju_cafe",
+    "sheet": "npc_darshini_raju",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_rathore",
+    "name": "Major Rathore",
+    "tier": 3,
+    "dialogue": "dlg_rathore",
+    "sheet": "npc_rathore",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_priya",
+    "name": "Priya",
+    "tier": 3,
+    "dialogue": "dlg_priya",
+    "sheet": "npc_priya",
+    "voice": "adult_f"
+  },
+  {
+    "id": "npc_ananya_camp",
+    "name": "Ananya",
+    "tier": 3,
+    "dialogue": "dlg_ananya_camp",
+    "sheet": "npc_ananya",
+    "voice": "adult_f"
+  },
+  {
+    "id": "npc_engineer",
+    "name": "Sathish",
+    "tier": 3,
+    "dialogue": "dlg_engineer",
+    "sheet": "npc_hivr_courier",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_vikram",
+    "name": "Vikram",
+    "tier": 1,
+    "sheet": "npc_vikram"
+  },
+  {
+    "id": "npc_ravi_hivr",
+    "name": "Ravi",
+    "tier": 3,
+    "dialogue": "dlg_ravi_hivr",
+    "sheet": "npc_ravi",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_ravi_home",
+    "name": "Ravi",
+    "tier": 3,
+    "dialogue": "dlg_ravi_home",
+    "sheet": "npc_ravi",
+    "voice": "adult_m"
+  },
+  {
+    "id": "npc_meera",
+    "name": "Dr. Meera Krishnamurthy",
+    "tier": 1,
+    "sheet": "npc_meera"
+  },
+  {
+    "id": "npc_ravi_amma",
+    "name": "Ravi's mother",
+    "tier": 1,
+    "sheet": "npc_ravi_amma_bed",
+    "breathing": false
+  }
+]

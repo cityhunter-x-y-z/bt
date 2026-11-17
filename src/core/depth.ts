@@ -36,6 +36,16 @@ export const characterZY = (sprite: { y: number; displayHeight: number }): numbe
   sprite.y + sprite.displayHeight / 2;
 
 /**
+ * Feet Y for the Y-sort band (ADR-125): the bottom of the physics body when
+ * there is one (the feet box), else the sprite's bottom edge. Movers call
+ * this every frame; statics once.
+ */
+export const feetY = (sprite: { y: number; displayHeight: number; body?: unknown }): number => {
+  const body = sprite.body as { bottom?: number } | null | undefined;
+  return typeof body?.bottom === 'number' ? body.bottom : characterZY(sprite);
+};
+
+/**
  * An object's `zY` is the bottom edge of its *footprint*.
  *
  * On the convention fixed in docs/asset-pipeline.md, `backgroundTiles` counts
@@ -54,6 +64,9 @@ export const objectZY = (
   tilesTall: number,
   tileSize: number,
 ): number => (topTileY + tilesTall) * tileSize;
+
+/** The feet line a sorted-band depth encodes (dev overlays). */
+export const zYForDepth = (depth: number): number => Math.round((depth - DEPTH.ENTITIES) * (MAX_WORLD_HEIGHT + 1));
 
 /** Small bump so an item resting on a surface sorts in front of it. */
 export const SURFACE_BUMP = 0.5;

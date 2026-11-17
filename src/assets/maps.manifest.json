@@ -1,56 +1,444 @@
 {
   "$comment": "Contract between Tiled exports and the game. Both the runtime map registry (src/assets/maps.ts) and the build-time validator (scripts/validate-maps.mjs) read this file, so a Tiled export that drifts from it fails the build instead of rendering an empty floor.",
   "tileSize": 32,
+  "layerOrder": [
+    "ground",
+    "ground_detail",
+    "buildings",
+    "sorted",
+    "props_above",
+    "collision",
+    "fx"
+  ],
+  "$layerOrderComment": "The render model (ADR-125). Every map has exactly these seven layers, in this order (empty allowed): ground (roads, floors) \u00b7 ground_detail (markings, grates, baked shadows) \u00b7 buildings (wall tiles) \u00b7 sorted (the Y-sort band: an OBJECT layer of everything that stands on the ground \u2014 typed placed objects, `cutout` images with a baseY + footprint, `above` images drawn over the street) \u00b7 props_above (overhead tiles: wires, awnings, canopies, roofs) \u00b7 collision (invisible: a tile stencil, or an object layer of pixel rects for generated maps) \u00b7 fx. Plus `spawns`, an object layer of points and zones outside the draw order.",
+  "$sortedComment": "sorted objects: `type` = an ObjectDef id (placed object, tiles or sprite; depth from its footprint bottom), `cutout` (properties image, baseY, footprint x/y/w/h \u2014 a static body; depth = baseY), or `above` (property image; drawn at the props_above depth, never collides). Written by scripts/import-map.mjs and generate-street-map.mjs.",
+  "$collisionComment": "collision as an object layer (generated maps): rects with property kind = building | prop. Buildings cover the whole wall footprint except door gaps.",
+  "$pulseLayerComment": "Optional per-map `pulseLayer`: an object layer of City Pulse slots. Every slot is a named, uniquely named object with a `type` (wall, corner, shopfront, crowd). Districts list the slots they offer under pulse_slots and the validator checks they exist.",
+  "$doorComment": "Any spawn-layer object named door_* or typed `door` is a door and must be 32x48 (player height = door height, design system \u00a72). The map validator warns otherwise.",
+  "$sopComment": "`sop: true` marks a map migrated to the render model: every cutout needs a footprint and legacy occluders are errors. Unmigrated maps get warnings until their A5 re-audit.",
   "maps": {
     "airport_map": {
-      "file": "airport_interior.tmj",
-      "requiredLayers": [
-        "Ground",
-        "Walls",
-        "Objects",
-        "Collision",
-        "Above Player"
-      ],
-      "collisionLayer": "Collision",
-      "spawnLayer": "Spawns",
+      "file": "kempegowda_arrivals.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
       "requiredSpawns": [
-        "player_spawn"
+        "player_spawn",
+        "zone_exit",
+        "hivr_zone",
+        "chai_stall",
+        "carousel_belt"
       ],
-      "optionalLayers": [
-        "Effects",
-        "Foreground"
-      ]
+      "sop": true
     },
     "whitefield_street": {
       "file": "whitefield_street.tmj",
-      "requiredLayers": [
-        "Ground",
-        "Walls",
-        "Objects",
-        "Collision",
-        "Above Player"
-      ],
-      "collisionLayer": "Collision",
-      "spawnLayer": "Spawns",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
       "requiredSpawns": [
-        "player_spawn"
+        "player_spawn",
+        "lane_zone",
+        "lane_return"
       ],
-      "optionalLayers": [
-        "Effects",
-        "Foreground"
+      "sop": true
+    },
+    "whitefield_hotel": {
+      "file": "whitefield_hotel.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "door",
+        "reception",
+        "bed",
+        "room",
+        "exit"
       ],
-      "objectLayer": "Objects Layer"
+      "sop": true
+    },
+    "prashanth_layout": {
+      "file": "prashanth_layout.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "lane_mouth",
+        "gate10_out",
+        "gate10",
+        "main_road",
+        "lane_arrival",
+        "auto_1",
+        "auto_2",
+        "auto_3",
+        "auto_stand"
+      ],
+      "sop": true
+    },
+    "shanthamma_pg": {
+      "file": "shanthamma_pg.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "door",
+        "exit",
+        "bed",
+        "doorway"
+      ],
+      "sop": true
+    },
+    "office_gate": {
+      "file": "office_gate.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "auto_drop",
+        "gate_evening",
+        "shuttle_bay",
+        "guard",
+        "admin_desk",
+        "lobby",
+        "auto_stand",
+        "walk_out",
+        "office_arrival",
+        "office_door"
+      ],
+      "sop": true
+    },
+    "ambedkar_nagar_hill": {
+      "file": "ambedkar_nagar_hill.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "slope_base",
+        "bus_drop",
+        "chai_stall",
+        "furniture_shop",
+        "broker",
+        "owner",
+        "kid",
+        "room3_out",
+        "road_out",
+        "hill_arrival",
+        "room1_door",
+        "room2_door",
+        "room3_door"
+      ],
+      "sop": true
+    },
+    "hill_flat": {
+      "file": "hill_flat.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "door",
+        "cot_spot",
+        "table_spot",
+        "stove_spot",
+        "drum_spot",
+        "box_spot",
+        "front_door",
+        "bed",
+        "flat_arrival",
+        "guitar_spot",
+        "guitar_zone",
+        "boxes_spot",
+        "shelf_spot",
+        "lamp_spot",
+        "rug_spot",
+        "folded_spot",
+        "assembly_zone"
+      ],
+      "sop": true
+    },
+    "bus_interior": {
+      "file": "bus_interior.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "aisle",
+        "aisle_zone",
+        "seat_a",
+        "seat_b",
+        "seat_c",
+        "door"
+      ],
+      "sop": true
+    },
+    "cubbon_park": {
+      "file": "cubbon_park.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "bus_drop",
+        "cubbon_arrival",
+        "park_gate_bus",
+        "cycle_rental",
+        "ananya_spot",
+        "icecream_cart",
+        "library_steps_a",
+        "library_steps_b",
+        "jogger_spot",
+        "guitar_shop",
+        "dog_a",
+        "dog_b",
+        "dog_c",
+        "photo_bandstand",
+        "photo_library",
+        "photo_bamboo",
+        "photo_red_building",
+        "photo_dog",
+        "stop_bandstand",
+        "stop_bamboo",
+        "stop_library",
+        "ambient_area",
+        "metro_drop",
+        "metro_arrival"
+      ],
+      "sop": true
+    },
+    "scooter_showroom": {
+      "file": "scooter_showroom.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "bus_drop",
+        "showroom",
+        "bunk",
+        "scooter_park",
+        "showroom_arrival",
+        "bus_out",
+        "road_east",
+        "bunk_zone",
+        "ambient_area"
+      ],
+      "sop": true
+    },
+    "metro_station": {
+      "file": "metro_station.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "station_stairs",
+        "gates",
+        "concourse_corner",
+        "token_queue",
+        "token_machine",
+        "arrival",
+        "stairs_down",
+        "platform",
+        "ambient_area"
+      ],
+      "sop": true
+    },
+    "metro_interior": {
+      "file": "metro_interior.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "coach_door",
+        "coach_standing",
+        "boarded",
+        "seat_zone"
+      ],
+      "sop": true
+    },
+    "church_street": {
+      "file": "church_street.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "mg_road_station",
+        "bus_drop",
+        "shop_front",
+        "busker_corner",
+        "busker_case",
+        "church_arrival",
+        "shop_door",
+        "bus_stop",
+        "ambient_area"
+      ],
+      "sop": true
+    },
+    "guitar_shop": {
+      "file": "guitar_shop.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "shop_entry",
+        "shop_counter",
+        "shop_exit"
+      ],
+      "sop": true
+    },
+    "majestic_interchange": {
+      "file": "majestic_interchange.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "purple_arrival",
+        "interchange_stairs",
+        "majestic_arrival",
+        "green_stairs_top",
+        "green_stairs",
+        "ambient_area"
+      ],
+      "sop": true
+    },
+    "hyggeland": {
+      "file": "hyggeland.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "store_entrance",
+        "help_desk",
+        "cafe",
+        "tills",
+        "hyggeland_arrival",
+        "aisle",
+        "store_exit",
+        "ambient_area"
+      ],
+      "sop": true
+    },
+    "ward4": {
+      "file": "ward4.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "your_bed",
+        "ravi_bed",
+        "nurse_station",
+        "ward_exit",
+        "sealed_zone"
+      ],
+      "sop": true
+    },
+    "hivr_corridor": {
+      "file": "hivr_corridor.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "airlock",
+        "call_zone",
+        "tray_zone"
+      ],
+      "sop": true
+    },
+    "hebbal_gate": {
+      "file": "hebbal_gate.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "hospital_steps",
+        "barricade",
+        "slot_shop",
+        "street_end"
+      ],
+      "sop": true
+    },
+    "indiranagar_lane": {
+      "file": "indiranagar_lane.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "lane_top",
+        "main_road",
+        "lane_mid",
+        "plates_point"
+      ],
+      "sop": true
+    },
+    "tiffin_room": {
+      "file": "tiffin_room.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "shutter_in",
+        "uncle_spot",
+        "mat_zone",
+        "stock_zone",
+        "shutter_zone"
+      ],
+      "sop": true
+    },
+    "palace_grounds": {
+      "file": "palace_grounds.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "palace_gate",
+        "camp_spot",
+        "palace_cot",
+        "palace_run_gate"
+      ],
+      "sop": true
+    },
+    "malleswaram_lane": {
+      "file": "malleswaram_lane.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "lane_east",
+        "house_door",
+        "vikram_call",
+        "lane_back"
+      ],
+      "sop": true
+    },
+    "glass_house": {
+      "file": "glass_house.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "glass_doors",
+        "council",
+        "lh_cots"
+      ],
+      "sop": true
+    },
+    "yelahanka_room": {
+      "file": "yelahanka_room.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "room_arrive",
+        "room_door"
+      ],
+      "sop": true
+    },
+    "purple_tunnel": {
+      "file": "purple_tunnel.tmj",
+      "collisionLayer": "collision",
+      "spawnLayer": "spawns",
+      "sortedLayer": "sorted",
+      "requiredSpawns": [
+        "tunnel_east",
+        "majestic_steps"
+      ],
+      "sop": true
     }
-  },
-  "layerOrder": [
-    "Ground",
-    "Walls",
-    "Objects",
-    "Collision",
-    "Above Player",
-    "Effects",
-    "Foreground"
-  ],
-  "$layerOrderComment": "Canonical draw order, back to front. Depth comes from layering rather than from bigger images. A map need not use every layer, but any layer it does use must be named from this list \u2014 an unlisted name is a typo or a taxonomy drift.",
-  "$objectLayerComment": "Object layer holding placed world objects. Each object's `type` must name an ObjectDef in src/data/objects \u2014 the content validator enforces it."
+  }
 }

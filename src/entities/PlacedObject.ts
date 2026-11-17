@@ -27,6 +27,8 @@ export interface PlaceOptions {
  * fixed depth no matter where the player stood.
  */
 export class PlacedObject {
+  /** The footprint's static body, so a flag-gated object can leave without leaving its wall behind. */
+  private body: Phaser.GameObjects.Zone | null = null;
   readonly container: Phaser.GameObjects.Container;
   readonly def: ObjectDef;
   readonly tileX: number;
@@ -44,6 +46,14 @@ export class PlacedObject {
     this.tileX = tileX;
     this.tileY = tileY;
 
+    if (def.sprite) {
+      // A prop image (ADR-122): one sprite, anchored at the top-left of its footprint, sized by the image itself.
+      const img = scene.add.image(0, 0, def.sprite).setOrigin(0, 0);
+      this.container = scene.add.container(tileX * tileSize, tileY * tileSize, [img]);
+      this.container.setSize(def.tilesWide * tileSize, def.tilesTall * tileSize);
+      this.container.setDepth(depthForZY(objectZY(tileY, def.tilesTall, tileSize)));
+      return;
+    }
     const frames = objectFrames(def, options.variant ?? 'default');
     const expected = def.tilesWide * def.tilesTall;
     if (frames.length !== expected) {
@@ -93,6 +103,7 @@ export class PlacedObject {
     const h = footprintRows * tileSize;
 
     const body = scene.add.zone(x + w / 2, y + h / 2, w, h);
+    this.body = body;
     group.add(body);
     const arcade = body.body as Phaser.Physics.Arcade.StaticBody;
     arcade.setSize(w, h);
@@ -100,6 +111,8 @@ export class PlacedObject {
   }
 
   destroy(): void {
+    this.body?.destroy();
+    this.body = null;
     this.container.destroy(true);
   }
 }

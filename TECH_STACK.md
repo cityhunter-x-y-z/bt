@@ -1,4 +1,4 @@
-# Namma Quest — tech stack
+# Bangalore Times — tech stack
 
 Aligned with the `v1.0` branch of [`cityhunter-x-y-z/bt`](https://github.com/cityhunter-x-y-z/bt)
 (commit `19899fd`, 2026-07-13). That commit added `TECH_STACK.md` and
@@ -50,18 +50,21 @@ src/
 ## Scene flow
 
 ```
-BootScene ──► TitleScene ──► CharacterSelectScene ──► AirportScene
-                  │                                        │
-                  └── Continue (restores a save) ───────────┘
-
-WhitefieldScene — MVP-1 bot sandbox, reachable via the startScene prop
+BootScene ──► TitleScene ──► CharacterSelectScene ──► WorldScene{airport}
+                  │                                        │ exit zone
+                  └── Continue (restores a save) ──► WorldScene{districtId,x,y}
+                                                           ▼
+                                        TransitScene (ride card) ──► WorldScene{whitefield_street}
 ```
 
-BootScene always runs first: it owns every asset and animation, so no later
-transition ever stalls on a fetch. It then starts whichever scene the
-`startScene` registry key names (default `TitleScene`), which is how
-`<BangaloreTimes startScene="WhitefieldScene" />` drops straight into the
-sandbox without a separate scene list.
+Places are not scenes (ADR-69): one `WorldScene` renders whichever district
+it is handed, and every area edge goes through `TransitScene`. BootScene
+always runs first: it owns every asset and animation, so no later transition
+ever stalls on a fetch. It then starts whichever scene the `startScene`
+registry key names (default `TitleScene`) — or, when `startDistrict` is set,
+drops straight into that district, which is how
+`<BangaloreTimes startDistrict="whitefield_street" />` opens the sandbox.
+See `ARCHITECTURE.md` for the current shape.
 
 One deliberate divergence: the reference has no React, so its managers own
 state directly. Here the managers delegate to the zustand store, so Phaser and
@@ -221,7 +224,7 @@ scripts/generate-art.mjs   writes tilesets/ and sprites/, plus street.tiles.json
 scripts/generate-street-map.mjs  composes a 30x20 street block as a .tmj
 ```
 
-Run with `npm run art`.
+Run with `corepack pnpm art`.
 
 Three reasons this beats hand-managed PNGs at this stage: it is reproducible
 (identical output every run, so a rerun never dirties the repo), editable
@@ -245,7 +248,7 @@ shimmer. The generated art is what the renderer is actually configured for.
 
 ### Adding a character
 
-Drop a 128x192 sheet (4x4 grid of 32x48 frames, rows down/left/right/up) into
+Drop a 96x192 sheet (3 columns x 4 rows of 32x48 frames, rows down/left/right/up) into
 `src/assets/sprites/`. BootScene discovers it and registers
 `<name>-walk-<dir>` and `<name>-idle-<dir>` automatically; `Player` and the
 ambient citizens take a sheet name, so nothing else changes. The three citizen
@@ -283,17 +286,17 @@ branch, reward items that do not exist, `unlock_scene` values absent from
 `SCENE_KEYS`, duplicate ids, filename/id drift, `stackable`/`max_stack`
 incoherence, and prerequisite cycles between quests.
 
-Node 22.6+ (with `--experimental-strip-types`, which the npm scripts pass) runs the validator's TypeScript directly, so it imports `SCENE_KEYS`
+Node 24 runs the validator's TypeScript directly, so it imports `SCENE_KEYS`
 and `SKILL_TIER_NAMES` from `utils/constants.ts` rather than duplicating them —
 the lists cannot drift apart.
 
 ## Commands
 
 ```bash
-npm run dev          # http://localhost:6174
-npm test             # vitest
-npm run validate     # maps + content
-npm run build        # validate → typecheck → build
+corepack pnpm dev             # http://localhost:6174
+corepack pnpm test            # vitest
+corepack pnpm validate        # maps + content
+corepack pnpm build           # validate → typecheck → build
 ```
 
-Port 6174 is fixed with `strictPort` (no port starting with 4 or 5).
+Port 6174 is fixed with `strictPort` per the repo's no-4xxx/5xxx guardrail.

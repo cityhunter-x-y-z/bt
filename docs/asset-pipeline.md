@@ -31,7 +31,7 @@ scripts/generate-art.mjs    writes tilesets/, sprites/, street.tiles.json
 scripts/generate-street-map.mjs   composes a 30x20 street block as a .tmj
 ```
 
-`npm run art` runs the lot. Output is
+`corepack pnpm art` runs the lot. Output is
 deterministic — reruns are byte-identical, so regenerating never dirties the
 tree.
 
@@ -44,9 +44,9 @@ rigid enough to generate, and changing one invalidates every generated asset.
 | --- | --- |
 | Tile size | **32 px**, everywhere, no exceptions |
 | Character frame | **32 x 48 px**, feet at y=42, bottom-aligned |
-| Character sheet | 4 columns x 4 rows = 128 x 192 |
+| Character sheet | 3 columns x 4 rows = 96 x 192 |
 | Row order | 0 down, 1 left, 2 right, 3 up |
-| Frame order per row | stride, idle, opposite stride, idle |
+| Frame order per row | stride, idle, opposite stride (walk plays 0,1,2,1) |
 | Animation keys | `<sheet>-walk-<dir>`, `<sheet>-idle-<dir>` |
 | Tileset sheet | 8 columns, tile id = index, **append only** |
 | Map layers | Ground, Walls, Objects, Collision, Above Player, Effects, Foreground |

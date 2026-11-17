@@ -1,0 +1,20 @@
+# Hosted showcase (ADR-164) — Render blueprint.
+# Deploy: push the repo, then in Render choose "New → Blueprint" and point it here.
+# The service name sets the URL: bangalore-times.onrender.com
+services:
+  - type: web
+    name: bangalore-times
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /hub.html
+    envVars:
+      # Render generates the secret; read it from the dashboard (Environment tab).
+      # The playground's write endpoints are behind this gate.
+      - key: HUB_PASSWORD
+        generateValue: true
+      - key: HUB_USER
+        value: demo
+      # Vite needs a writable temp/cache dir on a read-only-ish container.
+      - key: NODE_ENV
+        value: production

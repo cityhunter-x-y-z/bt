@@ -3,8 +3,18 @@ import Phaser from 'phaser';
 import BootScene from './scenes/BootScene';
 import TitleScene from './scenes/TitleScene';
 import CharacterSelectScene from './scenes/CharacterSelectScene';
-import AirportScene from './scenes/AirportScene';
-import WhitefieldScene from './scenes/WhitefieldScene';
+import WorldScene from './scenes/WorldScene';
+import GradeScene from './scenes/GradeScene';
+import TransitScene from './scenes/TransitScene';
+import PhoneScene from './scenes/PhoneScene';
+import MapScene from './scenes/MapScene';
+import HudScene from './scenes/HudScene';
+import OrientationScene from './scenes/OrientationScene';
+import MenuScene from './scenes/MenuScene';
+import WorkdayScene from './scenes/WorkdayScene';
+import RhythmScene from './scenes/RhythmScene';
+import CardScene from './scenes/CardScene';
+import MyBangaloreScene from './scenes/MyBangaloreScene';
 import { GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from './utils/constants';
 
 export interface PhaserGameProps {
@@ -14,6 +24,10 @@ export interface PhaserGameProps {
    * than the entry point. Defaults to the title screen.
    */
   startScene?: string;
+  /** District to drop straight into (skips Title). Wins over startScene. */
+  startDistrict?: string;
+  /** On-screen joystick + action button: 'auto' (touch devices only, the default) or 'always' (device simulation). */
+  touchControls?: 'auto' | 'always';
 }
 
 /**
@@ -24,7 +38,7 @@ export interface PhaserGameProps {
  * Scale.FIT, pixelArt on and every smoothing path off. Anything less and the
  * 32px tiles shimmer as the camera moves.
  */
-const PhaserGame = ({ startScene = SCENE_KEYS.TITLE }: PhaserGameProps) => {
+const PhaserGame = ({ startScene = SCENE_KEYS.TITLE, startDistrict, touchControls = 'auto' }: PhaserGameProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
@@ -55,11 +69,16 @@ const PhaserGame = ({ startScene = SCENE_KEYS.TITLE }: PhaserGameProps) => {
         arcade: { gravity: { x: 0, y: 0 }, debug: false },
       },
       // BootScene is listed first, so it is the scene Phaser starts with.
-      scene: [BootScene, TitleScene, CharacterSelectScene, AirportScene, WhitefieldScene],
+      // Places are not scenes: every district renders through WorldScene.
+      // Gamepads: one input map for every device (ADR-88/119).
+      input: { gamepad: true },
+      scene: [BootScene, TitleScene, CharacterSelectScene, WorldScene, GradeScene, TransitScene, WorkdayScene, RhythmScene, CardScene, HudScene, PhoneScene, MapScene, MenuScene, MyBangaloreScene, OrientationScene],
     });
 
     gameRef.current = game;
     game.registry.set('startScene', startScene);
+    if (startDistrict) game.registry.set('startDistrict', startDistrict);
+    game.registry.set('touchControls', touchControls);
 
     // Dev-only handle. Phaser is bundled, so there is no global to reach for
     // when inspecting scene state from the console or a driver script.
@@ -82,9 +101,14 @@ const PhaserGame = ({ startScene = SCENE_KEYS.TITLE }: PhaserGameProps) => {
       game.destroy(true);
       gameRef.current = null;
     };
-    // startScene is read once at boot; changing it should not rebuild the game.
+    // startScene/startDistrict are read once at boot; changing them should not rebuild the game.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Touch mode can change while the game runs (the Test Playground's device picker): the HUD watches the registry.
+  useEffect(() => {
+    gameRef.current?.registry.set('touchControls', touchControls);
+  }, [touchControls]);
 
   return <div ref={containerRef} className="nq-canvas-host" />;
 };

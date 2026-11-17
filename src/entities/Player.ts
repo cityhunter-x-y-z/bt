@@ -1,31 +1,65 @@
 import Phaser from 'phaser';
 import type { Direction } from '../utils/types';
-import { DEPTH, PLAYER_RUN_SPEED, PLAYER_SPEED, TILE_SIZE } from '../utils/constants';
-import { ensurePlayerTexture } from '../utils/placeholders';
+import { DEPTH, HUNGRY_AT, HUNGRY_SPEED, PLAYER_RUN_SPEED, PLAYER_SPEED, TILE_SIZE, FEET_BOX } from '../utils/constants';
+import { useGameStore } from '../store';
+import { ensurePlaceholderTexture } from '../utils/placeholders';
+import { consumeHit, consumeInteract, consumeThrow, input } from '../input/InputMap';
+import { gameEvents } from '../core/events';
+import { tickEnergy } from '../systems/energy';
+import { CROUCH_SPEED, playerState } from '../systems/playerState';
+import { ACT4_FLAG } from '../systems/stability';
 
 /**
  * Player — the controllable character.
  *
- * Ported from the v1.0 reference entity: arrow keys or WASD to move, SHIFT to
- * run, E to interact, and a freeze switch for dialogue. Animation playback is
- * guarded by anims.exists() so the entity runs on a placeholder texture today
- * and starts animating the moment real spritesheets are loaded under the same
- * `player-walk-<dir>` / `player-idle-<dir>` keys.
+ * Arrow keys or WASD to move, SHIFT to run, C to crouch, E to interact — and the same
+ * four actions from the shared InputMap (on-screen joystick + A button, later
+ * a gamepad), merged here so no scene ever asks what device it is on (mobile
+ * foundation §5 rule 1). A freeze switch holds the player during dialogue.
+ * Animation playback is guarded by anims.exists() so the entity runs on a
+ * placeholder texture and starts animating the moment a sheet is loaded under
+ * `<sheet>-walk-<dir>` / `<sheet>-idle-<dir>` keys.
+ *
+ * Act 4 (ADR-145): running costs energy (`systems/energy`, the stamina pips),
+ * crouch is a toggle at half speed and noise 2, and crouching still on a hide
+ * spot hides you. What the player is doing is published in `playerState`
+ * (noise, the infected and the HUD read it). Before Act 4 running is free.
+ *
+ * S4 (ADR-151): SPACE (or HIT) swings and Q (or THROW) throws, in Act 4 — the
+ * Player only announces them (`player:swing` / `player:throw`); act4Hands
+ * decides. I or TAB opens the bag, any time.
  */
 export class Player extends Phaser.GameObjects.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasdKeys: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
   private shiftKey: Phaser.Input.Keyboard.Key;
   private eKey: Phaser.Input.Keyboard.Key;
+  private cKey: Phaser.Input.Keyboard.Key;
+  private spaceKey: Phaser.Input.Keyboard.Key;
+  private qKey: Phaser.Input.Keyboard.Key;
+  private bagKeys: Phaser.Input.Keyboard.Key[];
+  private bagCallback: (() => void) | null = null;
 
   private currentDirection: Direction = 'down';
+
+  /** Which way the player faces (the map's heading arrow uses it). */
+  get facing(): Direction {
+    return this.currentDirection;
+  }
   private isMoving = false;
+  /** A place that slows you and stops you running — a cast in the ward (district `walkSpeed`, ADR-137). */
+  walkScale = 1;
   private interactionEnabled = true;
-  private interactionCallback: (() => void) | null = null;
+  private interactionCallback: ((source: 'key' | 'touch') => void) | null = null;
 
   /** `textureKey` also selects the animation set, `<key>-walk-<dir>` etc. */
-  constructor(scene: Phaser.Scene, x: number, y: number, private textureKey = 'player') {
-    if (textureKey === 'player') ensurePlayerTexture(scene);
+  constructor(scene: Phaser.Scene, x: number, y: number, private textureKey: string) {
+    // A sheet that failed to load (or a key from a save made before it
+    // existed) must not crash the scene: stand in with the silhouette.
+    if (!scene.textures.exists(textureKey)) {
+      console.error(`[Player] sprite sheet "${textureKey}" is not loaded; using placeholder`);
+      ensurePlaceholderTexture(scene, textureKey, 32, 48, 0xff5a5f, 0xffffff);
+    }
     super(scene, x, y, textureKey);
 
     scene.add.existing(this);
@@ -35,11 +69,20 @@ export class Player extends Phaser.GameObjects.Sprite {
     // bottom ~12px, so the collision box sits at the feet — that is what makes
     // a top-down character read as standing "in" the scene rather than on it.
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.setSize(20, 12);
-    body.setOffset(6, 35);
+    body.setSize(FEET_BOX.w, FEET_BOX.h);
+    body.setOffset(FEET_BOX.offsetX, FEET_BOX.offsetY);
     body.setCollideWorldBounds(true);
 
     this.setDepth(DEPTH.ENTITIES);
+
+    // Footsteps (ADR-139): the walk cycle's two stride frames (1 and 3 of stride/idle/stride/idle) each make a step.
+    const stride = (anim: Phaser.Animations.Animation, frame: Phaser.Animations.AnimationFrame) => {
+      if (!anim.key.includes('-walk-') || (frame.index !== 1 && frame.index !== 3)) return;
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      gameEvents.emit('player:step', { x: this.x, y: this.y, running: Math.hypot(body.velocity.x, body.velocity.y) > PLAYER_SPEED * 1.2 });
+    };
+    this.on(Phaser.Animations.Events.ANIMATION_UPDATE, stride);
+    this.on(Phaser.Animations.Events.ANIMATION_START, stride);
 
     const keyboard = scene.input.keyboard;
     if (!keyboard) throw new Error('Player requires the keyboard input plugin');
@@ -53,26 +96,51 @@ export class Player extends Phaser.GameObjects.Sprite {
     };
     this.shiftKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     this.eKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.cKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+    this.spaceKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.qKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    this.bagKeys = [keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I), keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TAB)];
+    playerState.crouching = false; playerState.hidden = false; playerState.mode = 'idle';
 
     this.playIdleAnim();
   }
 
-  /** Called from the scene's update loop. */
-  update(): void {
+  /** Called from the scene's update loop with the frame's delta. */
+  update(delta = 16.67): void {
     if (!this.interactionEnabled) {
       this.stopMoving();
-      // Drain buffered E presses so the keystroke that closed a dialogue does
-      // not immediately re-trigger an interaction on unfreeze.
+      // Drain buffered presses so the input that closed a dialogue does not
+      // immediately re-trigger an interaction on unfreeze.
       Phaser.Input.Keyboard.JustDown(this.eKey);
+      Phaser.Input.Keyboard.JustDown(this.cKey);
+      Phaser.Input.Keyboard.JustDown(this.spaceKey);
+      Phaser.Input.Keyboard.JustDown(this.qKey);
+      for (const k of this.bagKeys) Phaser.Input.Keyboard.JustDown(k);
+      consumeInteract(); consumeHit(); consumeThrow();
+      playerState.mode = 'idle';
       return;
     }
+    const store = useGameStore.getState();
+    const act4 = Boolean(store.flags[ACT4_FLAG]);
+    if (Phaser.Input.Keyboard.JustDown(this.cKey) && act4) this.setCrouching(!playerState.crouching);
+    const swing = Phaser.Input.Keyboard.JustDown(this.spaceKey) || consumeHit();
+    const toss = Phaser.Input.Keyboard.JustDown(this.qKey) || consumeThrow();
+    if (act4 && swing) gameEvents.emit('player:swing', { facing: this.currentDirection });
+    if (act4 && toss) gameEvents.emit('player:throw', { facing: this.currentDirection });
+    if (this.bagKeys.some((k) => Phaser.Input.Keyboard.JustDown(k))) { this.bagCallback?.(); return; }
 
-    const left = this.cursors.left.isDown || this.wasdKeys.A.isDown;
-    const right = this.cursors.right.isDown || this.wasdKeys.D.isDown;
-    const up = this.cursors.up.isDown || this.wasdKeys.W.isDown;
-    const down = this.cursors.down.isDown || this.wasdKeys.S.isDown;
+    const left = this.cursors.left.isDown || this.wasdKeys.A.isDown || input.axisX < 0;
+    const right = this.cursors.right.isDown || this.wasdKeys.D.isDown || input.axisX > 0;
+    const up = this.cursors.up.isDown || this.wasdKeys.W.isDown || input.axisY < 0;
+    const down = this.cursors.down.isDown || this.wasdKeys.S.isDown || input.axisY > 0;
 
-    const speed = this.shiftKey.isDown ? PLAYER_RUN_SPEED : PLAYER_SPEED;
+    // Low food = slower walk (components §7) — felt, not fatal, in Acts 0–3.
+    const hungry = store.stats.food < HUNGRY_AT ? HUNGRY_SPEED : 1;
+    const moving = left || right || up || down;
+    const wantsRun = (this.shiftKey.isDown || input.run) && this.walkScale >= 1 && moving && !playerState.crouching;
+    // Act 4: a run costs energy pips; at empty you walk (ADR-145). Before Act 4 running is free.
+    const running = act4 ? tickEnergy(delta, wantsRun, store.stats.stamina) : wantsRun;
+    const speed = (running ? PLAYER_RUN_SPEED : PLAYER_SPEED) * hungry * this.walkScale * (playerState.crouching ? CROUCH_SPEED : 1);
 
     let velX = 0;
     let velY = 0;
@@ -105,10 +173,16 @@ export class Player extends Phaser.GameObjects.Sprite {
     this.isMoving = velX !== 0 || velY !== 0;
     if (this.isMoving) this.playWalkAnim();
     else this.playIdleAnim();
+    playerState.mode = !this.isMoving ? (playerState.crouching ? 'crouch' : 'idle') : running ? 'run' : playerState.crouching ? 'crouch' : 'walk';
+    // Crouched, still, on a hide spot (an open shutter, an abandoned auto): hidden.
+    playerState.hidden = playerState.crouching && !this.isMoving && playerState.onHideSpot;
+    this.setAlpha(playerState.hidden ? 0.55 : playerState.crouching ? 0.85 : 1);
 
-    if (Phaser.Input.Keyboard.JustDown(this.eKey)) {
-      this.interactionCallback?.();
-    }
+    // `||` would short-circuit and leave a touch press buffered; read both.
+    const keyPressed = Phaser.Input.Keyboard.JustDown(this.eKey);
+    const touchPressed = consumeInteract();
+    if (keyPressed) this.interactionCallback?.('key');
+    else if (touchPressed) this.interactionCallback?.('touch');
   }
 
   private playAnimIfPresent(key: string): void {
@@ -123,6 +197,8 @@ export class Player extends Phaser.GameObjects.Sprite {
   }
 
   private playIdleAnim(): void {
+    // Breathing (beh_breathing) is a kind of idle: do not knock it back to the still frame.
+    if (this.anims.currentAnim?.key === `${this.textureKey}-breath-${this.currentDirection}`) return;
     this.playAnimIfPresent(`${this.textureKey}-idle-${this.currentDirection}`);
   }
 
@@ -146,8 +222,18 @@ export class Player extends Phaser.GameObjects.Sprite {
     this.interactionEnabled = enabled;
   }
 
-  /** Register the E-key interaction handler. */
-  onInteract(callback: () => void): void {
+  /** Crouch on or off (C, the touch button's CROUCH / STAND, a hide spot's HIDE). No crouch frames yet: the sprite dims a little. */
+  setCrouching(on: boolean): void {
+    playerState.crouching = on;
+  }
+
+  /** Register the bag handler (I / TAB). */
+  onBag(callback: () => void): void {
+    this.bagCallback = callback;
+  }
+
+  /** Register the interaction handler (E / the touch action button). */
+  onInteract(callback: (source: 'key' | 'touch') => void): void {
     this.interactionCallback = callback;
   }
 

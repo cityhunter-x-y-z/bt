@@ -1,0 +1,146 @@
+{
+  "id": "act2_ravi_1am",
+  "district": "hill_flat",
+  "act": 2,
+  "seq": "2.5",
+  "title": "Ravi, 1 AM",
+  "status": "P14",
+  "time": "00:50 — the first sleep after act2_ikea_done is cut short by Ravi's message (sleepEvents wakeAt 50); the Electro night = a power cut across Whitefield (power_cut)",
+  "player_goal": "Find Ravi at the shuttle stop at 1 AM.",
+  "design_goal": "Conflict + Quiet dread: the first scene at night, and the first choice that has no right answer, only a cost. The player meets Ravi at his lowest — unpaid, sleepless, alone on the agri-samples — and decides what kind of friend to be. `ravi_supported` drives 3.x and the ending (act4 Ground Zero). Reveal: night-time (a reusable night look), autos at double fare after midnight.",
+  "pacing": [
+    "Tense",
+    "Engaged",
+    "Tense",
+    "Calm"
+  ],
+  "entry": {
+    "from": "hill_flat",
+    "spawn": "door",
+    "after": [
+      "F1"
+    ]
+  },
+  "cast": [
+    {
+      "npc": "npc_ravi",
+      "tier": 3,
+      "district": "office_gate",
+      "spawn": "shuttle_bay",
+      "role": "Sitting on the shuttle-bay bench under the one working light, hood up, shaking. Thirty hours awake; the lab put him on the agri-samples alone; his sister's wedding loan (₹3 lakh, his name on it); the stipend still 'processing'. One line of foreshadowing: Appa calls at the worst times, even in the corridor."
+    },
+    {
+      "npc": "npc_office_guard",
+      "tier": 2,
+      "district": "office_gate",
+      "spawn": "guard",
+      "role": "The night guard with a torch: 'That boy has been there since eleven. I gave him tea. He didn't drink it. Generator's only for the gate — whole Whitefield is dark tonight.'"
+    }
+  ],
+  "quests": [
+    "q_act2_ravi_1am"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Tense",
+      "what": "The first sleep after the IKEA run is cut short: at 00:50 the phone buzzes (critical, through Do Not Disturb) — Ravi: 'u up? im at the shuttle stop. cant go back in. cant go home.' The clock says 00:50; the flat is dark (the night look).",
+      "interact": "sleep → phone",
+      "flag": "ravi_called, power_cut"
+    },
+    {
+      "id": "F2",
+      "pacing": "Engaged",
+      "what": "Getting there at night: buses stopped at 23:00 (the hill bus says so); the scooter if you own one (RIDE), otherwise the hill's last auto at double fare (₹160) to the office gate. The tech park at 1 AM: the night look, the guard's torch, the office block dark except one floor, the shuttle bay's single light.",
+      "interact": "Maps / auto",
+      "flag": "ravi_night_trip"
+    },
+    {
+      "id": "F3",
+      "pacing": "Tense",
+      "what": "Ravi on the bench. Four short exchanges (the samples, the loan, the stipend, Appa's calls), then the choice: sit with him till the first shuttle (an hour passes; stress +5 for you, he gets a little calmer) · give him ₹2,000 for the loan instalment (he refuses twice, then takes it, hands shaking) · or 'I have work tomorrow' and leave. Sitting and giving can both happen; leaving ends it.",
+      "interact": "dialogue",
+      "flag": "ravi_supported | ravi_left; ravi_sat, ravi_paid"
+    },
+    {
+      "id": "F4",
+      "pacing": "Calm",
+      "what": "Home at 3 AM (auto ₹160 again, or the scooter), sleep. Morning: if you stayed or gave, Ravi's chat — 'thank you. dont tell anyone i cried. i'll pay you back after the processing finishes.' If you left: nothing. His last message stays the one about the stipend. Stress follows you either way.",
+      "interact": "sleep + phone",
+      "flag": "act2_ravi_done"
+    }
+  ],
+  "economy": [
+    {
+      "trigger": "give Ravi the instalment",
+      "spend": 2000,
+      "canAfford": true
+    },
+    {
+      "trigger": "night auto, hill → office gate (double fare after midnight)",
+      "spend": 160,
+      "canAfford": true
+    },
+    {
+      "trigger": "night auto home",
+      "spend": 160,
+      "canAfford": true
+    },
+    {
+      "trigger": "scooter instead (fuel)",
+      "spend": "fuel",
+      "canAfford": true
+    }
+  ],
+  "exits": [
+    {
+      "zone": "auto_out",
+      "to": "office_gate",
+      "spawn": "auto_drop",
+      "transit": "auto",
+      "note": "ambedkar_nagar_hill; onlyAt night; ₹80 ×2 after midnight = ₹160; from the old road-out strip at the west edge (the bus stop is its own zone, ADR-162)"
+    },
+    {
+      "zone": "auto_stand",
+      "to": "ambedkar_nagar_hill",
+      "spawn": "bus_drop",
+      "transit": "auto",
+      "note": "office_gate; onlyAt night (the day auto to Whitefield is onlyAt day); ₹160 after midnight"
+    },
+    {
+      "zone": "(Maps)",
+      "to": "office_gate",
+      "transit": "scooter",
+      "note": "RIDE if the scooter is owned (fuel)"
+    }
+  ],
+  "save_flags": [
+    "ravi_called",
+    "power_cut",
+    "ravi_night_trip",
+    "ravi_found",
+    "ravi_sat",
+    "ravi_paid",
+    "ravi_supported",
+    "ravi_left",
+    "ravi_decided",
+    "ravi_night_over",
+    "ravi_thanked",
+    "act2_ravi_done"
+  ],
+  "assets_needed": [
+    "no new art: office_gate, the hill and the flat as they are",
+    "nightLook: a core behaviour, a deep-blue multiply over the world 23:00–05:30 (half-hour ramps), deeper during the power cut (done)",
+    "Ravi stands by the bench (no sitting pose in this build)"
+  ],
+  "acceptance": [
+    "the first sleep after act2_ikea_done wakes you at 00:50 with Ravi's message (critical: it rings through Do Not Disturb); the flat is in the night look",
+    "at night the hill bus is locked ('Last bus left at 11'); a night auto takes you to the office gate for ₹160; the scooter rides as usual",
+    "Ravi is at the shuttle bay only that night; the guard's line; four exchanges, then sit / give / leave",
+    "sit: an hour passes, +5 stress, ravi_supported · give: ₹2,000 through spend() ('Needs ₹2,000' if short), ravi_supported · leave: ravi_left, no supported flag; sitting and giving can both happen",
+    "home and sleep: Ravi's morning chat only if supported",
+    "the walkthrough bot plays 2.5 and the headless run stays green (15 of 15)"
+  ],
+  "open_questions": [],
+  "decided": "User 2026-10-17: 'take the defaults.' — every open question resolved by the draft's default (ADR-133)."
+}

@@ -31,6 +31,14 @@ const tilemapModules = import.meta.glob('./tilemaps/*.tmj', {
   import: 'default',
 }) as Record<string, string>;
 
+// Occluder cut-outs written by scripts/import-map.mjs: the parts of a generated
+// map that stand in front of a character behind them (poles, canopies, roofs).
+const overlayModules = import.meta.glob('./overlays/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 /** "./tilesets/luggage-belt.png" -> "luggage-belt" */
 const basename = (path: string): string =>
   path.split('/').pop()!.replace(/\.[^.]+$/, '');
@@ -51,3 +59,52 @@ export const SPRITE_URLS: Record<string, string> = byBasename(spriteModules);
 
 /** Tilemap URLs keyed by file basename, e.g. "airport_interior". */
 export const TILEMAP_FILE_URLS: Record<string, string> = byBasename(tilemapModules);
+
+/** Occluder image URLs keyed by basename, e.g. "prashanth_layout__pole_west". */
+export const OVERLAY_URLS: Record<string, string> = byBasename(overlayModules);
+
+// Title screen art (scripts/import-title.mjs, ADR-101): background, foreground
+// cut-out, logo and the moving props. Keyed by basename, e.g. "title_bus".
+const titleModules = import.meta.glob('./title/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+export const TITLE_URLS: Record<string, string> = byBasename(titleModules);
+
+// Props placed and moved by behaviours (scripts/import-props.mjs): luggage on
+// the carousel. Keyed by basename, e.g. "luggage_03".
+const propModules = import.meta.glob('./props/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+export const PROP_URLS: Record<string, string> = byBasename(propModules);
+
+// Flat silhouette backdrops (scripts/import-backdrop.mjs): the workday skyline (ADR-121). Keyed by basename.
+const backdropModules = import.meta.glob('./backdrops/*.png', { eager: true, import: 'default', query: '?url' }) as Record<string, string>;
+/** Rendered audio by basename (ADR-139): WAV placeholders today, OGG/M4A finals later. */
+const audioModules = import.meta.glob('./audio/*.wav', { eager: true, import: 'default', query: '?url' }) as Record<string, string>;
+export const AUDIO_URLS: Record<string, string> = byBasename(audioModules);
+export const BACKDROP_URLS: Record<string, string> = byBasename(backdropModules);
+
+// Bitmap fonts written by scripts/import-font.mjs (ADR-114): `px` regular and
+// `pxb` pixel bold, each a PNG atlas + AngelCode BMFont XML.
+const fontModules = import.meta.glob('./fonts/*.{png,xml}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+/** { px: { png, xml }, pxb: { png, xml } } */
+export const FONT_URLS: Record<string, { png: string; xml: string }> = Object.entries(fontModules).reduce(
+  (acc, [path, url]) => {
+    const name = basename(path);
+    const ext = path.endsWith('.png') ? 'png' : 'xml';
+    acc[name] = { ...(acc[name] ?? { png: '', xml: '' }), [ext]: url };
+    return acc;
+  },
+  {} as Record<string, { png: string; xml: string }>,
+);

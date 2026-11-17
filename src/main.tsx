@@ -1,4 +1,4 @@
-// Standalone entry — mounts the game as its own app (`npm run dev`).
+// Standalone entry — mounts the game as its own app (pnpm dev).
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import BangaloreTimes from './BangaloreTimes';

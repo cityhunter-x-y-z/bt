@@ -1,0 +1,15 @@
+# Build context for the hosted showcase (ADR-164).
+node_modules
+dist
+.git
+.gitignore
+android
+ios
+docs/design
+docs/review
+scripts/.work
+playground
+**/*.log
+.DS_Store
+Dockerfile
+.dockerignore

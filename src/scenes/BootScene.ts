@@ -2,16 +2,26 @@ import Phaser from 'phaser';
 import {
   GAME_HEIGHT,
   GAME_WIDTH,
+  LARGE_FRAME,
+  LARGE_SHEET,
   SCENE_KEYS,
   SPRITE_HEIGHT,
   SPRITE_WIDTH,
   TILE_SIZE,
 } from '../utils/constants';
-import { SPRITE_URLS, TILESET_URLS } from '../assets';
+import { BACKDROP_URLS, FONT_URLS, OVERLAY_URLS, PROP_URLS, SPRITE_URLS, TILESET_URLS, TITLE_URLS } from '../assets';
+import { motion } from '../ui/tokens';
+import QUIRKS from '../data/infected/quirks.json';
 import { STREET_FRAMES_KEY } from '../entities/PlacedObject';
 import { MAPS } from '../assets/maps';
 import { useGameStore } from '../store';
+import { SaveManager } from '../systems/SaveManager';
+import { useSettings } from '../systems/SettingsManager';
+import { applyDisplaySettings } from '../core/display';
 import { QuestManager } from '../systems/QuestManager';
+import { PhoneManager } from '../systems/PhoneManager';
+import { MapManager } from '../systems/MapManager';
+import { AudioSystem, eagerAudio } from '../audio/AudioSystem';
 
 /**
  * BootScene — preloads every shared asset behind a loading bar, registers the
@@ -46,11 +56,12 @@ export class BootScene extends Phaser.Scene {
       console.error(`[BootScene] failed to load "${file.key}" from ${file.url}`);
     });
 
-    // Every character sheet: 128×192 = 4 columns × 4 rows of 32×48 frames.
+    // Every character sheet: 96×192 = 3 columns × 4 rows of 32×48 frames — the Host's 144×256 of 48×64 (ADR-159).
     for (const [key, url] of Object.entries(SPRITE_URLS)) {
+      const large = LARGE_SHEET.test(key);
       this.load.spritesheet(key, url, {
-        frameWidth: SPRITE_WIDTH,
-        frameHeight: SPRITE_HEIGHT,
+        frameWidth: large ? LARGE_FRAME.w : SPRITE_WIDTH,
+        frameHeight: large ? LARGE_FRAME.h : SPRITE_HEIGHT,
       });
     }
 
@@ -64,6 +75,29 @@ export class BootScene extends Phaser.Scene {
     for (const [key, url] of Object.entries(TILESET_URLS)) {
       this.load.image(key, url);
     }
+
+    // The small, frequent sounds (UI, phone, HUD, footsteps, voices); the rest load on first use (ADR-139).
+    for (const [key, url] of eagerAudio()) this.load.audio(key, url);
+
+    // Silhouette backdrops (the workday skyline, ADR-121).
+    for (const [key, url] of Object.entries(BACKDROP_URLS)) this.load.image(key, url);
+    // Behaviour props (luggage on the carousel).
+    for (const [key, url] of Object.entries(PROP_URLS)) {
+      this.load.image(key, url);
+    }
+
+    // Title screen art (ADR-101).
+    for (const [key, url] of Object.entries(TITLE_URLS)) {
+      this.load.image(key, url);
+    }
+
+    // Occluder cut-outs (generated maps): WorldScene depth-sorts them by base.
+    for (const [key, url] of Object.entries(OVERLAY_URLS)) {
+      this.load.image(key, url);
+    }
+
+    // UI bitmap fonts (ADR-114): Pixelify Sans on its own pixel grid.
+    for (const [key, { png, xml }] of Object.entries(FONT_URLS)) this.load.bitmapFont(key, png, xml);
 
     // The street tileset is loaded a second time as a spritesheet. Tilemap
     // layers index it by name through the image cache; placed objects index
@@ -82,18 +116,36 @@ export class BootScene extends Phaser.Scene {
     // The quest system reacts to bus events; instantiate it before any scene
     // can emit one, or the first objective of a run could be missed.
     QuestManager.getInstance();
+    PhoneManager.getInstance();
+    MapManager.getInstance();
+    // The sound layer (ADR-139): one instance for the game, listening from the first scene on.
+    AudioSystem.start(this.game);
 
     this.setAllTexturesNearest();
     this.createPlaceholderTextures();
     this.createCharacterAnimations();
 
-    // Which scene follows is set by PhaserGame via the registry, so a host can
-    // drop straight into a scene (e.g. the Whitefield sandbox) without editing
-    // the scene list. Falls back to the title screen.
+    // Where to go next is set by PhaserGame via the registry. A host can drop
+    // straight into a district (the Whitefield sandbox, a scene under audit)
+    // or name a scene; the default is the title screen.
+    const startDistrict = this.registry.get('startDistrict') as string | undefined;
     const next = (this.registry.get('startScene') as string | undefined) ?? SCENE_KEYS.TITLE;
 
+    // Save slots are read once from disk (platform.saves) before anything can
+    // Continue or autosave; a failed read leaves them empty, never stuck.
+    const savesReady = Promise.all([
+      SaveManager.getInstance().init().catch((err) => console.warn('[BootScene] save slots unreadable:', err)),
+      useSettings.getState().load(),
+    ]);
+    // The pause/settings menu and the "rotate your phone" panel sit over every scene from here on.
+    this.scene.launch(SCENE_KEYS.MENU);
+    this.scene.launch(SCENE_KEYS.ORIENTATION);
     this.time.delayedCall(300, () => {
-      this.scene.start(next);
+      void savesReady.then(() => {
+        applyDisplaySettings(this.game, useSettings.getState().settings.display);
+        if (startDistrict) this.scene.start(SCENE_KEYS.WORLD, { districtId: startDistrict });
+        else this.scene.start(next);
+      });
     });
   }
 
@@ -185,9 +237,10 @@ export class BootScene extends Phaser.Scene {
   /**
    * Walk and idle animations for every loaded character sheet.
    *
-   * Rows: 0 = down (frames 0-3), 1 = left (4-7), 2 = right (8-11), 3 = up
-   * (12-15). Each row runs [stride, idle, opposite stride, idle], so the
-   * middle frame doubles as that direction's idle pose.
+   * Rows: 0 = down (frames 0-2), 1 = left (3-5), 2 = right (6-8), 3 = up
+   * (9-11). Each row holds [stride, idle, opposite stride] — one idle per
+   * row, never duplicated (AUDIT_LOG P2 round 2); the walk cycle returns
+   * through the idle frame by playing 0,1,2,1.
    *
    * Keys are `<sheet>-walk-<dir>` and `<sheet>-idle-<dir>`, which is what
    * Player and the ambient citizens look up — so a new sheet is animated
@@ -196,12 +249,13 @@ export class BootScene extends Phaser.Scene {
   private createCharacterAnimations(): void {
     const rows: Array<{ dir: string; start: number }> = [
       { dir: 'down', start: 0 },
-      { dir: 'left', start: 4 },
-      { dir: 'right', start: 8 },
-      { dir: 'up', start: 12 },
+      { dir: 'left', start: 3 },
+      { dir: 'right', start: 6 },
+      { dir: 'up', start: 9 },
     ];
 
     for (const sheet of Object.keys(SPRITE_URLS)) {
+      if (sheet.includes('__')) continue; // derived sheets (__breath) are frames, not characters
       if (!this.textures.exists(sheet)) continue; // load failed; already reported
 
       for (const { dir, start } of rows) {
@@ -209,7 +263,7 @@ export class BootScene extends Phaser.Scene {
         if (!this.anims.exists(walkKey)) {
           this.anims.create({
             key: walkKey,
-            frames: this.anims.generateFrameNumbers(sheet, { start, end: start + 3 }),
+            frames: [start, start + 1, start + 2, start + 1].map((frame) => ({ key: sheet, frame })),
             frameRate: 8,
             repeat: -1,
           });
@@ -221,6 +275,59 @@ export class BootScene extends Phaser.Scene {
             key: idleKey,
             frames: [{ key: sheet, frame: start + 1 }],
             frameRate: 1,
+          });
+        }
+
+        // Twitch (ADR-159): <sheet>__twitch holds a head snap, a tilt and a hitch per row, played once and back to
+        // the idle frame — the infected stand still wrongly. Holds from data/infected/quirks.json.
+        const twitch = `${sheet}__twitch`;
+        const twitchKey = `${sheet}-twitch-${dir}`;
+        if (this.textures.exists(twitch) && !this.anims.exists(twitchKey)) {
+          const row = start / 3;
+          const ms = QUIRKS.twitch.framesMs;
+          this.anims.create({
+            key: twitchKey,
+            frames: [
+              { key: twitch, frame: row * 3, duration: ms[0] },
+              { key: twitch, frame: row * 3 + 1, duration: ms[1] },
+              { key: sheet, frame: start + 1, duration: ms[2] },
+              { key: twitch, frame: row * 3 + 2, duration: ms[3] },
+              { key: sheet, frame: start + 1, duration: 1 },
+            ],
+            frameRate: 1000,
+          });
+        }
+
+        // Fall (ADR-161): <sheet>__fall — buckle, kneel, slump — played once when the Pulse Gun drops a body.
+        const fall = `${sheet}__fall`;
+        const fallKey = `${sheet}-fall-${dir}`;
+        if (this.textures.exists(fall) && !this.anims.exists(fallKey)) {
+          const row = start / 3;
+          this.anims.create({
+            key: fallKey,
+            frames: QUIRKS.fallMs.map((duration, k) => ({ key: fall, frame: row * 3 + k, duration })),
+            frameRate: 1000,
+          });
+        }
+
+        // Breathing (ADR-107): F0 is this sheet's idle; F1–F3 are baked into
+        // <sheet>__breath (same row, columns 0–2). Per-frame holds come from
+        // motion tokens; frameRate 1000 makes the base step ~1 ms so the
+        // holds are the timing.
+        const breath = `${sheet}__breath`;
+        const breathKey = `${sheet}-breath-${dir}`;
+        if (this.textures.exists(breath) && !this.anims.exists(breathKey)) {
+          const row = start / 3;
+          this.anims.create({
+            key: breathKey,
+            frames: [
+              { key: sheet, frame: start + 1, duration: motion('m.breath.f0') },
+              { key: breath, frame: row * 3, duration: motion('m.breath.f1') },
+              { key: breath, frame: row * 3 + 1, duration: motion('m.breath.f2') },
+              { key: breath, frame: row * 3 + 2, duration: motion('m.breath.f3') },
+            ],
+            frameRate: 1000,
+            repeat: -1,
           });
         }
       }

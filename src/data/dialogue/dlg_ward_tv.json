@@ -1,0 +1,28 @@
+{
+  "id": "dlg_ward_tv",
+  "speaker": "",
+  "portrait": "npc_placeholder",
+  "nodes": {
+    "start": {
+      "text": "(The TV on its bracket, sound off. A ticker crawls: ACUTE VIRAL ENCEPHALITIS - BBMP TO CLEAR STORM DRAINS BEFORE THE MONSOON - OFFICIALS: NO CAUSE FOR ALARM.)",
+      "effect": {
+        "flags": {
+          "ward_tv_seen": true
+        },
+        "cue": "a.sfx.world.tv_on"
+      }
+    },
+    "curfew": {
+      "text": "(The ticker has changed: NIGHT CURFEW 10 PM - 6 AM - BBMP: \"A PRECAUTION\" - STAY INDOORS AFTER DARK.)",
+      "effect": {
+        "cue": "a.sfx.world.tv_on"
+      }
+    }
+  },
+  "enter": [
+    {
+      "flag": "wn_curfew",
+      "node": "curfew"
+    }
+  ]
+}

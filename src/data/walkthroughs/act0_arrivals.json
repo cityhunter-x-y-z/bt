@@ -1,0 +1,69 @@
+{
+  "scene": "act0_arrivals",
+  "generated": "generated 2026-10-18 by scripts/generate-walkthroughs.ts from q_act0_arrival + airport + the prereq state",
+  "seed": 7,
+  "notes": [
+    "q_act0_arrival/talk_anna: satisfied by q_act0_arrival/buy_chai's conversation"
+  ],
+  "steps": [
+    {
+      "id": "wait_for_1",
+      "do": "wait_for",
+      "ready": "scene_loaded",
+      "scene": "airport",
+      "timeout": 15000
+    },
+    {
+      "id": "wait_2",
+      "do": "wait",
+      "ms": 400
+    },
+    {
+      "id": "goto_3",
+      "do": "goto",
+      "target": "npc:npc_chai_anna",
+      "optional": true
+    },
+    {
+      "id": "interact_4",
+      "do": "interact",
+      "target": "npc:npc_chai_anna",
+      "optional": true
+    },
+    {
+      "id": "choose_5",
+      "do": "choose",
+      "option": "paid",
+      "optional": true
+    },
+    {
+      "id": "goto_6",
+      "do": "goto",
+      "target": "exit:zone_exit"
+    },
+    {
+      "id": "wait_for_7",
+      "do": "wait_for",
+      "ready": "flag",
+      "flag": "bus_kia8_here",
+      "timeout": 15000
+    },
+    {
+      "id": "interact_8",
+      "do": "interact"
+    },
+    {
+      "id": "wait_for_9",
+      "do": "wait_for",
+      "ready": "scene_loaded",
+      "scene": "whitefield_street",
+      "timeout": 60000
+    },
+    {
+      "id": "expect_10",
+      "do": "expect",
+      "flag": "act0_arrived",
+      "timeout": 3000
+    }
+  ]
+}

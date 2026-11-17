@@ -6,9 +6,6 @@ import { StatsManager } from './StatsManager';
 import { useGameStore } from '../store';
 import type { QuestFile } from '../utils/types';
 
-/** Flag key set when a quest unlocks a scene, e.g. "scene_unlocked:PGScene". */
-export const sceneUnlockedFlag = (sceneKey: string): string => `scene_unlocked:${sceneKey}`;
-
 /**
  * QuestManager — objective tracking driven entirely by the event bus.
  *
@@ -48,6 +45,7 @@ export class QuestManager {
       gameEvents.on('item:added', ({ itemId }) => this.progress('collect', itemId)),
       gameEvents.on('zone:reached', ({ zoneId }) => this.progress('reach', zoneId)),
       gameEvents.on('entity:interacted', ({ entityId }) => this.progress('interact', entityId)),
+      gameEvents.on('flag:set', ({ flag, value }) => { if (value) this.progress('flag', flag); }),
     );
   }
 
@@ -86,6 +84,13 @@ export class QuestManager {
       completed,
     });
     gameEvents.emit('quest:started', { questId });
+
+    // A flag objective whose flag is already set completes immediately — a
+    // quest started after the fact must not wait for a change that happened.
+    const flags = useGameStore.getState().flags;
+    for (const objective of quest.objectives) {
+      if (objective.type === 'flag' && flags[objective.target]) this.progress('flag', objective.target);
+    }
     return true;
   }
 
@@ -144,7 +149,7 @@ export class QuestManager {
     if (rewards.xp && rewards.xp_branch) {
       StatsManager.getInstance().addXp(rewards.xp_branch, rewards.xp);
     }
-    if (rewards.money) StatsManager.getInstance().adjustMoney(rewards.money);
+    if (rewards.wallet) StatsManager.getInstance().earn(rewards.wallet, `quest:${questId}`);
     if (rewards.reputation) {
       // Credited to the quest's district as well as the global total.
       ReputationManager.getInstance().add(rewards.reputation, quest.district);
@@ -153,9 +158,9 @@ export class QuestManager {
       InventoryManager.getInstance().add(itemId);
     }
 
-    if (quest.on_complete?.unlock_scene) {
-      state.setFlag(sceneUnlockedFlag(quest.on_complete.unlock_scene), true);
-    }
+    // Flags are the generic unlock currency: districts, dialogue and later
+    // phone apps gate on them, so a quest never names a scene (ADR-15).
+    for (const flag of quest.on_complete?.set_flags ?? []) state.setFlag(flag, true);
 
     gameEvents.emit('quest:completed', { questId });
   }

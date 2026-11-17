@@ -1,0 +1,109 @@
+{
+  "id": "act3_three_nights",
+  "district": "ward4",
+  "act": 3,
+  "seq": "3.4",
+  "title": "Three Nights, Again",
+  "status": "P20",
+  "time": "18:30 the evening 3.3 ends (Ward 4), then three nights (sleep → 07:00 each morning, as at the hotel)",
+  "player_goal": "Get through three nights in the ward until the doctor signs.",
+  "design_goal": "An echo of the first week (0.2: three hotel nights, a countdown, the city opening up) played backwards: three ward nights, the same countdown, and the city closing down. Nothing attacks; the phone simply gets quieter each morning, the ward empties, the sounds outside thin out, and on the third morning Ravi's bed is empty. Dread by subtraction.",
+  "pacing": [
+    "Calm",
+    "Curious",
+    "Tense",
+    "Calm"
+  ],
+  "entry": {
+    "from": "hivr_corridor",
+    "spawn": "your_bed",
+    "after": []
+  },
+  "cast": [
+    {
+      "npc": "npc_ward_nurse",
+      "tier": 3,
+      "spawn": "nurse_station",
+      "role": "Evening 1: 'Three nights. Then the doctor signs — Thursday.' Day 2: busier, shorter. Day 3, asked about Ravi: 'Moved. Another ward. Don't ask me which.'"
+    },
+    {
+      "npc": "npc_ravi_ward",
+      "tier": 3,
+      "spawn": "ravi_bed",
+      "role": "Day 1: 'They took my phone. For tests, they said.' Day 2: asleep, a cough he didn't have before. Night 3: gone — the bed stripped, the IV line on the floor."
+    }
+  ],
+  "quests": [
+    "q_act3_three_nights"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Calm",
+      "what": "18:30, back from the corridor. Sister Lalitha: 'Three nights. Then the doctor signs.' The hotel's countdown plate comes back under the clock: 'Discharge · 3 nights'. Your bed now works (sleep → 07:00), as the hotel's did.",
+      "interact": "dialogue + bed",
+      "flag": "ward_nights_started"
+    },
+    {
+      "id": "F2",
+      "pacing": "Curious",
+      "what": "Morning 1. News: 'BBMP announces night curfew, 10 PM–6 AM, \"as a precaution\"' (the TV ticker says the same). Ravi: 'They took my phone. For tests, they said.' The city through the window is quieter (fewer horns).",
+      "interact": "sleep + phone + dialogue",
+      "flag": "wn_curfew"
+    },
+    {
+      "id": "F3",
+      "pacing": "Tense",
+      "what": "Morning 2. Amma's message — 'Come home. Please. Your father is asking.' — and, as you leave your bed, her call: two answers, both kind, neither a yes. The woman's bed across the aisle is empty. The isolation door is silent. Ravi asleep, a new cough. UPI: 'Server busy. Try again later.' (payments still go through). The ward sounds thinner: the 'warning' band — half the traffic, distant sirens.",
+      "interact": "sleep + chat + phone",
+      "flag": "wn_amma, wn_server_busy, woman_gone, door_quiet, amma_home_answered"
+    },
+    {
+      "id": "F4",
+      "pacing": "Calm",
+      "what": "Morning 3. Ravi's bed stripped; his IV line on the floor; the green lanyard gone from the locker. Sister Lalitha: 'Moved. Another ward. Don't ask me which.' The signal drops to nothing. The countdown reads 'Discharge · today'. (3.5 Discharge starts here.)",
+      "interact": "sleep + zone + dialogue",
+      "flag": "ravi_gone, nurse_ravi_moved, act3_three_nights_done"
+    }
+  ],
+  "economy": [
+    {
+      "trigger": "UPI 'Server busy' (banner only)",
+      "spend": "nothing new",
+      "canAfford": true
+    }
+  ],
+  "exits": [
+    {
+      "zone": "ward_exit",
+      "to": "ward4",
+      "transit": "walk",
+      "note": "still 'Not discharged.' — 3.5 opens the door"
+    }
+  ],
+  "save_flags": [
+    "ward_nights_started",
+    "wn_curfew",
+    "wn_amma",
+    "wn_server_busy",
+    "woman_gone",
+    "door_quiet",
+    "amma_home_answered",
+    "ravi_gone",
+    "nurse_ravi_moved",
+    "act3_three_nights_done"
+  ],
+  "assets_needed": [
+    "no new place: Ward 4 (+ a bed zone and the aisle zone in its spec)",
+    "ward_props — Ravi's stripped bed and the IV stand on the floor (one generated sheet, first try), placed `exact` over the bed drawn in the map",
+    "engine: the `countdown` behaviour, district `signalIf` and `stabilityIf`, app `noticeIf`, objects `exact`, leavers dismissed overnight (done)"
+  ],
+  "acceptance": [
+    "after 3.3 the nurse starts the countdown; the ward bed sleeps to 07:00 three times",
+    "morning 1 the curfew headline; morning 2 Amma's message, the empty bed across the aisle, the door silent, UPI 'Server busy'; morning 3 Ravi gone, the IV line on the floor, no signal",
+    "the ward sounds thinner each night (the stability bands)",
+    "the walkthrough bot plays the three nights; the headless run stays green (21 of 21)"
+  ],
+  "open_questions": [],
+  "decided": "User 2026-10-17: 'Take the defaults.' — every open question resolved by the draft's default (ADR-142)."
+}

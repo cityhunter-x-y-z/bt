@@ -1,135 +1,213 @@
-# Namma Quest - Architecture & Infrastructure
+# Architecture (current state)
+Updated: 2026-10-16
 
-## Tech Stack at a Glance
+## Scenes (`src/scenes/`)
+| Scene | Role | Status |
+|---|---|---|
+| `BootScene` | loads every sprite sheet / tileset / tilemap by glob, registers `<sheet>-walk/idle-<dir>` anims, placeholder textures; starts `registry.startDistrict` (→ World) or `registry.startScene` (default Title) | keep |
+| `WorldScene` (M0 content) | airport: 7 NPCs incl. `npc_chai_anna` (generated sheet), cab tout, HIVR lanyard man; `hivr_zone` trigger sets `seen_hivr_lanyard`; exit `zone_exit` fare ₹250 → `whitefield_street` | P3 |
+| `WorldScene` (hotel) | `whitefield_hotel`: reception NPC (check-in sets `hotel_checked_in` → countdown), `room` trigger → Divya's call, `bed` trigger → sleep (fade, next 07:00), `exit` → street `hotel_door`; `hotelNightTimer` behaviour | P4 |
+| `WorldScene` (PG lane, P5) | `prashanth_layout`: six NPCs (gate owner `unlessFlag pg_token_paid`, Leela, Shanthamma, Rhea, Raju, Basavaraj), `lane_arrival` trigger, exits `main_road` → street `lane_return` and `gate10` → `shanthamma_pg` (locked until `pg_signed`, `lockedText`). `shanthamma_pg`: `doorway` sets `pg_moved_in`, `bed` = Amma's call once (`unlessFlag amma_called`) + sleep | P5 |
+| `TitleScene` | living golden-hour Bengaluru (ADR-101/102): `src/assets/title/*` from `scripts/import-title.mjs`; traffic, metro, clouds, birds, petals, lamp glow, walker; reduced motion = everything placed, no tweens. New Game (resets store → CharacterSelect) · Continue (restores save → `WorldScene{districtId,x,y}`) · Settings (P6) | P5+ |
+| `CharacterSelectScene` | character creation: offer-letter form (name, gender, age, home state/town, college, degree, skin) → `store.setProfile` (derives sprite) → 4-direction walk preview on test tiles → `WorldScene{airport}`. Hidden DOM `<input>` for text (mobile keyboard) | P2 |
+| **`WorldScene`** | the ONE place renderer: `create({districtId, spawnId?, x?, y?, fromDistrict?})` reads `districts.json` + `maps.manifest.json`; layers in `layerOrder`; Populate / Exits / Triggers / behaviours; dialogue + E-interact; autosave on entry and shutdown. **No district-specific branches.** | new |
+| `TransitScene` | fade-to-black between places; ride card ("Vayu Vajra KIA-8 → Whitefield") for bus/metro/cab/scooter, plain fade for walk; lands `WorldScene{to, spawn}` | new (minimal) |
 
-### Core Engine
-- **Game Engine:** Phaser 3
-- **Frontend Framework:** React 18
-- **State Management:** Zustand
-- **Build Tool:** Vite
-- **Mobile Wrapper:** Capacitor 6
+## Data flow
+`src/data/index.ts` globs `dialogue/ quests/ items/ npcs/ objects/` + `districts.json` → managers in `src/systems/` (Stats, Inventory, Quest, Dialogue, Reputation, Save — singletons, rules only) → `src/store.ts` (Zustand; same shape as `SaveData`; `activeDistrict`, `appearance`) → WorldScene + the in-canvas `HudScene` (ADR-118; the React shell `BangaloreTimes.tsx` is only the canvas and the host's back pill).
+World modules emit facts on `src/core/events.ts` — `zone:reached {zoneId, districtId}`, `district:entered`, `entity:interacted`, `dialogue:ended`, `item:added` — and `QuestManager` draws conclusions. Exits emit `zone:reached` *before* checking `ReputationManager.canEnter(to)`, so a quest whose last objective is "reach the exit" completes and opens the gate in the same step.
 
-### Backend Infrastructure
-- **Database:** Firebase Realtime Database
-- **Authentication:** Firebase Authentication
-- **Notifications:** Firebase Cloud Messaging (FCM)
-- **Serverless:** Firebase Cloud Functions
+## District entry (`src/data/districts.json`, type `DistrictDef`)
+`id · name · map (manifest key) · defaultSpawn · fadeMs? · unlock?{quest, reputation, flags} · quests?[] (started on entry) · npcs?[{id, spawn}] · objects?[{id, at, requires?}] · ambient?{base[], count, area?} · exits?[{zone, to, spawn, transit, card?}] · triggers?[{zone, once?}] · behaviours?[]`
+NPC definitions live once in `npcs/*.json` (`id, name, tier, dialogue?, sheet?, tint?`); a district only says who stands where. Zones/spawns are objects in the map's `Spawns` layer (rect → its bounds; point → 3×3 tiles).
 
-### Hosting & Distribution
-- **Web (PWA):** Vercel (primary) + Firebase Hosting (backup)
-- **Mobile:** Play Store → App Store (via Capacitor)
+## Save (`SaveManager`, v1.2.0)
+`player.position = {districtId, x, y}` — never a scene class. Migrations: 1.0.0/1.1.0 map `position.scene` via `LEGACY_SCENE_DISTRICTS` (unknown → airport). Only `TitleScene.continueGame` restores; `WorldScene` never hydrates from disk, so New Game cannot inherit an old run.
 
----
-
-## Asset Creation Pipeline
-
-| Asset Type | Tool |
-|-----------|------|
-| Sprites | Aseprite |
-| Maps | Tiled |
-| Audio | Bosca Ceoil + Bfxr |
-| UI/UX Design | Figma |
-| Optimization | Squoosh, TinyPNG |
-
----
-
-## Development Environment
-
-**IDE & Tools:**
-- VS Code + Extensions
-- Git + GitHub
-- Chrome DevTools
-
-**Native Building:**
-- Android Studio (APK/AAB builds)
-
----
-
-## Testing Strategy
-
-**Primary:** Physical devices (real-world testing)
-
-**Secondary:**
-- Android Emulator (local testing)
-- Chrome Device Emulation (responsive design)
-
----
-
-## Analytics & Monitoring
-
-- **User Analytics:** Firebase Analytics
-- **Error Tracking:** Sentry
-- **Performance Audit:** Lighthouse
-
----
-
-## Deployment Pipeline
-
+## Folder map
 ```
-Code → GitHub → Vercel (auto-deploy PWA)
-                ↓
-         Firebase Hosting (backup)
-                ↓
-        Capacitor Build → Play Store
-                ↓
-        Optional → App Store
+src/
+├── assets/        maps.manifest.json (layerOrder + per-map layers/spawns), maps.ts (MAPS, LAYER_ORDER), index.ts (glob → URLs)
+│   ├── tilemaps/  airport_interior.tmj (hand), whitefield_street.tmj (GENERATED — edit scripts/generate-street-map.mjs)
+│   ├── tilesets/  airport*.png (reference, placeholder), street.png (+ street.tiles.json)
+│   └── sprites/   player.png (reference), citizen*.png (generated rig × 8 palettes)
+├── core/          events.ts (typed bus), depth.ts (zY → depth)
+├── data/          districts.json · dialogue/ quests/ items/ npcs/ objects/   (scenes/ arrives in P3)
+├── entities/      Player.ts, PlacedObject.ts
+├── scenes/        Boot · Title · CharacterSelect · World · Transit · Workday · Hud · Phone · Map · Menu · Orientation
+├── systems/       Stats · Inventory · Quest · Dialogue · Reputation · Save
+├── world/         Zones.ts (findObject, zoneFromObject, EntryWatcher) · Populate.ts (npcs/objects/wander) · Exits.ts · Triggers.ts · behaviours/{index,names}.ts
+├── ui/            DialogueBox.ts (on the HUD's card) · kit/ · hud/ · menu/ · phone/ · map/ · tokens.ts
+├── utils/         constants.ts (SCENE_KEYS, LAYER_DEPTH, START_DISTRICT, FADE_MS…), types.ts, placeholders.ts, hue.ts
+├── store.ts · PhaserGame.tsx · BangaloreTimes.tsx (canvas + host back pill only) · main.tsx · index.ts (library entry)
+│   └── _meta/     platform.json · style.json (P1 lock record) · style/ (candidates, .gpl palettes, swatches)
+scripts/           validate-*.{mjs,ts} · generate-art.mjs · generate-street-map.mjs · extract-palette.mjs · art/ (canvas, palette, tiles, character, quantize)
 ```
 
----
+## Time (P4, ADR-91)
+`TimeManager` (singleton, engine-free) over `store.clock`; `tick(deltaMs)` from `WorldScene.update` while free; `advance()`, `sleep()`; `counters` for behaviours. The HUD's clock plate shows `DAY N · HH:MM` with a sky glyph.
 
-## Cost Breakdown
+## Behaviours (ADR-93)
+`src/world/behaviours/`: `index.ts` registry + `names.ts` (validator list). `hotelNightTimer` is the worked example; `signalZones` and `salaryCountdown` (ADR-122); `officeClockIn` (story 1.1 lateness: `office_arrived` → on-time/late flags, stress) and `pgNoticeTimer` (story 1.3: `pg_notice_given` → 7 nights → `pg_notice_due`) follow it (ADR-120). Triggers: `setFlags`, `dialogue`, `action: 'sleep' | 'workday'` (`TimeManager.workday()` behind a fade: clock → 18:00, canteen food cost, first-day nerves once, `time:workday`). Quest objectives: `interact | dialogue | collect | reach | flag`.
 
-### Development
-- **One-time:** ₹1,500 (Aseprite license)
-- **Free:** VS Code, Vite, Firebase free tier, Vercel
+## Act 1 — Monday / office (P7, ADR-120/121)
+`office_gate` district (36×24, Whitefield Road south kerb, `realworld.area` + OSM extract; render + spec in `_raw/maps/office_gate`; zones `auto_drop` · `auto_stand` (auto home, ₹80, 15 min) · `walk_out` (40 min) · `office_arrival` (→ `office_arrived`, `officeClockIn`) · `office_door` (trigger `action: workday`, `requiresFlag: divya_met_monday`, sets `act1_first_day_done`)); Prashanth's main-road strip holds the three drivers + an `auto_stand` exit (`requiresFlag: auto_fare_paid`, spent on boarding, 15 min); Whitefield street's west end is `office_walk` (40 min). Exits: `minutes` advance the clock in TransitScene; NPC refs and triggers accept `requiresFlag`; `WorldScene.arrivals()` after the workday places late NPCs (Sameer, Ravi) and starts newly open quests. `WorkdayScene` (sky ramp `skyAt`, `sunAt`, skyline backdrop `skyline_whitefield` via `import-backdrop.mjs`, `m.workday`) plays inside the office door's fade and emits `workday:done`. `npcs/act1.json` (autos ×3 on one `npc_auto_driver` sheet, guard on `npc_security_guard`, Prakash, Divya, Sameer, Ravi), dialogues `dlg_auto_*`, `dlg_office_guard`, `dlg_prakash`, `dlg_divya_monday` (enter-branches on `late_first_day` / `on_time_first_day` / `act1_first_day_done`), `dlg_sameer_intro`, `dlg_ravi_intro`; `neg_auto_meter`; `dlg_provision` and `dlg_shanthamma` gain enter-branches for the furniture and the notice; chats `sameer`, `ravi`, Divya 3–4; items `id_card`, `folding_table_chair`. Quests `q_act1_first_day` · `q_act1_ravi_intro` · `q_act1_pg_exit` and scene components `act1_first_day` · `act1_ravi_intro` · `act1_pg_exit` are live.
 
-### Monthly Operations
-- **Scales with users:** ₹0-5,000 (Firebase usage)
-- **Free:** Vercel free tier, Sentry free tier
+## Act 1 — Ambedkar Nagar hill flat (P8, ADR-122)
+`ambedkar_nagar_hill` (36×24 on Seetharampalya Road; zones `road_out` (bus home) · `hill_arrival` · `room1_door` / `room2_door` / `room3_door` (signal 0 / 1 / 2 bars → `room1_checked`… when a Reel is tested there) · `room3_door` exit → `hill_flat`, locked until `flat_signed`) and `hill_flat` (24×16; objects by flag: `CARDBOARD_BOX` on `flat_signed`, `COT` + `TABLE_CHAIR` on `bed_bought`, `INDUCTION` on `stove_bought`, `WATER_DRUM` always; `bed` trigger `action: sleep` once `bed_bought` → `slept_in_flat`; behaviour `salaryCountdown`). Whitefield street's `hill_bus` zone → bus 335-E (₹20, 25 min). Behaviours: `signalZones` (per-frame feet test → `store.signalOverride`/`signalZoneFlag`), `salaryCountdown` (`SALARY_DAYS` → `earn(SALARY)` + `first_salary`), `pgNoticeTimer` refunds `neg.neg_shanthamma.deposit` on the last night. Sprite objects: `ObjectDef.sprite` (a prop PNG, `tiles` absent) drawn by `PlacedObject`; `DistrictObjectRef.requiresFlag`; `import-props.mjs` `heights` per cell (`furniture` sheet). Reels: `data/phone/reels.json` (`REELS`, flag-gated, parody handles) → PhoneScene routes `reels` (list) and `reel` (viewer with a 200 ms redraw timer); `reelState(bars, elapsed)`; resolving sets the zone flag and `reels_<id>_seen`. Content: `npcs/act1_hill.json`, `dlg_manju` (unlocks Reels), `dlg_owner_aunty` + `neg_hill_flat` (firm), `dlg_hill_chai`, `dlg_hill_furniture`, quest `q_act1_hill_flat`, scene `act1_hill_flat`, chats Amma 5 / Sameer 3.
 
-### Distribution
-- **Android Play Store:** ₹1,500 (one-time developer account)
-- **iOS App Store:** ₹8,000/year (Apple Developer + Capacitor/Mac build)
-- **Total distribution:** ₹1,500-10,000
+## Act 1 — Bus to town + Cubbon Park (P9, ADR-123/124)
+`whitefield_street` gains `buses` (`busSchedule`: a bus prop tweens `bus_in` → `bus_halt` → `bus_out` every `every` s, stands `dwell` s with `flag` set — the boarding exit `bus_500d` carries `requiresFlag` = that flag, spent on boarding; the HUD's timer plate reads `ui:timer`), the `metro_sign` trigger (dialogue `dlg_metro_sign` → `metro_seen`) and sprite objects `METRO_BARRICADE` / `METRO_PILLAR`. `bus_interior` (12×8 on black; `ride` + `busRide`: 25 s of free play — the clock holds while talking — then `ride_over` and `leave('door')` → `cubbon_park`; `aisle_zone` trigger sets `on_bus_500d`). `cubbon_park` (36×24 on the bandstand, OSM area; `cubbon_arrival` sets `cubbon_arrived` + `city_moments_taught` (Camera unlock); `photoSpots` zones → `store.photoSpot` → Camera app `cameraView` → `PhoneManager.takePhoto` → `photo_<id>`, `<set>_photos_done`, `photo:taken`; `companion` makes `npc_ananya` follow while `ananya_walk` and not `ananya_walk_done`; the three stop triggers open `dlg_ananya_walk` whose `enter` branches walk the three lines; `park_gate_bus` → bus home). `hill_flat` gains `flat_arrival` (Amma's call `dlg_amma_news` once `cubbon_arrived`) and a second `bed` trigger that sets `act1_done` after the call. Systems: `RelationshipManager` (`relationships` in the store and the 1.7.0 save; `effect.relationship`; `RELATIONSHIP_LABEL` for Contacts), `PhoneManager.contacts()/notes()/photos()/takePhoto()`, `ChatMessage.upi` credited on delivery, `BehaviourContext.playerFree()/leave()`, `TriggerActions.canTalk()` (a dialogue trigger is not spent while a conversation is up), WorldScene re-tries district quests on `quest:completed`, `Populate` `tic: cough`. Phone routes `camera` · `contacts` · `notes`. Content: `npcs/act1_cubbon.json`, dialogues `dlg_metro_sign` · `dlg_bus_nurse` · `dlg_bus_uncle` · `dlg_bus_kid` · `dlg_cycle_guy` · `dlg_ananya` · `dlg_ananya_walk` · `dlg_icecream` · `dlg_jogger` · `dlg_guitar_shop` · `dlg_amma_news`; quests `q_act1_bus_cubbon` · `q_act1_cubbon` (on_complete → `act2_started`, which unlocks Dating); scenes `act1_bus_cubbon` (1.5) · `act1_cubbon` (1.6); `phone/{photos,contacts,notes}.json`, chat `ananya` (refund `upi: 60`), Amma 6–7, Sameer 4, reels `reel_doctor` · `reel_meme`; `objects/{street_props,animals}.json`; city path `bus_cubbon`, place `place_cubbon_park` → district.
 
-**Net:** Solo dev friendly with minimal upfront costs
+## Act 2 — 2.3 Guitar (P12, ADR-131)
+Two new places: `church_street` (36×24 render + spec, OSM area, on the Purple Line at `stn_mg_road`, `knownIf: guitar_in_stock` so Maps offers METRO before the first visit; a 335-E bus exit home) and `guitar_shop` (12×8 interior, the owner behind his counter). `guitarNights` (on the flat): the first sleep after `act2_metro_done` sets `guitar_in_stock` ("Tuesday"); every sleep clears `guitar_played_tonight`. The mini-game is data + one scene: `src/data/minigames/guitar.json` (lessons: chords, bpm, bars, strums, pass share, `easierIf`, flags; the free strum; `nightFlag`; `afterLast` dialogue), `src/systems/rhythm.ts` (pure rules: `notesFor`, `press`, `sweep`, `passed`, `pick`, `outcome`), `RhythmScene` (the lane; E / Space / Enter / pad A / tap STRUM or the lane; reduced motion = one box that lights; `view()` for the bot; emits `rhythm:done`), and a trigger `action: "rhythm"` + `minigame` that `WorldScene.rhythm()` turns into the scene and applies the outcome (flags, stress, the clip conversation). Phone: chat messages may be `optional` (later ones do not wait for them), notes may have `until`. Scene cast entries may name another `district` of the scene. The validator joins station pockets for reachability (Maps METRO) and checks `validateMinigames`.
 
----
+## Act 2 — 2.4 IKEA Run (P13, ADR-132)
+New places: `majestic_interchange` (underground concourse on `stn_majestic`, `knownIf: ikea_planned`, unlock `metro_tier_1`, the uncle as a `companion`), `hyggeland` (the store on `stn_nagasandra`), and two coach districts that reuse the `metro_interior` map with their own `ride` (`green_coach` → the store; `green_coach_home` → Whitefield, unlocked by `ikea_paid`). Carrying is `systems/carry.ts`: a `carry` counter (comfortable 3, limit 4, `carry_overloaded` past 3), StatEffect `carry` / `carry_clear`, dialogue choices locked "Not enough space" past the limit, the HUD's plate under the clock reads "BOXES n/3", exits may charge `farePerBox`, and Maps offers no scooter RIDE while carrying. Dialogue choices can be locked by `unlessFlag` / `requiresFlag` with a `lockedText` (indices stay stable — locked, not hidden). District objects take `requiresFlags` (all), and `Populate.objects().sync()` runs on every `flag:set`, so flag-gated objects appear and leave while you stand there. `sleepEvents` (a district's `[{ after, set, toast }]`) is the data form of "the first sleep after X". The validator counts a ride between two station pockets as drawn by the metro lines.
 
-## Deployment Flow
+## Act 2 — 2.5 Ravi, 1 AM (P14, ADR-133)
+Night is one module, `systems/night.ts`: 23:00–05:30 (`isNight`), buses stop, autos ×2 after midnight (`fareAt`), exits and NPC refs may be `onlyAt: day | night` (`exitRuns`; a sibling exit on the same zone takes over silently — the hill road is a bus by day and an auto by night), the ambient crowd drops to `ambient.nightCount` (default 0). `nightLook` is the first core behaviour: a screen-fixed MULTIPLY rectangle in `world.night` (the palette's one blue) at the fx depth, alpha by `nightDepth(minute)` (half-hour ramps), deeper while `power_cut`. `sleepEvents` gained `wakeAt` (the clock goes back to that minute of the new day) and `clear`; `TimeManager.sleep()` keeps the day when you go to bed before 07:00. StatEffect `minutes` advances the clock (an hour on the bench). The Playground starts a scene at the first HH:MM in its `time`.
 
-1. **Local Development** → Push to GitHub
-2. **Vercel** → Auto-build & deploy PWA (instant)
-3. **Firebase Hosting** → Backup/fallback hosting
-4. **Capacitor** → Generate APK/AAB for Play Store
-5. **App Store** → Optional iOS release
+## Act 2 — 2.6 The App (P15, ADR-134)
+Jodi is data + rules + one phone screen: `phone/jodi.json` (cards in order, one with `match`), `systems/jodi.ts` (`jodiState`, `swipe` — LIKE on the match sets `tanvi_matched`; NOPE on the last card sets `dating_declined` + `app_settled`), `PhoneScene.drawJodi` (focusables `jodi:no` / `jodi:yes` / `jodi:chat` / `jodi:uninstall`, index in the `jodi_index` counter). Phone apps may have `until` (gone once a flag is set); contacts may have `noteIf`. Maps: a tap prefers a place node over the station ring under it; a place reachable by METRO or RIDE counts as reachable; `MapScene.create()` drops every cached display object (the scene restarts with each district change); `MapScene.inspect()` is the bot's read-only view. The movie's `travel` step opens Maps (M), taps the node, presses F; the generator adds METRO hops between station pockets to its travel graph. `buildPrereqState` marks earlier scenes' districts (and cast districts) visited.
 
----
+## Act 2 — 2.7 Breadcrumbs (P16, ADR-135)
+`sleepEvents` entries may say `nights: n` — fire on the n-th night (in that district) after `after` was set, counted in `nights_since:<after>`. The News app is data (`phone/news.json`: date, source, headline, body, `after`) read by `PhoneManager.news()` (newest first) and drawn by `PhoneScene.drawNews` (focusables `news:<id>`, tap to open). The walkthrough generator tracks the game minute (scene start, 07:00 after a sleep, 18:00 after a workday) and skips exits that do not run then (`exitRuns`), counts nights owed for `nights` events, and waits for `free` after a workday zone. Act 2 ends on `act2_done`.
 
-## Key Infrastructure Decisions
+## Render model (ADR-125)
+Seven layers from `maps.manifest.json#layerOrder` — `ground · ground_detail · buildings · sorted · props_above · collision · fx` (+ `spawns`); `LAYERS` / `LAYER_DEPTH` in constants. `sorted` is an object layer: placed objects (ObjectDef id), `cutout` images (`image`, `baseY`, `footX/Y/W/H` → a static body; depth `depthForZY(baseY)`), `above` images (props_above depth, no body). `collision`: a tile stencil on tile-built maps, an object layer of rects (`kind` building | prop) on generated maps — `world/Shapes.ts` binds both. Movers take `depthForZY(feetY(sprite))` every frame (feet = the body's bottom); `FEET_BOX` 20×12 at (6, 35). Importer: spec `buildings` / `blocks` / `sorted` (rect, base, footprint, key or rect mode, `bgShare`) / `above`. Validators: seven layers in order, `tall` tiles never flat, buildings↔collision except `door`, props_above never collides, footprints on `sop` maps, feet-box reachability to every exit (`reachable()`), a test forbids numeric `setDepth` in world code. **Playground Locations** (Part B): `buildLocations` from the manifest + districts; the dev API lists layers, toggles visibility, draws overlays (collision, Y-sort lines, feet boxes, tints, zones) and inspects a point (`inspectAt`); the Location inspector shows it all with a Copy-ref string.
 
-✅ **Serverless-first:** Firebase reduces backend complexity  
-✅ **Instant deployment:** Vercel auto-deploy on git push  
-✅ **Zero server maintenance:** No ops overhead  
-✅ **Cross-platform:** One codebase → Web, Android, iOS  
-✅ **Performance:** Vite + Phaser 3 for fast load times  
-✅ **Scalability:** Firebase auto-scales with usage  
-✅ **Cost-effective:** Free tier sufficient for launch  
+## Saves, settings, phone (P6 systems, ADR-110/111/112)
+`SaveManager`: slots `autosave|slot1|slot2|slot3` via `platform.saves`, read once at boot (`init()`), cached, written through; format 1.7.0 (1.6.0 + `relationships`); `summaries()` for the Load menu; autosave on area change, sleep, purchase, quest step. `SettingsManager` (`useSettings`): `data/settings.defaults.json`, persisted via `platform.storage`, live (difficulty → food drain, DND → buzzes, joystick side/size → the HUD's stick, `hud.*` → objective auto-hide and meters). `PhoneManager`: apps (`data/phone/apps.json`, flag-unlocked), chats (`data/phone/chats/*.json`, delivered on flags + district entry, toasts), UPI (`store.transactions`, labelled by spend/earn callers), Maps (district `realworld` + objective `destination`); emits `phone:buzz` (DND-aware) and `phone:app-unlocked`.
 
----
+## UI kit + phone (P6a, ADR-113/114)
+- `src/ui/kit/` — atoms and molecules, pure over a `PixelCtx` (`fillStyle`/`globalAlpha`/`fillRect`), tested without Phaser: `pixel.ts` (rows-of-rects rounded boxes, rings, dither, bitmaps), `icons.ts` (our 2px-stroke set; `apps.json` `icon` must name one), `text.ts` (bitmap-font metrics: `measure`, `wrap`, `truncate`, `rupees` Indian grouping, `clockText`), `molecules.ts` (`phonePill`, `appTile`, `badge`, `dockBar`, `hudPlate`, `labelCard`, `blockRow`, `speechBubble`, `choicePill`, `tapZone`; states default·focus·pressed·disabled·locked; `MIN_TAP` 44 game px), `focus.ts` (directional `nextFocus`), `phaser.ts` (`bake` paint → cached CanvasTexture, `pxText` places BitmapText by its cap line, `pxTextShadow` adds the 1px drop shadow).
+- Font: `scripts/import-font.mjs` (in `pnpm art`) → `src/assets/fonts/px|pxb.{png,xml}` + `metrics.json`; BootScene loads them as `px` / `pxb`.
+- `src/ui/phone/` — `layout.ts` (geometry, safe bottom, slide steps), `viewModel.ts` (home tiles, status bar, chat rows, bubbles, UPI rows, map rows — no Phaser), `paint.ts` (frame, LCD + dot grid, wallpaper, status icons).
+- `PhoneScene` (launched by WorldScene, stopped with it): closed = phone button in the HUD's top-right corner (`HUD.phoneButton`; wiggles on `phone:buzz`); open = WorldScene paused + camera ColorMatrix (half desaturated, dimmed), `store.overlay = 'phone'` (HudScene hides), 4-step slide-up, routes home · chats · thread · upi · maps (list until P6b) · stub. Redraws from state on every change. Keys: P, arrows/WASD, Enter/Space/E, Esc/Backspace (+ Android back); touch: tap, drag-scroll, tap outside closes. `WorldScene.canOpenOverlay()` / `overlayClosed()`.
+- Tokens: world `palette.gpl` (48) + UI `ui-palette.gpl` (12) → `tokens.json`; `rgba(token, a)` + `HUD_PLATE_ALPHA` for translucency. `validate-content` checks app icons, dock ≤ 4, grid ≤ 12, district `signal` 0–4, and that every player-visible string (dialogue, choices, chats, app names/hints, objectives) is drawable by the bitmap font.
 
-## Next Steps
+## HUD (P6c, ADR-118)
+- `src/ui/hud/` — `layout.ts` (plate geometry, phone-button corner, safe bottom 340, touch layout by joystick side/size, `plateWidth`, sky hours, typewriter ms), `viewModel.ts` (objective line = first open non-optional step of the oldest active quest · `clockGlyph` · `locationCard` · `walletView` · `meters` (shows: health < 70, food < 50, stress > 0; bites: 30 / `HUNGRY_AT` / 70) · `stackRows` · `promptLabel` · `ToastQueue` (one at a time, hold, dedupe, cap 8) · `revealedChars`), `dialogue.ts` (card layout: body wrap, bill line, choice pills flowing into rows, `pillAt` nearest-rect hit test, `onCard`), `glyphs.ts` (★ shared with the map, sky, tap, chevron, floppy, meter icons, cursor).
+- `HudScene` (launched by WorldScene with `{ firstVisit }`, above the world, below Phone/Map; hidden while `store.overlay` is set; torn down on SHUTDOWN *and* DESTROY): repaints one 640×360 chrome texture + BitmapTexts from state (store subscribe, `ui:toast`, `wallet:*`, `save:written`, settings, `changedata-touchControls`), one timer for the next plate to leave; per frame only the prompt bubble (`WorldScene.nearestInteractable()` → world camera → screen), the joystick knob and the 1px bob. Touch: `platform.input.coarsePointer()` or registry `touchControls = 'always'` → stick (pointer-captured, released on up/out/blur/overlay) + context action button (verb from the prompt, disabled when nobody is near) writing `InputMap`; `touchTargets()` for the Test Playground's thumb overlay.
+- `DialogueBox` (hosted by HudScene; `WorldScene.openDialogue` → `hud.openDialogue(id, callbacks)`, queued if the HUD has not created yet; WorldScene keeps `talking`): label card along the bottom, speaker pill, typewriter (`gameplay.dialogueSpeed`; reduced motion = instant; first press skips), bill in `hud.star`, pills (focus ▶ / locked dotted + reason), blinking chevron; keys arrows/WASD · E/Enter/Space; taps on pills (MIN_TAP zones) or the card.
+- `OrientationScene` (launched by Boot, WorldScene keeps it on top; the dev API never stops it — nor MenuScene): black panel + "ROTATE YOUR PHONE" while a coarse-pointer device is upright.
+- Presets for the audit: `hud-landing`, `hud-hotel-evening`, `hud-pg-lane-talk`, `hud-toast-burst`, `hungry-and-stressed`.
 
-1. Initialize Vite + React project
-2. Setup Firebase project & authentication
-3. Integrate Phaser 3 with React
-4. Setup Vercel deployment
-5. Build MVP gameplay loop
-6. Test on physical devices
-7. Prepare Play Store submission
+## Menus (P6d, ADR-119)
+- `data/menus/settings.json` (`SETTINGS_MENU`): sections → rows `note | toggle | choice | slider | action`, each row editing one dotted `setting` path; `validateSettingsMenu` (in `validate-content.ts`, run by the CLI and `menu.test.ts`) checks the path exists in `settings.defaults.json`, the kind matches the atom's type, choices include the default, labels are drawable.
+- `src/ui/menu/` — `layout.ts` (`menuLayout(k)`: title card, label-card rows 19/24 px, slot rows 31/36, BACK plate, hint line, confirm plate; `visibleRows`, `scrollFor`, `rowAt` by band, `zone`), `viewModel.ts` (`pauseRows(mode)`, `sectionRows`, `settingRows` with live values, `stepValue`/`coerceLike`, `slotRows`/`slotConfirm`/`playtime`, `aboutLines(version)`, `hintLine(input)`).
+- `MenuScene` (started by Boot, never stopped; WorldScene/TitleScene `bringToTop` it under OrientationScene): `open({ mode: 'world' | 'title', screen?: 'settings' | 'load', fromOverlay? })` pauses + autosaves + desaturates the world (or dims the title), `store.overlay = 'menu'`; a stack of screens (pause · settings · section · slots(save|load|delete) · about · confirm); keys arrows/WASD · ◀▶ adjust · E/Enter/Space · Esc/Backspace; gamepad A/B/START + d-pad/stick; touch: tap a row band (slider: left half −, right half +), BACK plate. Opens on Esc / START / Android back / `platform.lifecycle.onPause` / the HUD's clock-plate tap / the phone's Settings app (`PhoneScene.handToMenu`) / Title's Load Game + Settings. Pause → MAP hands to `MapScene.open(true)`; LOAD restarts WorldScene at the slot's position (title: `TitleScene.startWorldAt`); QUIT stops the world (its shutdown autosaves) and starts the title. Display rows apply through `core/display.ts` (`applyDisplaySettings`: fullscreen, pixel scale → Scale.FIT or NONE+zoom), also run by Boot after settings load. Version from `__APP_VERSION__` (vite `define`).
+- Gamepad: `src/ui/kit/gamepad.ts` — `PAD` standard-mapping indices, `attachGamepad(scene, { button, dir }, enabled)` (d-pad + left stick with 300/120 ms repeat), `walkAxis`. Used by Hud (walk, A), Phone (Y open, A/B), Map (X open, A/B, LB view, RB zoom, Y fast travel), DialogueBox (A/B, d-pad), Title, Menu. `PhaserGame` sets `input: { gamepad: true }`.
+- HUD scale: `accessibility.largerText` → `hudLayout(2)` / `menuLayout(2)`; HudScene and MenuScene `root.setScale(k)` over a 320×180 virtual canvas; PhoneScene places and scales its button from the same layout. Touch controls and the dialogue card stay at 1× (T-040).
 
----
+## Fullscreen map (P6b, ADR-113/115)
+`data/map/city.json` (`CITY_MAP`: bounds, 16 px/km, regions by kind, roads with optional `connects`, metro lines/stations — an interchange is one id on two lines —, teaser `places`, `pois`) + districts' `realworld` (nodes; interiors fold into parents) + exits (journeys; each must have a drawn path — validator). `systems/MapManager`: `nodes()`, `edges()`, `route()` (Dijkstra, cost = km × mode + fare/100), `here()`, `destination()` (player's `store.mapDestination`, else the quest objective's), `setDestination()`, arrival → `visited:<id>` / `travelled:<path>` flags + REROUTING… / ARRIVED toasts, `pathState()` (undiscovered · reveal · travelled; `map_seen:<path>` once animated), `familiarity()`, `danger()` (Act 4 + stability only), `pois()`, `fastTravel()` (pockets with `metroStation`). `ui/map/`: `projection` (project/snap/orthogonal/walk/cellsInside), `glyphs` (region atoms, POIs, arrows, padlock), `paint` (`paintBase`, `stroke`, `accent`), `view` (pan/zoom maths, `nodeAt`, `cardFor`, `LEGEND`). `MapScene`: launched with WorldScene; M / phone Maps (`open(true)` hand-off keeps the pause) / Pause → Map (P6d); base texture baked per open, overlay (route, reveal, nodes, icons) rebaked per change, screen UI (compass, cards, pills, legend) rebuilt; `WorldScene.travelTo()` for metro fast travel.
 
-**Updated:** 2026-07-13  
-**Status:** Architecture defined, ready for implementation  
-**Solo Dev:** Yes - no external team dependencies
+## Area view — real streets (ADR-117)
+District `realworld.area` `{ radiusM, pocket: { anchor, anchorTile, bearing, metresPerTile, tiles, streets } }` + `data/map/areas/<id>.json` (`AREAS`, OSM extract by `scripts/fetch-osm-area.mjs`, network, run by hand). `ui/map/area.ts`: `areaProjection` (1 px/m), `pocketToLatLng` (tile → real point along bearing / bearing+90), `pocketOutline`, `paintArea` (park/water glyph fields, roads by class, Bresenham `thickLine`), `paintPocket` (dashed ★ box), `placeLabels` (one per name, no overlap). `MapScene` opens in `view: 'area'` when the current pocket (or an interior's parent — the dot sits at the door it was entered by) has an area; `WorldScene.playerPosition()` gives tile + facing. `validateAreas` checks the OSM credit, the anchor inside the radius, character scale and pocket tiles = tilemap size.
+
+## Negotiation (P5, ADR-95)
+`src/data/negotiations/<id>.json` (`NegotiationDef`: terms ask/floor, counters reason|compare|lowball, lines, on_deal flags/counters) → `NEGOTIATIONS` → `systems/NegotiationManager.ts` (`Negotiation` session: options, choose → null | 'deal' | 'walk'; `TEMPERAMENTS` table in constants). A dialogue node `negotiate: {id, deal, walk}` runs it inside `DialogueManager` (view gains `ledger`); `DialogueBox` sizes itself to the line + bill + up to 6 choices. Progress persists as counters `neg.<id>.<term>` and flags `neg.<id>.used.<counter>`. Emits `negotiation:ended`.
+
+## Memory of the world (ADR-96)
+Dialogue `enter: [{flag, node}]` · district NPC `unlessFlag` (WorldScene fades them after the dialogue that set it) · trigger `unlessFlag` · exit `lockedText` · effect `reputation`.
+
+## Food (ADR-97)
+`TimeManager.advance` drains food 1 per `FOOD_MINUTES_PER_POINT` (6) awake minutes; below `HUNGRY_AT` the Player walks at `HUNGRY_SPEED`. Sleep resets the carry.
+
+## Act 3 — 3.1 Outer Ring Road (P17, ADR-136)
+Card sequences are data + rules + one scene: `src/data/cards/<id>.json` (panels: `text`, `title`, `still`, `ms`, `style` text | title | cut | fragment, `ifFlag` / `unlessFlag`, `setFlags` / `clearFlags`; sequence `setFlags` / `clearFlags`, `clockAt`, `end` world | hold), `src/systems/cards.ts` (pure: `panelsFor`, `outcome` — computed from the flags at the start, so a skipped panel never skips a flag — `duration`), `CardScene` (over black or a still; a text plate low over a still, centred on black; `cut` = one white frame then black, no flash under reduced motion; E / Enter / Space / pad A / tap moves one panel; `inspect()`; emits `card:done` at the end, or as the last panel appears for `hold`). `WorldScene.playCard(id)` holds the world like a conversation, launches the scene over everything, applies the outcome on `card:done` and gives the world back unless the sequence holds. Started by trigger `action: "card"` + `card`, or by a sleepEvent `card` (a morning that opens on a title) through the behaviour context's `playCard`. Stills: `import-backdrop.mjs` `still: true` (cover-crop to 640×360, own median-cut palette). 3.1's data: `card_act3_title` (FEVER) on the sleep after Amma's call, `card_orr_night` on the office door once Divya has sent you (the workday trigger carries `unlessFlag: hivr_assigned`; the card clears it), the still `still_hebbal_night`, `q_act3_orr`. `validateCards`; the generator resolves card flags through `card` triggers and waits out the sequence.
+
+## Act 3 — 3.2 Ward 4 (P18, ADR-137)
+`ward4` (12×8 from one render; `walkSpeed: 0.7` — `Player.walkScale`, no running below 1; signal 1; no exits — the door is `dlg_ward_door` on `ward_exit`) is reached only by `card_orr_night`'s landing: a card's `then: { district, spawn, minute, nextDay }` moves the clock and leaves through a plain walk fade (`WorldScene.leaveVia`). `validateWorld` takes `cards` and counts a `card` trigger's landing as an edge; `validateCards` checks the landing. Lying people are ordinary NPCs on `*_bed` sheets (still figures, breathing off): `npc_ravi_ward`, `npc_patient_old`, `npc_patient_woman`; `npc_ward_nurse` reuses `npc_nurse`. Dialogues: the nurse (enter on `nurse_heard`), Ravi's three loops (enter on `ravi_loop1` / `ravi_loop2`, first line by `ravi_supported` / `ravi_left`), the isolation door, the TV, the tray. `q_act3_ward4`.
+
+## Act 3 — 3.3 The Corridor (P19, ADR-138)
+Ravi's ward dialogue offers the story after `ravi_ward_talked`; "Tell me." carries `effect.card: card_corridor_in` (StatsManager emits `card:requested`; WorldScene plays it when the conversation closes) → `hivr_corridor` (12×8; `playerSheet: npc_ravi`; `hud: "minimal"` — HudScene draws only the objective, PhoneScene hides its button, MapScene/PhoneScene refuse via `WorldScene.allowsOverlays()`; `nightTint: 0.4` — `nightLook` uses a fixed shade). Triggers: the clipboard, the call band across the corridor (`dlg_appa_call`, Ignore locked by a flag nobody sets), the glove station and the tray (both after `appa_answered`); the tray's last line carries `effect.card: card_corridor_out` (the clipboard, four ant stills, Ravi's line, Vikram's locker) → back to `ward4` at 18:30. `q_act3_corridor`.
+
+## Audio (A1, ADR-139)
+`src/audio/`: `AudioSystem` (started by BootScene; the only code that touches `game.sound`; follows `mixFor()` every 100 ms — bed layers crossfade 1.5 s between places, music 3 s toward danger / 5 s back, stings duck all, dialogue ducks music to half; one-shots from events: `audio:cue`, `player:step` (the walk cycle's stride frames), `dialogue:tick` (the speaker's `voice` bleep or a type tick), quest/wallet/phone/photo/save/sleep events, `district:entered`; `audio:mode` from TransitScene (ride beds) and WorkdayScene; positional `audioSources` per district — loops fade with distance, one-shots repeat; lazy loading through MenuScene's loader except the eager UI/HUD/phone/player/NPC set; `inspect()`, dev handle `window.__nqAudio`), `mix.ts` (pure: time of day, `bedFor` with the stability bands, ADR-29 `musicState` + ADR-24 pacing, `musicFor`, `surfaceOf`), `buses.ts` (Settings → bus gains), `data.ts`, `voices.ts`, `cue.ts`. `systems/noise.ts` (ADR-49 tiles; movement floor + decaying peaks). Data: `data/audio/manifest.json` (224 tokens), `beds.json` (places × time, kinds, bands, transit, workday), `synth/*.json`, `songs/*.json`. Pipeline: `scripts/audio-pipe.mjs` + `scripts/audio/synth.mjs` → `src/assets/audio/*.wav` + `LICENSES.md`. `validateAudio` in `pnpm validate`. **A2 (ADR-140):** footstep surfaces (`WorldScene.surfaceAt`: spec `surfaces` zones, then street tiles via `streetSurface`, then the place's default); `audioSources[].kind/uncanny` (`sourceScale` by band); dialogue effect `cue`; the heartbeat bed by an infected's distance; a test bench on AudioSystem (`setDebug`, `setSolo`, `busLevels`, `preview`, `sourcesView`) driven by the Playground's Audio node; the `audio` overlay in devApi.
+
+## Act 3 — 3.4 Three Nights, Again (P20, ADR-142)
+Ward 4 gains a bed zone (`action: sleep` after `ward_nights_started`), an aisle zone (Amma's call after `wn_amma`), three `sleepEvents` nights after `ward_nights_started`, the `countdown` behaviour (`countdown: { after, nights, label }` → the HUD timer plate, `countdownText`), `signalIf` (signal by flag, read in `signalAt`), `stabilityIf` (AudioSystem's stability by flag), `exact` objects (`ward_props`), app `noticeIf` (UPI's banner in PhoneScene). WorldScene dismisses `unlessFlag` NPCs after a sleep. `q_act3_three_nights`.
+
+## Act 4 — the stability dial (S1, ADR-144)
+`systems/stability.ts` (pure): `grade(stability)` → level 0–4 and `GRADES[level]` (desat, fog, vignette, glitch, people, encounterRate, packs, audio band); `act4Curve` (district `act4: {fallDay, floor}`, interiors inherit via `realworld.parent`); `stabilityFor` (story `stabilityIf` > curve > 100); `stageFor`; the Playground override. `systems/stabilityNow.ts` reads the store (`act4` flag, `act4_day` counter — +1 per sleep in TimeManager). Readers: `audio/mix.ts` (`bandFor` = the grade's band; drone from level 1), core behaviour `stabilityLook` (camera ColorMatrix + glitch; launches/stops `GradeScene`, the stepped edges above the world), `Populate.wander` (crowd × people). `systems/survival.ts`: gentle/harsh tables (TimeManager). Plan: `docs/act4_systems_plan_v1.md`.
+
+## Act 4 — the run (S2, ADR-145)
+Pure: `systems/energy.ts` (pips = stamina), `playerState.ts` (move mode, crouch, hidden → the noise floor), `infected.ts` (`think`: idle/wander → alert → chase → search, recover after a hit; `detects`, `hears`), `harm.ts` (touch/grab, fail-forward, items lost), `encounters.ts` (roll, cover, size), `rng.ts` (seeded), `threat.ts` (chasing, nearest, positions → AudioSystem + the bot). Core behaviour `act4Threat` reads district `act4Zones` / `infected.packs` / `uv`, builds `world/nav.ts` grids from the live physics bodies (`world/walkgrid.ts`, shared with the validator and the bot), spawns, senses, moves, hurts, fails forward (`card_fail_forward`) and rolls ambushes. Player: C crouch, energy-gated run in Act 4; WorldScene: HIDE prompt, `actionVerb()` (CROUCH/STAND on touch). Movie Mode: `flee`, `hide`. Bench: district `act4_bench` (`dev: true`).
+
+## Act 4 — 4.0 + 4.1 (P22, ADR-148)
+Districts `hebbal_gate`, `indiranagar_lane` (unlock `act4`). Behaviour `clockEvents` (district `clockEvents` at a minute → flags/toast/cue; `cueLoops` → seeded positional cues while a flag holds). District `liveArrivals` (WorldScene re-runs arrivals + leavers on every flag) and `failCard`. Packs: `startMode`, `leadOptions` + `awayFrom`, `drawnTo`, placed late when `requiresFlag` turns on. Phone: any app's `noticeIf` draws its banner (PhoneScene.drawChrome). MapManager: no metro/ride once `act4` is set. Generator: clock-event flags → `wait_for`, `flee` where packs exist.
+
+## Act 4 — the base (S3, ADR-149)
+`systems/trade.ts` (pure) builds conversations from data: `craft:bench` (recipes.json), `trade:<trader>` (barter.json), `search:<loot>` (loot.json), `base:<district>` (stock counters `stock_food/water/fuel`), and `baseNight`. `data.virtualDialogue` / `hasDialogue` resolve them; DialogueManager passes the counters. Choices: `requiresItems`; effects: `items_add`, `items_remove`, `counters`. District `base` + core behaviour `act4Base` (nights, the lamp, `base_home:<id>`); WorldScene.sleep refuses outside a base in Act 4; act4Threat lights the base's UV while fuel lasts and fails forward to home (`playCard(id, landing)`). Validator: `validateTrade`.
+
+## Act 4 — 4.2 The Hill (P23, ADR-150)
+The hill pocket and the flat in Act 4 are flag-driven data on the existing maps: people `unlessFlag: act4`, Suresh / Karthik / Manju (two refs, before and after `upi_dead`) with `liveArrivals`; uv `requiresFlag` + `fuelAfter`; the flat's `base` (`requiresFlag: hill_base_set`), containers and the bench by trigger. Exits that aren't `walk` refuse in Act 4 (Exits). `noticeIf` may be a list (last set wins). Driver: soft-avoids container and repeating-conversation zones; flee budgets a forced walk.
+
+
+## Act 4 — your hands (S4, ADR-151)
+`data/infected/combat.json` + `systems/combat.ts` (pure): `weaponFor` (the first of `order` you carry, else `shove`), `swingHits` (reach + arc, nearest first, ≤ targets), `knockback`, `stunFor`, `landing` (to the first blocked sight cell), `smokeBlocks`, `lureFor`, `readied` / `readyFlag` (`ready:<item>` flags), and `field` (live clouds + lures). `infected.think`: `stunned` → chase with `angry`; a `lure` sense pulls idle/wander/search, and a chaser that lost you. Core behaviour `act4Hands`: `player:swing` (cooldown, `spendPips`, `feedNoise`, `act4:hit`) and `player:throw` (consume, fly, land into `field`), placeholder FX. act4Threat: stuns on `act4:hit`, smoke breaks LOS, lures fed to `think`, `item:used` (bandage/medkit) stops a bleed. Bag: `InventoryManager` slots (`BAG_SLOTS` in Act 4, key items free), `hasRoomFor`, `fits`; `systems/bag.ts` builds `bag:` (eat/use via `item_use`, ready, leave); DialogueManager locks a swap that doesn't fit. Input: SPACE / Q / I·TAB (Player), HIT / BAG / THROW plates (`ui/hud/layout.act4Buttons`, HudScene), pad B / X / RB. Validator: `validateCombat`.
+## Shapes: collision + occlusion for generated maps (ADR-99/100)
+`_raw/maps/<name>.spec.json` in source pixels → `import-map.mjs` → `.tmj` `Shapes` layer (`solid` rects, `occluder` objects with `image` + `baseY`) + `src/assets/overlays/<map>__<name>.png`. `world/Shapes.ts` builds static bodies and depth-sorted images (same band as characters, `depthForZY(baseY)`). NPCs join a static group with 20×12 feet bodies; the crowd (`crowd_*` sheets) collides with the player. Maps smaller than the screen are centred on black (`WorldScene.frameCamera`).
+
+## Maps (ADR-92)
+`src/assets/_raw/maps/<name>.png` + `<name>.spec.json` → `scripts/import-map.mjs` → `tilesets/<name>.png` + `tilemaps/<name>.tmj` (unique tiles). `whitefield_hotel` was the first; P5 added `prashanth_layout` (outdoor lane, 36×24) and `shanthamma_pg`. Streets still use the procedural `street.png` (T-021).
+
+## Stats & economy (P3, ADR-87)
+`PlayerStats` = health · wallet · social · stamina · food · stress · battery (`STAT_BOUNDS` clamps). `StatsManager.spend(cost, reason)` → `wallet:spent` or refusal; `earn()` → `wallet:earned`; `meet(npcId)` → social +1 once (`met` ledger). `applyEffect` routes negative `wallet` through `spend`. `DialogueManager` locks unaffordable choices with "Needs ₹N". Exits with `fare` spend on boarding. Save 1.4.0.
+
+## Input (ADR-88)
+`src/input/InputMap.ts` — axis/run/interact written by HudScene's joystick + context action (ADR-118; coarse-pointer devices or `touchControls='always'`) and merged with keyboard inside `Player.update()`.
+
+## Scene components (ADR-89)
+`src/data/scenes/*.json` per SCENE_TEMPLATE → `SCENES`; validated against districts/quests/NPCs/pacing. `act0_arrivals` is the worked M0 example. Triggers may `setFlags`; exits may charge `fare`.
+
+## Profile & sprites (P2)
+`PlayerProfile` (`src/utils/types.ts`) + pure helpers in `src/utils/profile.ts` (`validateProfile`, `sheetForProfile`, `ALL_PLAYER_SHEETS`, states/degrees). Sheet key = `player_<m|f>_<skin>`; `pnpm art` imports `src/assets/_raw/characters/player_{m,f}.png` (generated 3×4 sheets) through `scripts/import-sheet.mjs` into 10 on-palette 3×4 sheets (96×192, [stride, idle, opposite]), and still draws the 8 citizen looks with `scripts/art/character.mjs` (to be replaced, T-022). Save 1.3.0 persists `player.profile`; older saves migrate name/homeState into a default profile.
+
+## Design tokens
+`src/assets/_meta/palette.gpl` (48 colours, P1 lock) + `ui-palette.gpl` (12 UI colours, ADR-114) + `scripts/art/tokens.mjs` (`TOKEN_INDEX`, `UI_TOKEN_INDEX`, `MOTION_TOKENS`) → generated `_meta/tokens.json` → `src/ui/tokens.ts` (`hex`, `color`, `rgba`, `motion`, `PALETTE`, `GRID`=8). Scenes use tokens, never raw hex. `validate-maps` fails any sprite sheet off-palette or not 96×192; tilesets warn until T-021.
+
+## Platform (`src/platform/`, ADR-64)
+`Platform.ts` = the interface (storage, saves, lifecycle, haptics, display, network, share, audio). `web.ts` implements it for browsers; `native.ts` spreads `web.ts` and overrides nothing yet (molecules arrive with their phases). `index.ts` picks one at boot via `Capacitor.isNativePlatform()`. Game code imports `{ platform }` from `src/platform` and nothing else — `scripts/validate-platform.mjs` fails the build otherwise. Used today: `platform.audio.unlock()` on the Title confirm (rule 8).
+Native shells: `capacitor.config.ts` (webDir `dist`) → `android/` (Gradle) and `ios/` (Xcode, SPM). `pnpm cap:sync` = build + copy `dist/` into both. Icon/splash sources and feature flags: `src/assets/_meta/platform.json`.
+
+## Movie Mode (Test Playground, T-054)
+▶ PLAY in the playground's controller bar plays every built scene in story order like a movie, through the real game. `src/playground/movie/`: `walkgrid.ts` (pure: the feet-box grid — 2 px for the bot's plans, BFS for the validator's `reachable()`, A* + corners for the bot — one grid, so a route the bot walks is a route the validator accepts) · `driver.ts` (`PhaserDriver`: walking and interact through `InputMap.setAxis/pressInteract`, everything else through real `KeyboardEvent`s on `window`; the grid is read off the player's own colliders each plan — stencil, placed objects, collision rects and footprints, NPC bodies, the crowd — so trigger/exit zones never block; seeded `Math.random` + `RND.sow` and a fixed dialogue speed for the run) · `actions.ts` (the vocabulary: wait_for · goto · interact · choose · wait · phone · sleep · pay · expect · set_flag (logged yellow as a cheat) · unresolved; each a result, never an exception; timeouts in game-time ms) · `runner.ts` (`MovieRunner`: scenes from `loadNode` prerequisite state, title card + corner pill, skip/restart/stop/pause, a failed step marks the scene red and the next scene runs; the report + a deterministic trace) · `MovieOverlayScene.ts` (letterbox + title card 1.5 s, the pill) · `walkthroughs.ts` (glob of `src/data/walkthroughs/*.json` — only the playground imports it). `MovieBar.tsx`: controls, speed 1×/2×/4× (every active scene's time scale), the progress strip, the report with Copy; `POST /__pg/reports` writes `playground/reports/<timestamp>.json` (gitignored). Walkthroughs are validated (`validateWalkthroughs`: actions, targets against the district the bot stands in, beats, numbers; `set_flag` counted). `scripts/check-dist.mjs` fails a build that contains `MovieRunner`. Walkthroughs are generated (`scripts/generate-walkthroughs.ts`); a negotiation is haggled with `planHaggle` (`src/systems/negotiationMath.ts` — the same pure arithmetic `Negotiation` prices with), then agreed. `choose` steps through choice-less lines (a manual's "Step 1") until the options appear. A `rhythm` step plays the lane through E presses timed from `RhythmScene.view()`; the generator resolves lesson flags through `rhythm` triggers (earlier lessons first, a sleep between sessions). Each scene reseeds from `sceneSeed(runSeed, sceneId)`, so a scene plays the same from ▶ PLAY and ▶ from here. **Headless:** `pnpm movie` (`scripts/movie.mjs`) starts Vite on 6177, opens playground.html in headless Chromium (`playwright-core`, pinned to a cached browser build), sleeps the RAF loop, fixes every tween manager's delta at 16.67 ms and steps the game from Node until the runner is done; prints the report (`scripts/movie-report.mjs`) and exits 1 on a failed scene (`--strict`: also cheated/missing). `--twice` plays two runs, each in a fresh page, and compares trace, status, wallet and game time per scene (tolerance 0 ms by default). ~90 s for the whole movie.
+
+## Validation (`pnpm validate`, runs before every build)
+- `scripts/validate-maps.mjs` — tile size/orientation, layer taxonomy + order, hidden collision stencil, spawn + object layers, tileset images, City Pulse slot layer (named, unique, typed). **Warnings** (printed, non-fatal): doors not 32×48.
+- `scripts/validate-platform.mjs` — no device/browser API outside `src/platform/` (ADR-76).
+- `scripts/validate-content.ts` — `validateContent` (dialogue graphs, quests, items, NPCs, objects, district schema + references) and `validateWorld` (district ↔ map: every spawn/zone/area/pulse slot exists, exit landing spawns exist in the destination map, ambient sheets on disk, every district reachable from `START_DISTRICT`). **Warnings**: ADR-40 density (< 1 interactable per 10×10-tile screen).
+- Tests drive both validators on the real data and on synthetic breakages (`validate-*.test.ts`).
+
+## Rendering
+640×360 native, `Scale.FIT`, `pixelArt` + `roundPixels`, integer upscale. Tiles 32, characters 32×48 (feet body 20×12 at offset 6,35). Layer depth from `LAYER_DEPTH[name]`; entities sort inside the ENTITIES band by bottom edge.
+
+## Known debt
+- Stat model is the old port (energy/stress/money ₹5,000, 4 educational backgrounds); the profile doc's model (ADR-15/17) lands in P2 (T-006/T-007).
+- Quest types and reputation tier names are the old 10-type / Outsider→Important Player sets; T-015 migrates to ADR-18/22/26.
+- `SaveManager` still talks to `localStorage` directly (allowlisted) — moves to `platform.saves` with the slot system (T-011).
+- Native shells are generated and synced but unbuilt: no Xcode/Android SDK on this machine (T-018).
+- Reference tilesets (`airport*.png`) are continuous-tone with unresolved provenance — placeholders until P1.
+
+## Act 4 — 4.3 Four Nights (P24, ADR-152)
+Scene `act4_hill_days` (district `hill_flat`, `entry.counters` → prereq `counters`). Hill: `deepa_spot`, `stall_store` (`search:hill_chai_store`), `walk_out` (`card_walk_hebbal` → Ward 4); Ward 4 in Act 4: `cabinet_zone` (`search:ward4_cabinet`, the `antivirals` key item), `ward_exit` → `card_walk_home`, pack `scrubs` (idle), `walkSpeedUnless: discharged`, list `unlessFlag` on its Act 3 triggers. act4Base: `base_lamp_failed:<id>` → hill_flat `sleepEvents` → `hill_turned` + `card_hill_turned`. Generator: card-trigger travel (`walkCard` edges), walk-only Act 4, `base_lamp_failed` sleeps, `search:` dialogues, `walkTo` (`pace: 'walk'` past idle packs). Movie: `goto.pace`; the driver resolves virtual dialogues.
+## Act 4 — 4.3b The Tiffin Room (P25, ADR-153)
+Scene `act4_cafe` (`entry.inventory` → prereq inventory). District `tiffin_room` (generated interior; base: mats sleep, `base:` shelf, `craft:bench`, `search:cafe_kitchen`, shutter → `card_run_whitefield`; lamp fails night 3 → `card_cafe_dark`). Lane revisit: packs `unlessFlag`, `failCardUntil`, `kumar_call` → `dlg_kumar_trapped` (item → card). Office gate + Prashanth Layout in Act 4: packs, `search:office_server`, `raju_call`. NPC refs' `unlessFlag` may be a list. Populate: ambient 0 in Act 4. Validator: `dialogueCards` reachability.
+## Act 4 — 4.3c The Line (P26, ADR-154)
+Scene `act4_cubbon`. Cubbon in Act 4: `base` (camp_spot, three UV discs, lamp fails night 4 → `card_line_cut`), cot / `base:cubbon_park` / `craft:bench`, `run_gate` card triggers chained by `sleepEvents` (`supply_run_N` → `runN+1_ready`), `fire_circle` (`dlg_argument` → `*_trust`), `ananya_board`. Runs: hebbal_gate, majestic_interchange, church_street, hivr_corridor — each a still pack, a `search:` key item, `card_back_cubbon`. District `ownSelfAfter` (playerSheet + minimal HUD end).
+## Act 4 — 4.3d Twenty Charges (P27, ADR-155)
+Scene `act4_palace`. Districts `palace_grounds` (base: cot / stock / bench, eight UV discs, lamp fails night 3 → `card_palace_dark`; `palace_run_gate` → `card_run_malleswaram`) and `malleswaram_lane` (ground zero: a still pack, `search:krishnamurthy_house`, `dlg_vikram`, `lane_back`). The Pulse Gun: `combat.json` `pulse`, `combat.pulseTarget`, act4Hands (SPACE fires while charged; `pulse_charges` counter), act4Threat `act4:pulse` (bodies stay, non-solid; `EVOLVED.pulseChargesMidSprint`), effect `counters_set`, bag shows charges.
+## Act 4 — 4.3e The Glass House (P28, ADR-156)
+Scene `act4_lalbagh`. District `glass_house` (16×11 generated interior; base without `lampFailsOnNight`; first night → `council_called`; `council` → `dlg_council` → `path_*` + `ending_chosen`). Quest `q_act4_lalbagh` sets `base_chain_done`.
+## Act 4 — 4.5 Ravi (P29, ADR-157)
+Scene `act4_ravi`. Glass house: first night after `ending_chosen` → `ravi_msg`; `house_out` → `dlg_ravi_location` (enter on `ravi_supported`) → `card_to_hivr` / `card_to_yelahanka`. `hivr_corridor` (Ravi + Meera by `ravi_trip_started`; pack leaves with `base_cubbon_done`) and `yelahanka_room` (7×5) → `card_ravi_back` (`act4_ravi_done`). Key items `meera_keycard`, `ravi_id`. Chats: ravi_5, ravi_6 (the voice note).
+## Act 4 — 4.6 The Tunnel (P30, ADR-158)
+Scene `act4_tunnel`. Glass house `house_out` → `card_to_tunnel` → `purple_tunnel` (two still packs) → `majestic_steps` → `dlg_majestic_steps` (enter on `path_*`) → `card_ending_*` (`end: 'credits'`). WorldScene on a credits card: stops Card/HUD/Phone/Map/Grade, starts `MyBangaloreScene` (`systems/myBangalore` lines; SHARE → `platform.share.image`; TITLE). Movie: `wait_for scene_loaded` accepts a non-world scene key.
+## Act 4 — the infected spec's last steps (ADR-159)
+Twitches: `scripts/infected-recipe.mjs` `runTwitch` → `<sheet>__twitch` (from the idle frame + breath lines) → BootScene `<sheet>-twitch-<dir>` (one-shot). `systems/infected`: `QUIRKS` / `LIGHT` / `HOST` (`data/infected/{quirks,light,host}.json`), `quirksFor` / `gait` / `twitchGap`, tier `host`. Photophobia: `walkgrid.Grid.cost` (A* only) + `nav.withLight` (UV halo; outdoors by day, sun vs shade by `sight`). The large class: `constants.LARGE_SHEET` / `LARGE_FRAME`, `import-sheet` `large`, `validate-maps` `LARGE_SHEET`; packs `host: true` (act4Threat: own feet box, immovable collider with the player, no stun/shove, 3 Pulse charges, eye dots). Bench: `bench_host`.
+## Act 4 — polish (ADR-161)
+Glows: `systems/glows` (owner → world-px lights) → GradeScene draws them in screen space (ADD), above the drain; owners: `stabilityLook` (district `glows`, flag-gated) and act4Threat (`host-eyes`). HUD: `meters(..., pulse)` → the `pulse` meter (10 blocks). Falls: `infected-recipe.fallSheet` → `<sheet>__fall` → BootScene `<sheet>-fall-<dir>`; act4Threat's Pulse kill plays it, then tips the body. Objects may sit at a tile (`at: [x, y]`). Cubbon camp: `cubbon_camp_props` (non-solid) + the hill's `UV_LAMP_POST`, all `requiresFlag: base_cubbon_set`.

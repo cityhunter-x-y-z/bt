@@ -1,0 +1,69 @@
+{
+  "id": "amma",
+  "contact": "Amma",
+  "messages": [
+    {
+      "id": "amma_1",
+      "from": "them",
+      "text": "Landed? Call.",
+      "critical": true
+    },
+    {
+      "id": "amma_2",
+      "from": "them",
+      "text": "Hotel is okay? Eat something hot, not only chai.",
+      "after": "hotel_checked_in"
+    },
+    {
+      "id": "amma_3",
+      "from": "them",
+      "text": "Veg-only aunty? Good. At least someone will make you eat.",
+      "after": "pg_signed"
+    },
+    {
+      "id": "amma_4",
+      "from": "them",
+      "text": "Sleep early. Iron your clothes for Monday.",
+      "after": "amma_called"
+    },
+    {
+      "id": "amma_5",
+      "from": "them",
+      "text": "Own room? Send photo. Lock the door at night, and buy a bed before a TV.",
+      "after": "flat_signed"
+    },
+    {
+      "id": "amma_6",
+      "from": "them",
+      "text": "Sunday? Go somewhere green. Don't sit with the phone the whole day.",
+      "after": "slept_in_flat"
+    },
+    {
+      "id": "amma_7",
+      "from": "them",
+      "text": "Did you reach home? The news is saying something about Bangalore. Reply.",
+      "after": "cubbon_arrived",
+      "critical": true
+    },
+    {
+      "id": "amma_ward",
+      "from": "them",
+      "text": "Where are you? Your phone rang and rang. Call me.",
+      "after": "ward_woke",
+      "critical": true
+    },
+    {
+      "id": "amma_come_home",
+      "from": "them",
+      "text": "Come home. Please. Your father is asking.",
+      "after": "wn_amma",
+      "critical": true
+    },
+    {
+      "id": "amma_me_out",
+      "from": "me",
+      "text": "Out of the hospital. Coming home. ✓",
+      "after": "janata_out"
+    }
+  ]
+}

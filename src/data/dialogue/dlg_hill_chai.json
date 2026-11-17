@@ -1,0 +1,43 @@
+{
+  "id": "dlg_hill_chai",
+  "speaker": "Mani · Chai",
+  "portrait": "npc_hill_chai",
+  "nodes": {
+    "start": {
+      "text": "Chai? Fifteen. Strong. You are Aunty's new tenant? Whole hill knows already.",
+      "choices": [
+        {
+          "text": "One chai. (₹15)",
+          "next": "chai",
+          "effect": {
+            "wallet": -15,
+            "food": 15,
+            "stress": -3,
+            "flags": {
+              "hill_chai": true
+            }
+          }
+        },
+        {
+          "text": "Not now.",
+          "next": "bye"
+        }
+      ]
+    },
+    "chai": {
+      "text": "Sit on the stool, nobody is coming for an hour. Signal is better near my stall than in half the houses, you know. I should charge."
+    },
+    "bye": {
+      "text": "I'm here from six to ten, both sides of the day."
+    },
+    "act4": {
+      "text": "(Mani, behind his chained-up stall, on a crate.) Stall's shut. Listen — the lower path, by the shrine: two of them, facing the wall. Don't walk past. Crawl. The stairs on the right are quiet. Suresh has the light up top."
+    }
+  },
+  "enter": [
+    {
+      "flag": "act4",
+      "node": "act4"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "id": "act4_ravi",
+  "district": "glass_house",
+  "act": 4,
+  "seq": "4.5",
+  "title": "Ravi",
+  "status": "P29",
+  "draft": "Built 2026-10-18 from the 4.5 stub with its defaults ('take the defaults and build 4.5'): the message gets through under the glass roof the night after the table; Ravi's pin follows 2.5 — supported → HIVR's quarantine block (the corridor of 3.3, now army-lit and empty of infected), where he works with Dr. Meera Krishnamurthy (seen once, through the lab glass) and tells it once, in his words, and gives you her keycard (every door under HIVR — for 4.6); not supported → a rented room in Yelahanka, his mother asleep on the cot, tea on a gas stove, 'You were right not to stay that night. I wouldn't have.', and his ID (one checkpoint) if you take it. No fight, no infected in either room. The way back is a card; his voice note waits in Chats: 'okay. okay.' His family resolves only by 'Tell Appa I picked up.' (default). Both branches are built; the bot plays the one its 2.5 chose (it left him: Yelahanka), tests cover HIVR.",
+  "time": "Act 4 day 15 → 16, an afternoon and an evening",
+  "player_goal": "Find Ravi.",
+  "design_goal": "The mirror: Ravi is what the player could have been — a newcomer the city ground down, who made one human mistake. No fight, no infected in the room. What the player did for him in 2.5 decides where he is and what he can give back. Calm after the chain's Tense (ADR-24).",
+  "pacing": [
+    "Curious",
+    "Calm",
+    "Reward"
+  ],
+  "entry": {
+    "from": "act4_lalbagh",
+    "spawn": "glass_doors",
+    "after": [],
+    "counters": {
+      "act4_day": 15
+    }
+  },
+  "cast": [
+    {
+      "npc": "npc_ravi_hivr",
+      "tier": 3,
+      "spawn": "ravi_hivr",
+      "district": "hivr_corridor",
+      "role": "Supported branch: in a lab coat, clear-eyed; tells it once; Meera's keycard; 'Tell Appa I picked up.'"
+    },
+    {
+      "npc": "npc_meera",
+      "tier": 1,
+      "spawn": "meera_glass",
+      "district": "hivr_corridor",
+      "role": "NEW. Dr. Meera Krishnamurthy, seen once, through glass, working. Not a villain."
+    },
+    {
+      "npc": "npc_ravi_home",
+      "tier": 3,
+      "spawn": "ravi_home",
+      "district": "yelahanka_room",
+      "role": "Not-supported branch: at the gas stove; tea; his ID, if you take it."
+    },
+    {
+      "npc": "npc_ravi_amma",
+      "tier": 1,
+      "spawn": "amma_cot",
+      "district": "yelahanka_room",
+      "role": "NEW. Ravi's mother, ill (not infected), asleep."
+    }
+  ],
+  "quests": [
+    "q_act4_ravi"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Curious",
+      "what": "The night after the table: one bar of signal under the glass roof — 'its ravi. dont reply.' and a pin. At the barricade, the pin: HIVR's quarantine block (if you supported him in 2.5) or a lane in Yelahanka.",
+      "interact": "phone + choice",
+      "flag": "ravi_msg, ravi_trip_started"
+    },
+    {
+      "id": "F2",
+      "pacing": "Calm",
+      "what": "Supported: the corridor, army-lit, no one turned; Ravi tells it once — the tray, the glove, Appa's call; Meera through the glass; her keycard; 'Tell Appa I picked up.' — Not supported: the room in Yelahanka; his mother asleep; tea; 'You were right not to stay that night.'; his ID, or not.",
+      "interact": "dialogue",
+      "flag": "ravi_met"
+    },
+    {
+      "id": "F3",
+      "pacing": "Reward",
+      "what": "The way back (a card); cold tea at the glass house; in Chats, his voice note: 'okay. okay.'",
+      "interact": "card + phone",
+      "flag": "act4_ravi_done"
+    }
+  ],
+  "economy": [],
+  "exits": [
+    {
+      "zone": "house_out",
+      "to": "yelahanka_room",
+      "transit": "walk (card_to_yelahanka)",
+      "note": "not supported in 2.5"
+    },
+    {
+      "zone": "house_out",
+      "to": "hivr_corridor",
+      "transit": "walk (card_to_hivr)",
+      "note": "supported in 2.5"
+    },
+    {
+      "zone": "room_door",
+      "to": "glass_house",
+      "transit": "walk (card_ravi_back)",
+      "note": "home"
+    }
+  ],
+  "save_flags": [
+    "ravi_msg",
+    "ravi_trip_started",
+    "ravi_met",
+    "act4_ravi_done",
+    "act4_ravi_complete"
+  ],
+  "assets_needed": [
+    "Meera's sheet, Ravi's mother lying asleep, the Yelahanka room (all generated, first try)"
+  ],
+  "acceptance": [
+    "the branch follows ravi_supported; no fight, no infected; the voice note is in Chats"
+  ],
+  "open_questions": []
+}

@@ -2,33 +2,5107 @@
   {
     "id": "airport",
     "name": "Kempegowda International",
-    "phase": 1,
-    "scene": "AirportScene"
+    "map": "airport_map",
+    "defaultSpawn": "player_spawn",
+    "act4": {
+      "fallDay": 2
+    },
+    "fadeMs": 400,
+    "quests": [
+      "q_act0_arrival"
+    ],
+    "npcs": [
+      {
+        "id": "receptionist",
+        "spawn": "receptionist"
+      },
+      {
+        "id": "airport_helper",
+        "spawn": "helper"
+      },
+      {
+        "id": "security_guard",
+        "spawn": "guard"
+      },
+      {
+        "id": "shopkeeper_kiosk",
+        "spawn": "shopkeeper_1"
+      },
+      {
+        "id": "npc_chai_anna",
+        "spawn": "chai_stall"
+      },
+      {
+        "id": "npc_cab_tout_1",
+        "spawn": "cab_tout"
+      },
+      {
+        "id": "ambient_hivr_lanyard",
+        "spawn": "hivr_corner"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "zone_exit",
+        "to": "whitefield_street",
+        "spawn": "bus_stop",
+        "transit": "bus",
+        "card": "Vayu Vajra KIA-8 → Whitefield · ₹250",
+        "fare": 250,
+        "requiresFlag": "bus_kia8_here",
+        "board": "interact"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "hivr_zone",
+        "setFlags": [
+          "seen_hivr_lanyard"
+        ]
+      }
+    ],
+    "behaviours": [
+      "busSchedule",
+      "beh_carousel"
+    ],
+    "ambient": {
+      "base": [
+        "crowd_techie",
+        "crowd_student",
+        "crowd_officegoer",
+        "crowd_hoodie",
+        "crowd_elder",
+        "crowd_homemaker"
+      ],
+      "count": 5,
+      "area": "ambient_area"
+    },
+    "realworld": {
+      "lat": 13.1986,
+      "lng": 77.7066,
+      "label": "Kempegowda International Airport"
+    },
+    "audioSources": [
+      {
+        "at": "chai_stall",
+        "token": "a.sfx.npc.sig.chai_whistle",
+        "every": [
+          9,
+          15
+        ],
+        "radius": 9,
+        "kind": "human",
+        "uncanny": "a.uncanny.chai_whistle_empty"
+      },
+      {
+        "at": "chai_stall",
+        "token": "a.sfx.npc.sig.ladle",
+        "every": [
+          5,
+          9
+        ],
+        "radius": 6,
+        "kind": "human"
+      },
+      {
+        "at": "cab_tout",
+        "token": "a.sfx.npc.shout",
+        "every": [
+          8,
+          14
+        ],
+        "radius": 8,
+        "kind": "human"
+      },
+      {
+        "at": "zone_exit",
+        "token": "a.sfx.vehicle.bus.idle",
+        "radius": 10,
+        "kind": "machine"
+      },
+      {
+        "at": "zone_exit",
+        "token": "a.sfx.vehicle.bus.horn",
+        "every": [
+          14,
+          24
+        ],
+        "radius": 12,
+        "kind": "machine",
+        "uncanny": "a.uncanny.bus_bell_no_bus"
+      }
+    ],
+    "buses": [
+      {
+        "id": "kia8",
+        "label": "KIA-8",
+        "zone": "zone_exit",
+        "flag": "bus_kia8_here",
+        "onCall": true
+      }
+    ]
   },
   {
-    "id": "airport_road",
-    "name": "Airport Road",
-    "phase": 1,
-    "unlocked_by_quest": "arrival"
-  },
-  {
-    "id": "starter_neighborhood",
-    "name": "Byrasandra",
-    "phase": 1,
-    "scene": "PGScene",
-    "unlocked_by_quest": "arrival"
-  },
-  {
-    "id": "small_market",
-    "name": "Gandhi Bazaar Lane",
-    "phase": 1,
-    "reputation_required": 50
-  },
-  {
-    "id": "whitefield",
+    "id": "whitefield_street",
     "name": "Whitefield",
-    "phase": 2,
-    "scene": "WhitefieldScene",
-    "reputation_required": 150
+    "map": "whitefield_street",
+    "defaultSpawn": "player_spawn",
+    "act4": {
+      "fallDay": 12
+    },
+    "fadeMs": 400,
+    "unlock": {
+      "quest": "q_act0_arrival"
+    },
+    "ambient": {
+      "base": [
+        "crowd_techie",
+        "crowd_student",
+        "crowd_delivery",
+        "crowd_homemaker",
+        "crowd_elder",
+        "crowd_officegoer",
+        "crowd_autodriver",
+        "crowd_hoodie"
+      ],
+      "count": 40,
+      "area": "ambient_area"
+    },
+    "exits": [
+      {
+        "zone": "hotel_zone",
+        "to": "whitefield_hotel",
+        "spawn": "door",
+        "transit": "walk"
+      },
+      {
+        "zone": "lane_zone",
+        "to": "prashanth_layout",
+        "spawn": "lane_mouth",
+        "transit": "walk"
+      },
+      {
+        "zone": "office_walk",
+        "to": "office_gate",
+        "spawn": "auto_drop",
+        "transit": "walk",
+        "minutes": 40,
+        "card": "Walk → ITPL Gate · 40 min"
+      },
+      {
+        "zone": "hill_bus",
+        "to": "ambedkar_nagar_hill",
+        "spawn": "bus_drop",
+        "transit": "bus",
+        "fare": 20,
+        "minutes": 25,
+        "card": "BMTC 335-E → Ambedkar Nagar · ₹20",
+        "farePerBox": 10,
+        "requiresFlag": "bus_wf_335e_here",
+        "board": "interact"
+      },
+      {
+        "zone": "bus_500d",
+        "to": "bus_interior",
+        "spawn": "aisle",
+        "transit": "bus",
+        "fare": 35,
+        "minutes": 5,
+        "card": "BMTC 500-D → Cubbon Park · ₹35",
+        "requiresFlag": "bus_500d_here",
+        "board": "interact",
+        "lockedText": "Not this bus yet - find somewhere to live first."
+      },
+      {
+        "zone": "itpl_bus",
+        "to": "scooter_showroom",
+        "spawn": "bus_drop",
+        "transit": "bus",
+        "fare": 20,
+        "minutes": 15,
+        "card": "BMTC 500-D → ITPL Main Road · ₹20",
+        "requiresFlag": "bus_wf_itpl_here",
+        "board": "interact"
+      },
+      {
+        "zone": "station_stairs",
+        "to": "metro_station",
+        "spawn": "station_stairs",
+        "transit": "walk",
+        "minutes": 2,
+        "lockedText": "Barricades. Not yet."
+      }
+    ],
+    "realworld": {
+      "lat": 12.9698,
+      "lng": 77.75,
+      "label": "Whitefield"
+    },
+    "buses": [
+      {
+        "id": "500d",
+        "label": "500-D",
+        "zone": "bus_500d",
+        "flag": "bus_500d_here",
+        "every": 90,
+        "dwell": 20,
+        "from": "bus_in",
+        "stop": "bus_halt",
+        "to": "bus_out",
+        "prop": "street_props_01"
+      },
+      {
+        "id": "wf_335e",
+        "label": "335-E",
+        "zone": "hill_bus",
+        "flag": "bus_wf_335e_here",
+        "onCall": true,
+        "from": "e335_in",
+        "stop": "e335_halt",
+        "to": "e335_out",
+        "prop": "street_props_01"
+      },
+      {
+        "id": "wf_itpl",
+        "label": "500-D",
+        "zone": "itpl_bus",
+        "flag": "bus_wf_itpl_here",
+        "onCall": true,
+        "from": "itpl_in",
+        "stop": "itpl_halt",
+        "to": "itpl_out",
+        "prop": "street_props_01"
+      }
+    ],
+    "behaviours": [
+      "busSchedule",
+      "emi",
+      "salaryCountdown"
+    ],
+    "triggers": [
+      {
+        "zone": "metro_sign",
+        "dialogue": "dlg_metro_sign",
+        "unlessFlag": "metro_seen",
+        "requiresFlag": "slept_in_flat"
+      },
+      {
+        "zone": "station_zone",
+        "setFlags": [
+          "metro_opening_seen"
+        ],
+        "requiresFlag": "metro_open",
+        "unlessFlag": "metro_opening_seen"
+      }
+    ],
+    "objects": [
+      {
+        "id": "METRO_BARRICADE",
+        "at": "barricade_spot",
+        "unlessFlag": "metro_open"
+      },
+      {
+        "id": "METRO_PILLAR",
+        "at": "pillar_spot",
+        "unlessFlag": "metro_open"
+      },
+      {
+        "id": "SCOOTER_GREY",
+        "at": "scooter_park",
+        "requiresFlag": "scooter_owned"
+      },
+      {
+        "id": "METRO_ENTRANCE",
+        "at": "station_spot",
+        "requiresFlag": "metro_open"
+      },
+      {
+        "id": "METRO_PILLAR_DONE",
+        "at": "pillar_spot",
+        "requiresFlag": "metro_open"
+      },
+      {
+        "id": "BUNTING",
+        "at": "bunting_spot",
+        "requiresFlag": "metro_open"
+      },
+      {
+        "id": "FLAGPOLE",
+        "at": "flag_spot",
+        "requiresFlag": "metro_open"
+      },
+      {
+        "id": "MARIGOLD_POTS",
+        "at": "pots_spot",
+        "requiresFlag": "metro_open"
+      },
+      {
+        "id": "CROWD_BARRIER",
+        "at": "barrier_spot",
+        "requiresFlag": "metro_open"
+      }
+    ],
+    "quests": [
+      "q_act1_bus_cubbon"
+    ],
+    "metroStation": "stn_whitefield",
+    "npcs": [
+      {
+        "id": "npc_crowd_selfie",
+        "spawn": "crowd_a",
+        "requiresFlag": "metro_open",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_crowd_filming",
+        "spawn": "crowd_b",
+        "requiresFlag": "metro_open",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_crowd_garland",
+        "spawn": "crowd_c",
+        "requiresFlag": "metro_open",
+        "unlessFlag": "act4"
+      }
+    ],
+    "audioSources": [
+      {
+        "at": "vendor",
+        "token": "a.sfx.npc.vendor_call",
+        "every": [
+          7,
+          13
+        ],
+        "radius": 10,
+        "kind": "human"
+      },
+      {
+        "at": "auto_driver",
+        "token": "a.sfx.vehicle.auto.idle",
+        "radius": 6,
+        "kind": "machine"
+      },
+      {
+        "at": "auto_driver",
+        "token": "a.sfx.vehicle.auto.horn",
+        "every": [
+          10,
+          20
+        ],
+        "radius": 10,
+        "kind": "machine"
+      }
+    ]
+  },
+  {
+    "id": "whitefield_hotel",
+    "name": "Hotel Sri Lakshmi Lodging & Boarding",
+    "map": "whitefield_hotel",
+    "defaultSpawn": "door",
+    "fadeMs": 400,
+    "unlock": {
+      "quest": "q_act0_arrival"
+    },
+    "quests": [
+      "q_act0_hotel"
+    ],
+    "npcs": [
+      {
+        "id": "npc_hotel_reception",
+        "spawn": "reception"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "room",
+        "dialogue": "dlg_divya_call",
+        "unlessFlag": "divya_called"
+      },
+      {
+        "zone": "bed",
+        "action": "sleep",
+        "once": false
+      }
+    ],
+    "exits": [
+      {
+        "zone": "exit",
+        "to": "whitefield_street",
+        "spawn": "hotel_door",
+        "transit": "walk"
+      }
+    ],
+    "behaviours": [
+      "hotelNightTimer"
+    ],
+    "realworld": {
+      "parent": "whitefield_street"
+    }
+  },
+  {
+    "id": "prashanth_layout",
+    "name": "Prashanth Layout",
+    "map": "prashanth_layout",
+    "defaultSpawn": "lane_mouth",
+    "act4": {
+      "fallDay": 12
+    },
+    "fadeMs": 400,
+    "unlock": {
+      "quest": "q_act0_arrival"
+    },
+    "quests": [
+      "q_act0_pg_hunt",
+      "q_act1_first_day",
+      "q_act1_pg_exit"
+    ],
+    "npcs": [
+      {
+        "id": "npc_gate_owner",
+        "spawn": "gate_owner",
+        "unlessFlag": [
+          "pg_token_paid",
+          "act4"
+        ]
+      },
+      {
+        "id": "npc_neighbour_leela",
+        "spawn": "neighbour",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_shanthamma",
+        "spawn": "shanthamma",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_coliving_rhea",
+        "spawn": "coliving_desk",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_darshini_raju",
+        "spawn": "darshini",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_provision_basava",
+        "spawn": "provision",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_auto_meter",
+        "spawn": "auto_1",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_auto_fair",
+        "spawn": "auto_2",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_auto_kannada",
+        "spawn": "auto_3",
+        "unlessFlag": [
+          "auto_kannada_left",
+          "act4"
+        ]
+      },
+      {
+        "id": "npc_raju_shut",
+        "spawn": "raju_shut",
+        "requiresFlag": "act4",
+        "unlessFlag": "raju_decided"
+      }
+    ],
+    "ambient": {
+      "base": [
+        "crowd_techie",
+        "crowd_student",
+        "crowd_delivery",
+        "crowd_homemaker",
+        "crowd_elder",
+        "crowd_officegoer",
+        "crowd_autodriver",
+        "crowd_hoodie"
+      ],
+      "count": 6,
+      "area": "ambient_area"
+    },
+    "triggers": [
+      {
+        "zone": "lane_arrival",
+        "setFlags": [
+          "pg_lane_found"
+        ]
+      },
+      {
+        "zone": "raju_call",
+        "dialogue": "dlg_raju_trapped",
+        "requiresFlag": "raju_heard",
+        "unlessFlag": "raju_decided"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "main_road",
+        "to": "whitefield_street",
+        "spawn": "lane_return",
+        "transit": "walk"
+      },
+      {
+        "zone": "gate10",
+        "to": "shanthamma_pg",
+        "spawn": "door",
+        "transit": "walk",
+        "lockedText": "Shanthamma's gate is locked. Talk to her first."
+      },
+      {
+        "zone": "auto_stand",
+        "to": "office_gate",
+        "spawn": "auto_drop",
+        "transit": "auto",
+        "minutes": 15,
+        "requiresFlag": "auto_fare_paid",
+        "lockedText": "Agree a fare with one of the drivers first — or walk from the main road.",
+        "card": "Auto → ITPL Gate"
+      }
+    ],
+    "realworld": {
+      "lat": 12.98353,
+      "lng": 77.74892,
+      "label": "Prashanth Layout",
+      "area": {
+        "radiusM": 600,
+        "pocket": {
+          "anchor": [
+            12.983473,
+            77.74908
+          ],
+          "anchorTile": [
+            2,
+            12
+          ],
+          "bearing": 110,
+          "metresPerTile": 1.2,
+          "tiles": [
+            36,
+            24
+          ],
+          "streets": [
+            "1st Main Road",
+            "3rd Cross Road"
+          ]
+        }
+      }
+    },
+    "behaviours": [
+      "pgNoticeTimer"
+    ],
+    "audioSources": [
+      {
+        "at": "darshini",
+        "token": "a.sfx.world.plates_stack",
+        "every": [
+          4,
+          8
+        ],
+        "radius": 7,
+        "kind": "human"
+      },
+      {
+        "at": "darshini",
+        "token": "a.sfx.world.dosa_sizzle",
+        "radius": 5,
+        "kind": "human"
+      },
+      {
+        "at": "provision",
+        "token": "a.sfx.world.cash_count",
+        "every": [
+          12,
+          20
+        ],
+        "radius": 6,
+        "kind": "human"
+      },
+      {
+        "at": "neighbour",
+        "token": "a.sfx.world.pressure_cooker",
+        "every": [
+          25,
+          40
+        ],
+        "radius": 10,
+        "kind": "human"
+      },
+      {
+        "at": "auto_stand",
+        "token": "a.sfx.vehicle.auto.idle",
+        "radius": 6,
+        "kind": "machine"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "front",
+        "rect": [
+          0,
+          20,
+          36,
+          4
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "darshini_pair",
+          "zone": "front",
+          "lead": [
+            10,
+            22
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_elder",
+            "crowd_homemaker"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "shanthamma_pg",
+    "name": "Shanthamma's PG",
+    "map": "shanthamma_pg",
+    "defaultSpawn": "door",
+    "fadeMs": 400,
+    "unlock": {
+      "flags": [
+        "pg_signed"
+      ]
+    },
+    "triggers": [
+      {
+        "zone": "doorway",
+        "setFlags": [
+          "pg_moved_in"
+        ]
+      },
+      {
+        "zone": "bed",
+        "dialogue": "dlg_amma_call",
+        "unlessFlag": "amma_called"
+      },
+      {
+        "zone": "bed",
+        "action": "sleep",
+        "once": false
+      }
+    ],
+    "exits": [
+      {
+        "zone": "exit",
+        "to": "prashanth_layout",
+        "spawn": "gate10_out",
+        "transit": "walk"
+      }
+    ],
+    "realworld": {
+      "parent": "prashanth_layout"
+    },
+    "behaviours": [
+      "pgNoticeTimer"
+    ]
+  },
+  {
+    "id": "office_gate",
+    "name": "ITPL Gate",
+    "map": "office_gate",
+    "defaultSpawn": "auto_drop",
+    "act4": {
+      "fallDay": 12
+    },
+    "fadeMs": 400,
+    "realworld": {
+      "lat": 12.98741,
+      "lng": 77.7366,
+      "label": "ITPL Gate",
+      "area": {
+        "radiusM": 600,
+        "pocket": {
+          "anchor": [
+            12.987409,
+            77.736602
+          ],
+          "anchorTile": [
+            18,
+            7
+          ],
+          "bearing": 91,
+          "metresPerTile": 1.2,
+          "tiles": [
+            36,
+            24
+          ],
+          "streets": [
+            "Whitefield Road"
+          ]
+        }
+      }
+    },
+    "signal": 4,
+    "unlock": {
+      "quest": "q_act0_pg_hunt"
+    },
+    "quests": [
+      "q_act1_first_day",
+      "q_act1_ravi_intro",
+      "q_act2_ravi_1am",
+      "q_act2_breadcrumbs",
+      "q_act3_orr"
+    ],
+    "npcs": [
+      {
+        "id": "npc_office_guard",
+        "spawn": "guard",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_prakash",
+        "spawn": "admin_desk",
+        "onlyAt": "day",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_divya",
+        "spawn": "lobby",
+        "onlyAt": "day",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_sameer",
+        "spawn": "gate_evening",
+        "requiresFlag": "act1_first_day_done",
+        "onlyAt": "day",
+        "unlessFlag": [
+          "sameer_sick",
+          "act4"
+        ]
+      },
+      {
+        "id": "npc_ravi",
+        "spawn": "shuttle_bay",
+        "requiresFlag": "act1_first_day_done",
+        "unlessFlag": "act4"
+      }
+    ],
+    "ambient": {
+      "base": [
+        "crowd_techie",
+        "crowd_officegoer",
+        "crowd_hoodie",
+        "crowd_autodriver",
+        "crowd_delivery"
+      ],
+      "count": 8,
+      "area": "ambient_area"
+    },
+    "triggers": [
+      {
+        "zone": "office_arrival",
+        "setFlags": [
+          "office_arrived"
+        ],
+        "unlessFlag": "office_arrived"
+      },
+      {
+        "zone": "office_door",
+        "action": "workday",
+        "requiresFlag": "divya_met_monday",
+        "setFlags": [
+          "act1_first_day_done"
+        ],
+        "unlessFlag": "hivr_assigned"
+      },
+      {
+        "zone": "office_arrival",
+        "setFlags": [
+          "ravi_night_trip"
+        ],
+        "requiresFlag": "ravi_called",
+        "unlessFlag": [
+          "ravi_night_trip",
+          "act4"
+        ]
+      },
+      {
+        "zone": "office_door",
+        "setFlags": [
+          "clue_amr07"
+        ],
+        "requiresFlag": "bc_denial",
+        "unlessFlag": "clue_amr07"
+      },
+      {
+        "zone": "office_arrival",
+        "dialogue": "dlg_guard_salute",
+        "requiresFlag": "bc_sealed",
+        "unlessFlag": [
+          "guard_salute_seen",
+          "act4"
+        ]
+      },
+      {
+        "zone": "office_door",
+        "action": "card",
+        "card": "card_orr_night",
+        "requiresFlag": "hivr_assigned",
+        "unlessFlag": "hivr_site_visit"
+      },
+      {
+        "zone": "office_arrival",
+        "dialogue": "dlg_office_return",
+        "requiresFlag": "act4",
+        "unlessFlag": "office_returned"
+      },
+      {
+        "zone": "office_door",
+        "dialogue": "search:office_server",
+        "requiresFlag": "act4",
+        "unlessFlag": "looted:office_server"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "auto_stand",
+        "to": "whitefield_street",
+        "spawn": "player_spawn",
+        "transit": "auto",
+        "fare": 80,
+        "minutes": 15,
+        "card": "Auto → Whitefield · ₹80",
+        "onlyAt": "day"
+      },
+      {
+        "zone": "walk_out",
+        "to": "whitefield_street",
+        "spawn": "player_spawn",
+        "transit": "walk",
+        "minutes": 40,
+        "card": "Walk → Whitefield · 40 min"
+      },
+      {
+        "zone": "auto_stand",
+        "to": "ambedkar_nagar_hill",
+        "spawn": "bus_drop",
+        "transit": "auto",
+        "fare": 80,
+        "minutes": 15,
+        "onlyAt": "night",
+        "card": "Night auto → Ambedkar Nagar · double after midnight"
+      }
+    ],
+    "behaviours": [
+      "officeClockIn"
+    ],
+    "audioSources": [
+      {
+        "at": "office_door",
+        "token": "a.sfx.world.keyboard_typing",
+        "radius": 4,
+        "kind": "human"
+      },
+      {
+        "at": "auto_stand",
+        "token": "a.sfx.vehicle.auto.idle",
+        "radius": 6,
+        "kind": "machine"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "bay",
+        "rect": [
+          20,
+          3,
+          16,
+          9
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "colleagues",
+          "zone": "bay",
+          "lead": [
+            27,
+            7
+          ],
+          "size": 3,
+          "sheets": [
+            "npc_prakash",
+            "crowd_techie",
+            "crowd_officegoer"
+          ],
+          "former": "npc_prakash",
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ambedkar_nagar_hill",
+    "name": "Ambedkar Nagar",
+    "map": "ambedkar_nagar_hill",
+    "defaultSpawn": "slope_base",
+    "act4": {
+      "fallDay": 13
+    },
+    "fadeMs": 400,
+    "realworld": {
+      "lat": 12.987006,
+      "lng": 77.718434,
+      "label": "Ambedkar Nagar",
+      "area": {
+        "radiusM": 600,
+        "pocket": {
+          "anchor": [
+            12.987006,
+            77.718434
+          ],
+          "anchorTile": [
+            15,
+            22.5
+          ],
+          "bearing": 95,
+          "metresPerTile": 1.2,
+          "tiles": [
+            36,
+            24
+          ],
+          "streets": [
+            "Seetharampalya Road"
+          ]
+        }
+      }
+    },
+    "signal": 1,
+    "unlock": {
+      "quest": "q_act1_pg_exit"
+    },
+    "quests": [
+      "q_act1_hill_flat",
+      "q_act2_ravi_1am",
+      "q_act4_the_hill",
+      "q_act4_hill_days",
+      "q_act4_cafe"
+    ],
+    "npcs": [
+      {
+        "id": "npc_manju",
+        "spawn": "broker",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_owner_aunty",
+        "spawn": "owner",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_hill_chai",
+        "spawn": "chai_stall",
+        "unlessFlag": "hill_turned"
+      },
+      {
+        "id": "npc_furniture_rafiq",
+        "spawn": "furniture_shop",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_hill_kid",
+        "spawn": "kid",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_suresh",
+        "spawn": "suresh_spot",
+        "requiresFlag": "act4",
+        "unlessFlag": "base_cafe_set"
+      },
+      {
+        "id": "npc_karthik",
+        "spawn": "karthik_spot",
+        "requiresFlag": "act4",
+        "unlessFlag": "karthik_gone"
+      },
+      {
+        "id": "npc_manju_act4",
+        "spawn": "manju_table",
+        "requiresFlag": "act4",
+        "unlessFlag": "upi_dead"
+      },
+      {
+        "id": "npc_manju_trade",
+        "spawn": "manju_table_b",
+        "requiresFlag": "upi_dead"
+      },
+      {
+        "id": "npc_deepa",
+        "spawn": "deepa_spot",
+        "requiresFlag": "deepa_back",
+        "unlessFlag": "base_cafe_set"
+      }
+    ],
+    "ambient": {
+      "base": [
+        "crowd_homemaker",
+        "crowd_elder",
+        "crowd_student",
+        "crowd_hoodie"
+      ],
+      "count": 3,
+      "area": "ambient_area"
+    },
+    "signalZones": [
+      {
+        "zone": "room1_door",
+        "bars": 0,
+        "flag": "room1_checked"
+      },
+      {
+        "zone": "room2_door",
+        "bars": 1,
+        "flag": "room2_checked"
+      },
+      {
+        "zone": "room3_door",
+        "bars": 2,
+        "flag": "room3_checked"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "hill_arrival",
+        "setFlags": [
+          "hill_arrived"
+        ],
+        "unlessFlag": "hill_arrived"
+      },
+      {
+        "zone": "top_terrace",
+        "dialogue": "dlg_hill_climbed",
+        "requiresFlag": "act4",
+        "unlessFlag": "hill_climbed"
+      },
+      {
+        "zone": "stall_store",
+        "dialogue": "search:hill_chai_store",
+        "requiresFlag": "suresh_day1",
+        "unlessFlag": "looted:hill_chai_store"
+      },
+      {
+        "zone": "walk_out",
+        "action": "card",
+        "card": "card_walk_hebbal",
+        "requiresFlag": "deepa_asked",
+        "unlessFlag": "looted:ward4_cabinet"
+      },
+      {
+        "zone": "walk_out",
+        "action": "card",
+        "card": "card_walk_west",
+        "requiresFlag": "base_hill_done"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "road_out",
+        "to": "whitefield_street",
+        "spawn": "bus_stop",
+        "transit": "bus",
+        "fare": 20,
+        "minutes": 25,
+        "card": "BMTC 335-E → Whitefield · ₹20",
+        "requiresFlag": "bus_hill_335e_here",
+        "board": "interact"
+      },
+      {
+        "zone": "room3_door",
+        "to": "hill_flat",
+        "spawn": "door",
+        "transit": "walk",
+        "lockedText": "Aunty's door. Make a deal with her first."
+      },
+      {
+        "zone": "auto_out",
+        "to": "office_gate",
+        "spawn": "auto_drop",
+        "transit": "auto",
+        "fare": 80,
+        "minutes": 15,
+        "onlyAt": "night",
+        "card": "Night auto → ITPL gate · double after midnight"
+      }
+    ],
+    "behaviours": [
+      "busSchedule",
+      "signalZones"
+    ],
+    "objects": [
+      {
+        "id": "SCOOTER_GREY",
+        "at": "scooter_park",
+        "requiresFlag": "scooter_owned"
+      },
+      {
+        "id": "GENERATOR",
+        "at": "gen_spot",
+        "requiresFlag": "act4",
+        "exact": true
+      },
+      {
+        "id": "UV_LAMP_POST",
+        "at": "uv_post_spot",
+        "requiresFlag": "act4",
+        "exact": true
+      },
+      {
+        "id": "TRADE_TABLE",
+        "at": "trade_table_spot",
+        "requiresFlag": "act4",
+        "exact": true
+      },
+      {
+        "id": "SLIPPERS",
+        "at": "slippers_spot",
+        "requiresFlag": "act4",
+        "exact": true
+      }
+    ],
+    "audioSources": [
+      {
+        "at": "chai_stall",
+        "token": "a.sfx.npc.sig.chai_whistle",
+        "every": [
+          10,
+          16
+        ],
+        "radius": 9,
+        "kind": "human",
+        "uncanny": "a.uncanny.chai_whistle_empty"
+      },
+      {
+        "at": "chai_stall",
+        "token": "a.sfx.npc.sig.ladle",
+        "every": [
+          6,
+          10
+        ],
+        "radius": 6,
+        "kind": "human"
+      },
+      {
+        "at": "room1_door",
+        "token": "a.sfx.world.pressure_cooker",
+        "every": [
+          30,
+          50
+        ],
+        "radius": 10,
+        "kind": "human"
+      },
+      {
+        "at": "kid",
+        "token": "a.sfx.npc.laugh",
+        "every": [
+          12,
+          20
+        ],
+        "radius": 8,
+        "kind": "human"
+      }
+    ],
+    "liveArrivals": true,
+    "stabilityIf": [
+      {
+        "flag": "act4",
+        "stability": 62
+      },
+      {
+        "flag": "hill_turned",
+        "stability": 35
+      }
+    ],
+    "uv": [
+      {
+        "at": [
+          23,
+          3
+        ],
+        "radius": 3,
+        "requiresFlag": "act4",
+        "fuelAfter": "met_suresh"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "lower_path",
+        "rect": [
+          3,
+          9,
+          22,
+          4
+        ],
+        "encounterRate": 0,
+        "cover": [
+          [
+            6,
+            10
+          ],
+          [
+            12,
+            10
+          ]
+        ]
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "still_pair",
+          "zone": "lower_path",
+          "lead": [
+            9,
+            11
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_homemaker",
+            "crowd_elder"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle"
+        }
+      ]
+    },
+    "buses": [
+      {
+        "id": "hill_335e",
+        "label": "335-E",
+        "zone": "road_out",
+        "flag": "bus_hill_335e_here",
+        "onCall": true,
+        "from": "e335_in",
+        "stop": "e335_halt",
+        "to": "e335_out",
+        "prop": "street_props_01"
+      }
+    ]
+  },
+  {
+    "id": "hill_flat",
+    "name": "Your room, Ambedkar Nagar",
+    "map": "hill_flat",
+    "defaultSpawn": "door",
+    "fadeMs": 300,
+    "signal": 2,
+    "unlock": {
+      "flags": [
+        "flat_signed"
+      ]
+    },
+    "objects": [
+      {
+        "id": "CARDBOARD_BOX",
+        "at": "box_spot",
+        "requiresFlag": "flat_signed"
+      },
+      {
+        "id": "WATER_DRUM",
+        "at": "drum_spot"
+      },
+      {
+        "id": "COT",
+        "at": "cot_spot",
+        "requiresFlag": "bed_bought"
+      },
+      {
+        "id": "TABLE_CHAIR",
+        "at": "table_spot",
+        "requiresFlag": "bed_bought"
+      },
+      {
+        "id": "INDUCTION",
+        "at": "stove_spot",
+        "requiresFlag": "stove_bought"
+      },
+      {
+        "id": "GUITAR_STAND",
+        "at": "guitar_spot",
+        "requiresFlag": "guitar_owned"
+      },
+      {
+        "id": "FLATPACK_BOXES",
+        "at": "boxes_spot",
+        "requiresFlag": "ikea_rode_home",
+        "unlessFlag": "ikea_assembled"
+      },
+      {
+        "id": "BOOKSHELF",
+        "at": "shelf_spot",
+        "requiresFlags": [
+          "ikea_bought_shelf",
+          "ikea_assembled"
+        ]
+      },
+      {
+        "id": "FLOOR_LAMP",
+        "at": "lamp_spot",
+        "requiresFlags": [
+          "ikea_bought_lamp",
+          "ikea_assembled"
+        ]
+      },
+      {
+        "id": "RUG",
+        "at": "rug_spot",
+        "requiresFlags": [
+          "ikea_bought_rug",
+          "ikea_assembled"
+        ]
+      },
+      {
+        "id": "FOLDED_TABLE",
+        "at": "folded_spot",
+        "requiresFlag": "table_folded"
+      },
+      {
+        "id": "RANSACK_HEAP",
+        "at": "rug_spot",
+        "requiresFlag": "act4",
+        "exact": true
+      },
+      {
+        "id": "CHAIR_FALLEN",
+        "at": "lamp_spot",
+        "requiresFlag": "act4",
+        "exact": true
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "flat_arrival",
+        "dialogue": "dlg_amma_news",
+        "requiresFlag": "cubbon_arrived",
+        "unlessFlag": "amma_news_called",
+        "setFlags": [
+          "amma_news_called"
+        ]
+      },
+      {
+        "action": "sleep",
+        "requiresFlag": "bed_bought",
+        "setFlags": [
+          "slept_in_flat"
+        ],
+        "zone": "bed",
+        "once": false
+      },
+      {
+        "zone": "bed",
+        "requiresFlag": "amma_news_called",
+        "setFlags": [
+          "act1_done"
+        ],
+        "unlessFlag": "act1_done"
+      },
+      {
+        "zone": "guitar_zone",
+        "action": "rhythm",
+        "minigame": "guitar",
+        "requiresFlag": "guitar_owned",
+        "once": false
+      },
+      {
+        "zone": "assembly_zone",
+        "dialogue": "dlg_ikea_assembly",
+        "requiresFlag": "ikea_rode_home",
+        "unlessFlag": "ikea_assembled"
+      },
+      {
+        "zone": "flat_arrival",
+        "dialogue": "dlg_amma_worried",
+        "requiresFlag": "bc_schools",
+        "unlessFlag": "amma_worried_called"
+      },
+      {
+        "zone": "flat_arrival",
+        "dialogue": "dlg_flat_ransacked",
+        "requiresFlag": "act4",
+        "unlessFlag": "flat_found"
+      },
+      {
+        "zone": "bench_zone",
+        "dialogue": "dlg_hill_table",
+        "requiresFlag": "flat_found",
+        "unlessFlag": "hill_base_set"
+      },
+      {
+        "zone": "bench_zone",
+        "dialogue": "craft:bench",
+        "requiresFlag": "hill_first_night",
+        "once": false
+      },
+      {
+        "zone": "stock_zone",
+        "dialogue": "base:hill_flat",
+        "requiresFlag": "hill_base_set",
+        "once": false
+      },
+      {
+        "zone": "kitchen_zone",
+        "dialogue": "search:hill_kitchen",
+        "requiresFlag": "act4",
+        "unlessFlag": "looted:hill_kitchen"
+      },
+      {
+        "zone": "drawer_zone",
+        "dialogue": "search:hill_drawer",
+        "requiresFlag": "act4",
+        "unlessFlag": "looted:hill_drawer"
+      },
+      {
+        "zone": "bag_zone",
+        "dialogue": "search:hill_bag",
+        "requiresFlag": "act4",
+        "unlessFlag": "looted:hill_bag"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "front_door",
+        "to": "ambedkar_nagar_hill",
+        "spawn": "room3_out",
+        "transit": "walk"
+      }
+    ],
+    "behaviours": [
+      "salaryCountdown",
+      "emi",
+      "metroOpening",
+      "guitarNights",
+      "sleepEvents"
+    ],
+    "realworld": {
+      "parent": "ambedkar_nagar_hill"
+    },
+    "quests": [
+      "q_act2_guitar",
+      "q_act2_ikea",
+      "q_act2_ravi_1am",
+      "q_act2_the_app",
+      "q_act2_breadcrumbs",
+      "q_act3_orr",
+      "q_act4_hill_days"
+    ],
+    "sleepEvents": [
+      {
+        "after": "act2_guitar_done",
+        "set": [
+          "ikea_planned"
+        ],
+        "toast": "Sameer: \"Hyggeland opened at Nagasandra. Saturday?\"",
+        "icon": "chats"
+      },
+      {
+        "after": "act2_ikea_done",
+        "set": [
+          "ravi_called",
+          "power_cut"
+        ],
+        "wakeAt": 50,
+        "toast": "Ravi: \"u up? im at the shuttle stop. cant go back in. cant go home.\"",
+        "icon": "chats"
+      },
+      {
+        "after": "ravi_decided",
+        "set": [
+          "ravi_night_over"
+        ],
+        "clear": [
+          "power_cut"
+        ]
+      },
+      {
+        "after": "ravi_supported",
+        "set": [
+          "ravi_thanked"
+        ]
+      },
+      {
+        "after": "act2_ravi_done",
+        "set": [
+          "dating_installed"
+        ],
+        "toast": "Sameer: \"Installed Jodi on your phone while you were in the loo. You're welcome.\"",
+        "icon": "chats"
+      },
+      {
+        "after": "app_settled",
+        "set": [
+          "jodi_gone"
+        ]
+      },
+      {
+        "after": "act2_app_done",
+        "nights": 1,
+        "set": [
+          "news_taught",
+          "bc_fever"
+        ],
+        "toast": "News: Mystery fever — 11 admitted at Hebbal General",
+        "icon": "news"
+      },
+      {
+        "after": "act2_app_done",
+        "nights": 2,
+        "set": [
+          "bc_denial",
+          "sameer_sick"
+        ],
+        "toast": "News: HIVR calls leak rumours 'baseless'",
+        "icon": "news"
+      },
+      {
+        "after": "act2_app_done",
+        "nights": 3,
+        "set": [
+          "bc_sealed"
+        ],
+        "toast": "News: Ward sealed at Hebbal General",
+        "icon": "news"
+      },
+      {
+        "after": "act2_app_done",
+        "nights": 4,
+        "set": [
+          "bc_schools",
+          "sameer_back"
+        ],
+        "clear": [
+          "sameer_sick"
+        ],
+        "toast": "News: Yelahanka schools shut 'as a precaution'",
+        "icon": "news"
+      },
+      {
+        "after": "amma_worried_called",
+        "set": [
+          "act2_done"
+        ]
+      },
+      {
+        "after": "amma_worried_called",
+        "set": [
+          "act3_started"
+        ],
+        "card": "card_act3_title",
+        "toast": "Divya: \"Come by the lobby before you start.\"",
+        "icon": "chats"
+      },
+      {
+        "after": "hill_base_set",
+        "set": [
+          "hill_first_night"
+        ],
+        "toast": "Act 4 · day 1",
+        "icon": "news"
+      },
+      {
+        "after": "hill_first_night",
+        "nights": 1,
+        "set": [
+          "deepa_back"
+        ],
+        "toast": "Someone on the step of room 1. Deepa's back.",
+        "icon": "chats"
+      },
+      {
+        "after": "hill_first_night",
+        "nights": 2,
+        "set": [
+          "karthik_gone"
+        ],
+        "toast": "Karthik's door is open. His bags are gone."
+      },
+      {
+        "after": "base_lamp_failed:hill_flat",
+        "set": [
+          "hill_turned"
+        ],
+        "card": "card_hill_turned"
+      }
+    ],
+    "base": {
+      "spawn": "door",
+      "uv": [],
+      "requiresFlag": "hill_base_set",
+      "lampFailsOnNight": 4
+    }
+  },
+  {
+    "id": "tiffin_room",
+    "name": "Rameshwara Tiffin Room, Indiranagar",
+    "map": "tiffin_room",
+    "defaultSpawn": "shutter_in",
+    "fadeMs": 300,
+    "signal": 0,
+    "unlock": {
+      "flags": [
+        "base_cafe_set"
+      ]
+    },
+    "realworld": {
+      "parent": "indiranagar_lane"
+    },
+    "quests": [
+      "q_act4_cafe",
+      "q_act4_cubbon"
+    ],
+    "npcs": [
+      {
+        "id": "npc_uncle",
+        "spawn": "uncle_spot",
+        "unlessFlag": "base_cubbon_set"
+      },
+      {
+        "id": "npc_suresh",
+        "spawn": "suresh_spot",
+        "unlessFlag": "base_cubbon_set"
+      },
+      {
+        "id": "npc_deepa",
+        "spawn": "deepa_spot",
+        "requiresFlag": "deepa_medicine",
+        "unlessFlag": "base_cubbon_set"
+      },
+      {
+        "id": "npc_kumar",
+        "spawn": "kumar_spot",
+        "requiresFlag": "kumar_saved",
+        "unlessFlag": "base_cubbon_set"
+      },
+      {
+        "id": "npc_raju_cafe",
+        "spawn": "raju_spot",
+        "requiresFlag": "raju_saved",
+        "unlessFlag": "base_cubbon_set"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "mat_zone",
+        "action": "sleep",
+        "requiresFlag": "base_cafe_set",
+        "once": false
+      },
+      {
+        "zone": "stock_zone",
+        "dialogue": "base:tiffin_room",
+        "requiresFlag": "base_cafe_set",
+        "once": false
+      },
+      {
+        "zone": "bench_zone",
+        "dialogue": "craft:bench",
+        "requiresFlag": "base_cafe_set",
+        "once": false
+      },
+      {
+        "zone": "kitchen_zone",
+        "dialogue": "search:cafe_kitchen",
+        "requiresFlag": "base_cafe_set",
+        "unlessFlag": "looted:cafe_kitchen"
+      },
+      {
+        "zone": "shutter_zone",
+        "action": "card",
+        "card": "card_run_whitefield",
+        "requiresFlag": "cafe_day5",
+        "unlessFlag": "raju_decided"
+      },
+      {
+        "zone": "shutter_zone",
+        "action": "card",
+        "card": "card_walk_cubbon",
+        "requiresFlag": "base_cafe_done"
+      }
+    ],
+    "base": {
+      "spawn": "shutter_in",
+      "uv": [
+        {
+          "at": [
+            6,
+            1
+          ],
+          "radius": 3
+        }
+      ],
+      "requiresFlag": "base_cafe_set",
+      "lampFailsOnNight": 3
+    },
+    "behaviours": [
+      "sleepEvents"
+    ],
+    "sleepEvents": [
+      {
+        "after": "base_cafe_set",
+        "nights": 1,
+        "set": [
+          "cafe_day5"
+        ],
+        "toast": "Act 4 · day 5",
+        "icon": "news"
+      },
+      {
+        "after": "base_lamp_failed:tiffin_room",
+        "set": [
+          "cafe_turned"
+        ],
+        "card": "card_cafe_dark"
+      }
+    ]
+  },
+  {
+    "id": "palace_grounds",
+    "name": "Bangalore Palace grounds",
+    "map": "palace_grounds",
+    "defaultSpawn": "palace_gate",
+    "fadeMs": 400,
+    "signal": 1,
+    "unlock": {
+      "flags": [
+        "base_palace_set"
+      ]
+    },
+    "realworld": {
+      "lat": 12.9987,
+      "lng": 77.592,
+      "label": "Bangalore Palace grounds"
+    },
+    "quests": [
+      "q_act4_palace",
+      "q_act4_lalbagh"
+    ],
+    "npcs": [
+      {
+        "id": "npc_engineer",
+        "spawn": "engineer_spot",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_rathore",
+        "spawn": "rathore_palace",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_priya",
+        "spawn": "priya_palace",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_karthik",
+        "spawn": "karthik_palace",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_uncle",
+        "spawn": "uncle_palace",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_suresh",
+        "spawn": "suresh_palace",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_deepa",
+        "spawn": "deepa_palace",
+        "requiresFlag": "deepa_medicine",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_kumar",
+        "spawn": "kumar_palace",
+        "requiresFlag": "kumar_saved",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_raju_cafe",
+        "spawn": "raju_palace",
+        "requiresFlag": "raju_saved",
+        "unlessFlag": "base_lalbagh_set"
+      },
+      {
+        "id": "npc_ananya_camp",
+        "spawn": "ananya_palace",
+        "unlessFlag": [
+          "ananya_strained",
+          "base_lalbagh_set"
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "palace_cot",
+        "action": "sleep",
+        "requiresFlag": "base_palace_set",
+        "once": false
+      },
+      {
+        "zone": "palace_stock",
+        "dialogue": "base:palace_grounds",
+        "requiresFlag": "base_palace_set",
+        "once": false
+      },
+      {
+        "zone": "palace_bench",
+        "dialogue": "craft:bench",
+        "requiresFlag": "base_palace_set",
+        "once": false
+      },
+      {
+        "zone": "palace_run_gate",
+        "action": "card",
+        "card": "card_run_malleswaram",
+        "requiresFlag": "pulse_received",
+        "unlessFlag": "looted:krishnamurthy_house"
+      },
+      {
+        "zone": "palace_run_gate",
+        "action": "card",
+        "card": "card_walk_lalbagh",
+        "requiresFlag": "base_palace_done"
+      }
+    ],
+    "base": {
+      "spawn": "camp_spot",
+      "uv": [
+        {
+          "at": [
+            6,
+            7
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            12,
+            7
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            21,
+            7
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            23,
+            11
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            25,
+            14
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            5,
+            18
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            10,
+            18
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            18,
+            18
+          ],
+          "radius": 3
+        }
+      ],
+      "requiresFlag": "base_palace_set",
+      "lampFailsOnNight": 3
+    },
+    "behaviours": [
+      "sleepEvents"
+    ],
+    "sleepEvents": [
+      {
+        "after": "base_palace_set",
+        "nights": 1,
+        "set": [
+          "pulse_built"
+        ],
+        "toast": "Sathish didn't sleep. The tarp is lit."
+      },
+      {
+        "after": "base_lamp_failed:palace_grounds",
+        "set": [
+          "palace_turned"
+        ],
+        "card": "card_palace_dark"
+      }
+    ]
+  },
+  {
+    "id": "malleswaram_lane",
+    "name": "Malleswaram · a lane",
+    "map": "malleswaram_lane",
+    "defaultSpawn": "lane_east",
+    "fadeMs": 400,
+    "signal": 0,
+    "unlock": {
+      "flags": [
+        "pulse_received"
+      ]
+    },
+    "realworld": {
+      "lat": 13.0035,
+      "lng": 77.5709,
+      "label": "Malleswaram"
+    },
+    "act4": {
+      "fallDay": 0,
+      "floor": 5
+    },
+    "quests": [
+      "q_act4_palace"
+    ],
+    "npcs": [
+      {
+        "id": "npc_vikram",
+        "spawn": "vikram_spot",
+        "unlessFlag": "vikram_released"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "house_door",
+        "dialogue": "search:krishnamurthy_house",
+        "requiresFlag": "pulse_received",
+        "unlessFlag": "looted:krishnamurthy_house"
+      },
+      {
+        "zone": "vikram_call",
+        "dialogue": "dlg_vikram",
+        "requiresFlag": "pulse_received",
+        "unlessFlag": "vikram_decided"
+      },
+      {
+        "zone": "lane_back",
+        "action": "card",
+        "card": "card_back_palace",
+        "requiresFlag": "looted:krishnamurthy_house",
+        "unlessFlag": "supply_run_5"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "west",
+        "rect": [
+          0,
+          9,
+          14,
+          5
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "ground_zero",
+          "zone": "west",
+          "lead": [
+            4,
+            11
+          ],
+          "size": 3,
+          "sheets": [
+            "crowd_elder",
+            "crowd_student",
+            "crowd_homemaker"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "glass_house",
+    "name": "The glass house, Lalbagh",
+    "map": "glass_house",
+    "defaultSpawn": "glass_doors",
+    "fadeMs": 300,
+    "signal": 1,
+    "unlock": {
+      "flags": [
+        "base_lalbagh_set"
+      ]
+    },
+    "realworld": {
+      "lat": 12.9507,
+      "lng": 77.5848,
+      "label": "Lalbagh glass house"
+    },
+    "quests": [
+      "q_act4_lalbagh",
+      "q_act4_ravi",
+      "q_act4_tunnel"
+    ],
+    "npcs": [
+      {
+        "id": "npc_rathore",
+        "spawn": "rathore_lh"
+      },
+      {
+        "id": "npc_engineer",
+        "spawn": "engineer_lh"
+      },
+      {
+        "id": "npc_priya",
+        "spawn": "priya_lh"
+      },
+      {
+        "id": "npc_karthik",
+        "spawn": "karthik_lh"
+      },
+      {
+        "id": "npc_uncle",
+        "spawn": "uncle_lh"
+      },
+      {
+        "id": "npc_suresh",
+        "spawn": "suresh_lh"
+      },
+      {
+        "id": "npc_deepa",
+        "spawn": "deepa_lh",
+        "requiresFlag": "deepa_medicine"
+      },
+      {
+        "id": "npc_kumar",
+        "spawn": "kumar_lh",
+        "requiresFlag": "kumar_saved"
+      },
+      {
+        "id": "npc_raju_cafe",
+        "spawn": "raju_lh",
+        "requiresFlag": "raju_saved"
+      },
+      {
+        "id": "npc_ananya_camp",
+        "spawn": "ananya_lh",
+        "unlessFlag": "ananya_strained"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "lh_cots",
+        "action": "sleep",
+        "requiresFlag": "base_lalbagh_set",
+        "once": false
+      },
+      {
+        "zone": "lh_stock",
+        "dialogue": "base:glass_house",
+        "requiresFlag": "base_lalbagh_set",
+        "once": false
+      },
+      {
+        "zone": "lh_bench",
+        "dialogue": "craft:bench",
+        "requiresFlag": "base_lalbagh_set",
+        "once": false
+      },
+      {
+        "zone": "council",
+        "dialogue": "dlg_council",
+        "requiresFlag": "council_called",
+        "unlessFlag": "ending_chosen"
+      },
+      {
+        "zone": "house_out",
+        "dialogue": "dlg_ravi_location",
+        "requiresFlag": "ravi_msg",
+        "unlessFlag": "ravi_trip_started"
+      },
+      {
+        "zone": "house_out",
+        "action": "card",
+        "card": "card_to_tunnel",
+        "requiresFlag": "act4_ravi_done",
+        "unlessFlag": "tunnel_in"
+      }
+    ],
+    "base": {
+      "spawn": "glass_doors",
+      "uv": [
+        {
+          "at": [
+            7,
+            1
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            11,
+            1
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            14,
+            2
+          ],
+          "radius": 3
+        }
+      ],
+      "requiresFlag": "base_lalbagh_set"
+    },
+    "behaviours": [
+      "sleepEvents"
+    ],
+    "sleepEvents": [
+      {
+        "after": "base_lalbagh_set",
+        "nights": 1,
+        "set": [
+          "council_called"
+        ],
+        "toast": "Act 4 · day 15. Rathore has called everyone to the round table.",
+        "icon": "news"
+      },
+      {
+        "after": "ending_chosen",
+        "nights": 1,
+        "set": [
+          "ravi_msg"
+        ],
+        "toast": "One bar of signal under the glass roof. Ravi: \"its ravi. dont reply.\"",
+        "icon": "chats"
+      }
+    ]
+  },
+  {
+    "id": "yelahanka_room",
+    "name": "A rented room, Yelahanka",
+    "map": "yelahanka_room",
+    "defaultSpawn": "room_arrive",
+    "fadeMs": 300,
+    "signal": 1,
+    "unlock": {
+      "flags": [
+        "ravi_trip_started"
+      ]
+    },
+    "realworld": {
+      "lat": 13.1007,
+      "lng": 77.5963,
+      "label": "Yelahanka"
+    },
+    "quests": [
+      "q_act4_ravi"
+    ],
+    "npcs": [
+      {
+        "id": "npc_ravi_home",
+        "spawn": "ravi_home"
+      },
+      {
+        "id": "npc_ravi_amma",
+        "spawn": "amma_cot"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "room_door",
+        "action": "card",
+        "card": "card_ravi_back",
+        "requiresFlag": "ravi_met",
+        "unlessFlag": "act4_ravi_done"
+      }
+    ]
+  },
+  {
+    "id": "purple_tunnel",
+    "name": "The Purple Line, under the city",
+    "map": "purple_tunnel",
+    "defaultSpawn": "tunnel_east",
+    "fadeMs": 500,
+    "signal": 0,
+    "unlock": {
+      "flags": [
+        "tunnel_in"
+      ]
+    },
+    "realworld": {
+      "lat": 12.9763,
+      "lng": 77.5929,
+      "label": "Purple Line, Cubbon Park → Majestic"
+    },
+    "act4": {
+      "fallDay": 0,
+      "floor": 12
+    },
+    "quests": [
+      "q_act4_tunnel"
+    ],
+    "triggers": [
+      {
+        "zone": "majestic_steps",
+        "dialogue": "dlg_majestic_steps",
+        "requiresFlag": "tunnel_in",
+        "unlessFlag": "game_complete"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "tunnel",
+        "rect": [
+          0,
+          4,
+          36,
+          19
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "passage_east",
+          "zone": "tunnel",
+          "lead": [
+            27,
+            20
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_officegoer",
+            "crowd_techie"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "tunnel_in",
+          "startMode": "idle"
+        },
+        {
+          "id": "passage_west",
+          "zone": "tunnel",
+          "lead": [
+            10,
+            20
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_student",
+            "crowd_delivery"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "tunnel_in",
+          "startMode": "idle"
+        }
+      ]
+    },
+    "glows": [
+      {
+        "at": [
+          14.8,
+          2.9
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      },
+      {
+        "at": [
+          26.8,
+          3
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      },
+      {
+        "at": [
+          33.5,
+          3
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      },
+      {
+        "at": [
+          11.1,
+          14.7
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      },
+      {
+        "at": [
+          18.3,
+          14.7
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      },
+      {
+        "at": [
+          25.9,
+          14.7
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      },
+      {
+        "at": [
+          10.2,
+          19.1
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      },
+      {
+        "at": [
+          27,
+          19.1
+        ],
+        "radius": 0.5,
+        "color": "map.danger"
+      }
+    ]
+  },
+  {
+    "id": "bus_interior",
+    "name": "BMTC 500-D",
+    "map": "bus_interior",
+    "defaultSpawn": "aisle",
+    "fadeMs": 300,
+    "unlock": {
+      "flags": [
+        "slept_in_flat"
+      ]
+    },
+    "signal": 3,
+    "npcs": [
+      {
+        "id": "npc_bus_nurse",
+        "spawn": "seat_a"
+      },
+      {
+        "id": "npc_bus_uncle",
+        "spawn": "seat_b"
+      },
+      {
+        "id": "npc_bus_kid",
+        "spawn": "seat_c"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "aisle_zone",
+        "setFlags": [
+          "on_bus_500d"
+        ],
+        "unlessFlag": "on_bus_500d"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "door",
+        "to": "cubbon_park",
+        "spawn": "bus_drop",
+        "transit": "walk",
+        "minutes": 45,
+        "requiresFlag": "ride_over",
+        "lockedText": "The bus is moving. Sit."
+      }
+    ],
+    "ride": {
+      "seconds": 25,
+      "exit": "door",
+      "flag": "ride_over",
+      "label": "Cubbon Park"
+    },
+    "behaviours": [
+      "busRide"
+    ],
+    "realworld": {
+      "parent": "whitefield_street"
+    },
+    "quests": [
+      "q_act1_bus_cubbon"
+    ],
+    "audioSources": [
+      {
+        "at": "door",
+        "token": "a.sfx.vehicle.bus.bell",
+        "every": [
+          15,
+          25
+        ],
+        "radius": 8,
+        "kind": "machine"
+      }
+    ]
+  },
+  {
+    "id": "cubbon_park",
+    "name": "Cubbon Park",
+    "map": "cubbon_park",
+    "defaultSpawn": "bus_drop",
+    "act4": {
+      "fallDay": 8
+    },
+    "fadeMs": 400,
+    "unlock": {
+      "flags": [
+        "slept_in_flat"
+      ]
+    },
+    "signal": 4,
+    "quests": [
+      "q_act1_bus_cubbon",
+      "q_act1_cubbon",
+      "q_act2_metro_opens",
+      "q_act2_the_app",
+      "q_act4_cubbon",
+      "q_act4_palace"
+    ],
+    "npcs": [
+      {
+        "id": "npc_cycle_guy",
+        "spawn": "cycle_rental",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_ananya",
+        "spawn": "ananya_spot",
+        "unlessFlag": [
+          "ananya_found_out",
+          "act4"
+        ]
+      },
+      {
+        "id": "npc_icecream",
+        "spawn": "icecream_cart",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_library_regular_a",
+        "spawn": "library_steps_a",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_library_regular_b",
+        "spawn": "library_steps_b",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_jogger",
+        "spawn": "jogger_spot",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_guitar_shop",
+        "spawn": "guitar_shop",
+        "unlessFlag": [
+          "guitar_in_stock",
+          "act4"
+        ]
+      },
+      {
+        "id": "npc_rathore",
+        "spawn": "rathore_spot",
+        "requiresFlag": "base_cubbon_set",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_priya",
+        "spawn": "priya_spot",
+        "requiresFlag": "base_cubbon_set",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_karthik",
+        "spawn": "karthik_camp",
+        "requiresFlag": "base_cubbon_set",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_uncle",
+        "spawn": "uncle_camp",
+        "requiresFlag": "base_cubbon_set",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_suresh",
+        "spawn": "suresh_camp",
+        "requiresFlag": "base_cubbon_set",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_deepa",
+        "spawn": "deepa_camp",
+        "requiresFlag": "deepa_medicine",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_kumar",
+        "spawn": "kumar_camp",
+        "requiresFlag": "kumar_saved",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_raju_cafe",
+        "spawn": "raju_camp",
+        "requiresFlag": "raju_saved",
+        "unlessFlag": "base_palace_set"
+      },
+      {
+        "id": "npc_ananya_camp",
+        "spawn": "ananya_camp",
+        "requiresFlag": "base_cubbon_set",
+        "unlessFlag": [
+          "ananya_strained",
+          "base_palace_set"
+        ]
+      }
+    ],
+    "objects": [
+      {
+        "id": "DOG_SLEEPING",
+        "at": "dog_a"
+      },
+      {
+        "id": "DOG_SITTING",
+        "at": "dog_b"
+      },
+      {
+        "id": "DOG_STANDING",
+        "at": "dog_c"
+      },
+      {
+        "id": "UV_LAMP_POST",
+        "at": [
+          33,
+          12
+        ],
+        "requiresFlag": "base_cubbon_set"
+      },
+      {
+        "id": "UV_LAMP_POST",
+        "at": [
+          30,
+          16
+        ],
+        "requiresFlag": "base_cubbon_set"
+      },
+      {
+        "id": "UV_LAMP_POST",
+        "at": [
+          24,
+          15
+        ],
+        "requiresFlag": "base_cubbon_set"
+      },
+      {
+        "id": "CAMP_TENT_ORANGE",
+        "at": [
+          31,
+          16
+        ],
+        "requiresFlag": "base_cubbon_set"
+      },
+      {
+        "id": "CAMP_TENT_BLUE",
+        "at": [
+          20,
+          15
+        ],
+        "requiresFlag": "base_cubbon_set"
+      },
+      {
+        "id": "CAMPFIRE",
+        "at": [
+          29,
+          13
+        ],
+        "requiresFlag": "base_cubbon_set"
+      },
+      {
+        "id": "ARMY_COT",
+        "at": "camp_cot",
+        "requiresFlag": "base_cubbon_set",
+        "exact": true
+      },
+      {
+        "id": "SUPPLY_CRATES",
+        "at": "camp_stock",
+        "requiresFlag": "base_cubbon_set",
+        "exact": true
+      },
+      {
+        "id": "WATER_DRUM_BLUE",
+        "at": [
+          23,
+          12
+        ],
+        "requiresFlag": "base_cubbon_set"
+      }
+    ],
+    "ambient": {
+      "area": "ambient_area",
+      "base": [
+        "crowd_student",
+        "crowd_elder",
+        "crowd_homemaker",
+        "crowd_hoodie",
+        "crowd_techie"
+      ],
+      "count": 5
+    },
+    "photoSpots": [
+      {
+        "zone": "photo_bandstand",
+        "photo": "bandstand"
+      },
+      {
+        "zone": "photo_library",
+        "photo": "library"
+      },
+      {
+        "zone": "photo_bamboo",
+        "photo": "bamboo"
+      },
+      {
+        "zone": "photo_red_building",
+        "photo": "red_building"
+      },
+      {
+        "zone": "photo_dog",
+        "photo": "dog"
+      }
+    ],
+    "companion": {
+      "npc": "npc_ananya",
+      "whileFlag": "ananya_walk",
+      "untilFlag": "ananya_walk_done"
+    },
+    "triggers": [
+      {
+        "zone": "cubbon_arrival",
+        "setFlags": [
+          "cubbon_arrived"
+        ],
+        "unlessFlag": "cubbon_arrived"
+      },
+      {
+        "zone": "cubbon_arrival",
+        "setFlags": [
+          "city_moments_taught"
+        ],
+        "unlessFlag": "city_moments_taught"
+      },
+      {
+        "zone": "stop_bandstand",
+        "dialogue": "dlg_ananya_walk",
+        "requiresFlag": "ananya_walk",
+        "unlessFlag": [
+          "ananya_walk1",
+          "act4"
+        ]
+      },
+      {
+        "zone": "stop_bamboo",
+        "dialogue": "dlg_ananya_walk",
+        "requiresFlag": "ananya_walk1",
+        "unlessFlag": [
+          "ananya_walk2",
+          "act4"
+        ]
+      },
+      {
+        "zone": "stop_library",
+        "dialogue": "dlg_ananya_walk",
+        "requiresFlag": "ananya_walk2",
+        "unlessFlag": [
+          "ananya_walk3",
+          "act4"
+        ]
+      },
+      {
+        "zone": "metro_arrival",
+        "setFlags": [
+          "metro_ridden",
+          "cubbon_arrived"
+        ],
+        "unlessFlag": "metro_ridden"
+      },
+      {
+        "zone": "camp_cot",
+        "action": "sleep",
+        "requiresFlag": "base_cubbon_set",
+        "once": false
+      },
+      {
+        "zone": "camp_stock",
+        "dialogue": "base:cubbon_park",
+        "requiresFlag": "base_cubbon_set",
+        "once": false
+      },
+      {
+        "zone": "camp_bench",
+        "dialogue": "craft:bench",
+        "requiresFlag": "base_cubbon_set",
+        "once": false
+      },
+      {
+        "zone": "run_gate",
+        "action": "card",
+        "card": "card_run_hebbal",
+        "requiresFlag": "rathore_runs",
+        "unlessFlag": "looted:hebbal_stores"
+      },
+      {
+        "zone": "run_gate",
+        "action": "card",
+        "card": "card_run_majestic",
+        "requiresFlag": "run2_ready",
+        "unlessFlag": "looted:majestic_kiosk"
+      },
+      {
+        "zone": "run_gate",
+        "action": "card",
+        "card": "card_run_church",
+        "requiresFlag": "run3_ready",
+        "unlessFlag": "looted:digital_cores"
+      },
+      {
+        "zone": "run_gate",
+        "action": "card",
+        "card": "card_run_hivr",
+        "requiresFlag": "run4_ready",
+        "unlessFlag": "looted:hivr_emitter"
+      },
+      {
+        "zone": "fire_circle",
+        "dialogue": "dlg_argument",
+        "requiresFlag": "supply_run_4",
+        "unlessFlag": "argument_done"
+      },
+      {
+        "zone": "ananya_board",
+        "dialogue": "dlg_ananya_photo",
+        "requiresFlag": "ananya_strained",
+        "unlessFlag": "ananya_photo_seen"
+      },
+      {
+        "zone": "run_gate",
+        "action": "card",
+        "card": "card_walk_palace",
+        "requiresFlag": "base_cubbon_done"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "park_gate_bus",
+        "to": "whitefield_street",
+        "spawn": "cubbon_return",
+        "transit": "bus",
+        "fare": 35,
+        "minutes": 50,
+        "card": "BMTC 500-D → Whitefield · ₹35",
+        "requiresFlag": "bus_cubbon_500d_here",
+        "board": "interact"
+      }
+    ],
+    "behaviours": [
+      "busSchedule",
+      "photoSpots",
+      "companion",
+      "sleepEvents"
+    ],
+    "realworld": {
+      "lat": 12.97672,
+      "lng": 77.59493,
+      "label": "Cubbon Park",
+      "area": {
+        "radiusM": 600,
+        "pocket": {
+          "anchor": [
+            12.97672,
+            77.59493
+          ],
+          "anchorTile": [
+            17.8,
+            10.3
+          ],
+          "bearing": 90,
+          "metresPerTile": 1.2,
+          "tiles": [
+            36,
+            24
+          ],
+          "streets": [
+            "Cubbon Park"
+          ]
+        }
+      }
+    },
+    "metroStation": "stn_cubbon_park",
+    "audioSources": [
+      {
+        "at": "icecream_cart",
+        "token": "a.sfx.vehicle.cycle_bell",
+        "every": [
+          8,
+          14
+        ],
+        "radius": 9,
+        "kind": "human"
+      },
+      {
+        "at": "cycle_rental",
+        "token": "a.sfx.vehicle.cycle_bell",
+        "every": [
+          15,
+          25
+        ],
+        "radius": 7,
+        "kind": "human"
+      }
+    ],
+    "base": {
+      "spawn": "camp_spot",
+      "uv": [
+        {
+          "at": [
+            33,
+            12
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            30,
+            16
+          ],
+          "radius": 3
+        },
+        {
+          "at": [
+            24,
+            15
+          ],
+          "radius": 3
+        }
+      ],
+      "requiresFlag": "base_cubbon_set",
+      "lampFailsOnNight": 4
+    },
+    "sleepEvents": [
+      {
+        "after": "supply_run_1",
+        "nights": 1,
+        "set": [
+          "run2_ready"
+        ]
+      },
+      {
+        "after": "supply_run_2",
+        "nights": 1,
+        "set": [
+          "run3_ready"
+        ]
+      },
+      {
+        "after": "supply_run_3",
+        "nights": 1,
+        "set": [
+          "run4_ready"
+        ]
+      },
+      {
+        "after": "base_lamp_failed:cubbon_park",
+        "set": [
+          "cubbon_turned"
+        ],
+        "card": "card_line_cut"
+      }
+    ],
+    "stabilityIf": [
+      {
+        "flag": "base_cubbon_set",
+        "stability": 70
+      }
+    ],
+    "buses": [
+      {
+        "id": "cubbon_500d",
+        "label": "500-D",
+        "zone": "park_gate_bus",
+        "flag": "bus_cubbon_500d_here",
+        "onCall": true,
+        "from": "d500_in",
+        "stop": "d500_halt",
+        "to": "d500_out",
+        "prop": "street_props_01"
+      }
+    ],
+    "glows": [
+      {
+        "at": [
+          29.5,
+          13.6
+        ],
+        "radius": 0.6,
+        "color": "sky.sun",
+        "pulseMs": 700,
+        "requiresFlag": "base_cubbon_set"
+      }
+    ]
+  },
+  {
+    "id": "scooter_showroom",
+    "name": "ITPL Main Road",
+    "map": "scooter_showroom",
+    "defaultSpawn": "bus_drop",
+    "act4": {
+      "fallDay": 12
+    },
+    "fadeMs": 400,
+    "unlock": {
+      "flags": [
+        "act2_started"
+      ]
+    },
+    "signal": 4,
+    "realworld": {
+      "lat": 12.9862,
+      "lng": 77.729,
+      "label": "ITPL Main Road",
+      "area": {
+        "radiusM": 600,
+        "pocket": {
+          "anchor": [
+            12.9862,
+            77.729
+          ],
+          "anchorTile": [
+            18,
+            7
+          ],
+          "bearing": 78,
+          "metresPerTile": 1.2,
+          "tiles": [
+            36,
+            24
+          ],
+          "streets": [
+            "ITPL Main Road"
+          ]
+        }
+      }
+    },
+    "quests": [
+      "q_act2_credited"
+    ],
+    "npcs": [
+      {
+        "id": "npc_noor",
+        "spawn": "showroom"
+      },
+      {
+        "id": "npc_bunk_attendant",
+        "spawn": "bunk"
+      }
+    ],
+    "objects": [
+      {
+        "id": "SCOOTER_GREY",
+        "at": "scooter_park",
+        "requiresFlag": "scooter_owned"
+      }
+    ],
+    "ambient": {
+      "area": "ambient_area",
+      "base": [
+        "crowd_techie",
+        "crowd_officegoer",
+        "crowd_hoodie",
+        "crowd_autodriver"
+      ],
+      "count": 5
+    },
+    "fuelSpots": [
+      "bunk_zone"
+    ],
+    "behaviours": [
+      "busSchedule",
+      "fuelSpots",
+      "emi",
+      "salaryCountdown"
+    ],
+    "triggers": [
+      {
+        "zone": "showroom_arrival",
+        "setFlags": [
+          "showroom_arrived"
+        ],
+        "unlessFlag": "showroom_arrived"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "bus_out",
+        "to": "whitefield_street",
+        "spawn": "cubbon_return",
+        "transit": "bus",
+        "fare": 20,
+        "minutes": 15,
+        "card": "BMTC 500-D → Whitefield · ₹20",
+        "requiresFlag": "bus_itpl_500d_here",
+        "board": "interact"
+      },
+      {
+        "zone": "road_east",
+        "to": "office_gate",
+        "spawn": "auto_drop",
+        "transit": "walk",
+        "minutes": 10,
+        "card": "Walk → ITPL Gate · 10 min"
+      }
+    ],
+    "audioSources": [
+      {
+        "at": "showroom",
+        "token": "a.sfx.vehicle.scooter.rev",
+        "every": [
+          12,
+          20
+        ],
+        "radius": 9,
+        "kind": "machine"
+      }
+    ],
+    "buses": [
+      {
+        "id": "itpl_500d",
+        "label": "500-D",
+        "zone": "bus_out",
+        "flag": "bus_itpl_500d_here",
+        "onCall": true,
+        "from": "d500_in",
+        "stop": "d500_halt",
+        "to": "d500_out",
+        "prop": "street_props_01"
+      }
+    ]
+  },
+  {
+    "id": "metro_station",
+    "name": "Whitefield Metro",
+    "map": "metro_station",
+    "defaultSpawn": "station_stairs",
+    "fadeMs": 400,
+    "unlock": {
+      "flags": [
+        "metro_open"
+      ]
+    },
+    "signal": 2,
+    "realworld": {
+      "parent": "whitefield_street"
+    },
+    "quests": [
+      "q_act2_metro_opens"
+    ],
+    "npcs": [
+      {
+        "id": "npc_metro_guard",
+        "spawn": "gates"
+      },
+      {
+        "id": "npc_lost_kid",
+        "spawn": "concourse_corner",
+        "unlessFlag": "lost_kid_returned"
+      },
+      {
+        "id": "npc_kid_mother",
+        "spawn": "token_queue"
+      },
+      {
+        "id": "npc_token_uncle",
+        "spawn": "token_machine"
+      }
+    ],
+    "ambient": {
+      "area": "ambient_area",
+      "base": [
+        "crowd_student",
+        "crowd_techie",
+        "crowd_homemaker",
+        "crowd_elder",
+        "crowd_officegoer"
+      ],
+      "count": 5
+    },
+    "companion": {
+      "npc": "npc_lost_kid",
+      "whileFlag": "kid_following",
+      "untilFlag": "lost_kid_returned"
+    },
+    "triggers": [
+      {
+        "zone": "arrival",
+        "setFlags": [
+          "metro_station_entered"
+        ],
+        "unlessFlag": "metro_station_entered"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "stairs_down",
+        "to": "whitefield_street",
+        "spawn": "station_mouth",
+        "transit": "walk",
+        "minutes": 2
+      },
+      {
+        "zone": "platform",
+        "to": "metro_interior",
+        "spawn": "coach_door",
+        "transit": "metro",
+        "card": "Purple Line → Cubbon Park · free today"
+      }
+    ],
+    "behaviours": [
+      "companion"
+    ],
+    "audioSources": [
+      {
+        "at": "gates",
+        "token": "a.sfx.world.metro_gate_beep",
+        "every": [
+          3,
+          6
+        ],
+        "radius": 7,
+        "kind": "human"
+      },
+      {
+        "at": "token_machine",
+        "token": "a.sfx.world.ticket_machine",
+        "every": [
+          8,
+          14
+        ],
+        "radius": 6,
+        "kind": "machine"
+      },
+      {
+        "at": "platform",
+        "token": "a.sfx.vehicle.metro.chime",
+        "every": [
+          20,
+          30
+        ],
+        "radius": 12,
+        "kind": "machine",
+        "uncanny": "a.uncanny.vayu_vajra_announcement_loop"
+      }
+    ]
+  },
+  {
+    "id": "metro_interior",
+    "name": "Purple Line coach",
+    "map": "metro_interior",
+    "defaultSpawn": "coach_door",
+    "fadeMs": 300,
+    "unlock": {
+      "flags": [
+        "metro_open"
+      ]
+    },
+    "signal": 1,
+    "realworld": {
+      "parent": "whitefield_street"
+    },
+    "quests": [
+      "q_act2_metro_opens"
+    ],
+    "npcs": [
+      {
+        "id": "npc_metro_ajji",
+        "spawn": "coach_standing"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "boarded",
+        "setFlags": [
+          "first_metro_ride"
+        ],
+        "unlessFlag": "first_metro_ride"
+      },
+      {
+        "zone": "seat_zone",
+        "dialogue": "dlg_metro_ajji",
+        "unlessFlag": "seat_decided"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "coach_door",
+        "to": "cubbon_park",
+        "spawn": "metro_drop",
+        "transit": "walk",
+        "minutes": 40,
+        "requiresFlag": "metro_ride_over",
+        "lockedText": "The doors are shut. Hold the pole."
+      }
+    ],
+    "ride": {
+      "seconds": 30,
+      "exit": "coach_door",
+      "flag": "metro_ride_over",
+      "label": "Cubbon Park"
+    },
+    "behaviours": [
+      "busRide"
+    ],
+    "audioSources": [
+      {
+        "at": "coach_door",
+        "token": "a.sfx.vehicle.metro.doors",
+        "every": [
+          25,
+          35
+        ],
+        "radius": 8,
+        "kind": "machine"
+      }
+    ]
+  },
+  {
+    "id": "church_street",
+    "name": "Church Street",
+    "map": "church_street",
+    "defaultSpawn": "mg_road_station",
+    "act4": {
+      "fallDay": 8
+    },
+    "fadeMs": 400,
+    "knownIf": "guitar_in_stock",
+    "unlock": {
+      "flags": [
+        "guitar_in_stock"
+      ]
+    },
+    "signal": 4,
+    "quests": [
+      "q_act2_guitar",
+      "q_act2_the_app",
+      "q_act4_cubbon"
+    ],
+    "npcs": [
+      {
+        "id": "npc_church_busker",
+        "spawn": "busker_corner",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_tanvi",
+        "spawn": "cafe_table",
+        "requiresFlag": "tanvi_matched",
+        "unlessFlag": [
+          "tanvi_date_done",
+          "act4"
+        ]
+      }
+    ],
+    "objects": [
+      {
+        "id": "GUITAR_CASE_OPEN",
+        "at": "busker_case"
+      }
+    ],
+    "ambient": {
+      "area": "ambient_area",
+      "base": [
+        "crowd_student",
+        "crowd_techie",
+        "crowd_hoodie",
+        "crowd_homemaker",
+        "crowd_officegoer"
+      ],
+      "count": 6
+    },
+    "triggers": [
+      {
+        "zone": "church_arrival",
+        "setFlags": [
+          "church_street_visited"
+        ],
+        "unlessFlag": "church_street_visited"
+      },
+      {
+        "zone": "digital_front",
+        "dialogue": "search:digital_cores",
+        "requiresFlag": "run3_ready",
+        "unlessFlag": "looted:digital_cores"
+      },
+      {
+        "zone": "street_back",
+        "action": "card",
+        "card": "card_back_cubbon",
+        "requiresFlag": "looted:digital_cores",
+        "unlessFlag": "supply_run_3"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "shop_door",
+        "to": "guitar_shop",
+        "spawn": "shop_entry",
+        "transit": "walk"
+      },
+      {
+        "zone": "bus_stop",
+        "to": "whitefield_street",
+        "spawn": "cubbon_return",
+        "transit": "bus",
+        "fare": 35,
+        "minutes": 55,
+        "card": "BMTC 335-E → Whitefield · ₹35",
+        "requiresFlag": "bus_church_335e_here",
+        "board": "interact"
+      }
+    ],
+    "realworld": {
+      "lat": 12.97515,
+      "lng": 77.6045,
+      "label": "Church Street",
+      "area": {
+        "radiusM": 500,
+        "pocket": {
+          "anchor": [
+            12.97515,
+            77.6045
+          ],
+          "anchorTile": [
+            18,
+            12
+          ],
+          "bearing": 90,
+          "metresPerTile": 1.2,
+          "tiles": [
+            36,
+            24
+          ],
+          "streets": [
+            "Church Street"
+          ]
+        }
+      }
+    },
+    "metroStation": "stn_mg_road",
+    "audioSources": [
+      {
+        "at": "busker_corner",
+        "token": "a.sfx.world.guitar.g",
+        "every": [
+          3,
+          5
+        ],
+        "radius": 9,
+        "kind": "human"
+      },
+      {
+        "at": "busker_corner",
+        "token": "a.sfx.world.guitar.c",
+        "every": [
+          3.5,
+          5.5
+        ],
+        "radius": 9,
+        "kind": "human"
+      },
+      {
+        "at": "cafe_table",
+        "token": "a.sfx.world.plates_stack",
+        "every": [
+          6,
+          10
+        ],
+        "radius": 6,
+        "kind": "human"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "west",
+        "rect": [
+          0,
+          8,
+          9,
+          6
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "bookshop",
+          "zone": "west",
+          "lead": [
+            3,
+            9
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_hoodie",
+            "npc_church_busker"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle"
+        }
+      ]
+    },
+    "buses": [
+      {
+        "id": "church_335e",
+        "label": "335-E",
+        "zone": "bus_stop",
+        "flag": "bus_church_335e_here",
+        "onCall": true,
+        "from": "e335_in",
+        "stop": "e335_halt",
+        "to": "e335_out",
+        "prop": "street_props_01"
+      }
+    ],
+    "behaviours": [
+      "busSchedule"
+    ]
+  },
+  {
+    "id": "guitar_shop",
+    "name": "Guitar shop",
+    "map": "guitar_shop",
+    "defaultSpawn": "shop_entry",
+    "fadeMs": 300,
+    "unlock": {
+      "flags": [
+        "guitar_in_stock"
+      ]
+    },
+    "signal": 3,
+    "quests": [
+      "q_act2_guitar"
+    ],
+    "npcs": [
+      {
+        "id": "npc_guitar_shop",
+        "spawn": "shop_counter"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "shop_exit",
+        "to": "church_street",
+        "spawn": "shop_front",
+        "transit": "walk"
+      }
+    ],
+    "realworld": {
+      "parent": "church_street"
+    },
+    "audioSources": [
+      {
+        "at": "shop_counter",
+        "token": "a.sfx.world.guitar.e",
+        "every": [
+          8,
+          14
+        ],
+        "radius": 8,
+        "kind": "human"
+      }
+    ]
+  },
+  {
+    "id": "majestic_interchange",
+    "name": "Majestic interchange",
+    "map": "majestic_interchange",
+    "defaultSpawn": "purple_arrival",
+    "act4": {
+      "fallDay": 6
+    },
+    "fadeMs": 400,
+    "knownIf": "ikea_planned",
+    "unlock": {
+      "flags": [
+        "metro_tier_1"
+      ]
+    },
+    "signal": 1,
+    "quests": [
+      "q_act2_ikea",
+      "q_act4_cubbon"
+    ],
+    "npcs": [
+      {
+        "id": "npc_majestic_uncle",
+        "spawn": "interchange_stairs",
+        "unlessFlag": [
+          "majestic_helped",
+          "act4"
+        ]
+      }
+    ],
+    "ambient": {
+      "area": "ambient_area",
+      "base": [
+        "crowd_student",
+        "crowd_techie",
+        "crowd_homemaker",
+        "crowd_elder",
+        "crowd_officegoer",
+        "crowd_hoodie"
+      ],
+      "count": 7
+    },
+    "companion": {
+      "npc": "npc_majestic_uncle",
+      "whileFlag": "uncle_following",
+      "untilFlag": "majestic_helped"
+    },
+    "triggers": [
+      {
+        "zone": "majestic_arrival",
+        "setFlags": [
+          "majestic_visited"
+        ],
+        "unlessFlag": "majestic_visited"
+      },
+      {
+        "zone": "green_stairs_top",
+        "dialogue": "dlg_majestic_uncle_thanks",
+        "requiresFlag": "uncle_following",
+        "unlessFlag": [
+          "majestic_helped",
+          "act4"
+        ]
+      },
+      {
+        "zone": "kiosk_front",
+        "dialogue": "search:majestic_kiosk",
+        "requiresFlag": "run2_ready",
+        "unlessFlag": "looted:majestic_kiosk"
+      },
+      {
+        "zone": "depot_back",
+        "action": "card",
+        "card": "card_back_cubbon",
+        "requiresFlag": "looted:majestic_kiosk",
+        "unlessFlag": "supply_run_2"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "green_stairs",
+        "to": "green_coach",
+        "spawn": "coach_door",
+        "transit": "metro",
+        "card": "Green Line → Nagasandra"
+      }
+    ],
+    "realworld": {
+      "lat": 12.9757,
+      "lng": 77.5728,
+      "label": "Majestic (Kempegowda) metro"
+    },
+    "metroStation": "stn_majestic",
+    "behaviours": [
+      "companion"
+    ],
+    "audioSources": [
+      {
+        "at": "green_stairs_top",
+        "token": "a.sfx.vehicle.metro.chime",
+        "every": [
+          18,
+          26
+        ],
+        "radius": 12,
+        "kind": "machine"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "hall",
+        "rect": [
+          13,
+          4,
+          10,
+          9
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "pillars",
+          "zone": "hall",
+          "lead": [
+            17,
+            7
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_officegoer",
+            "crowd_student"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "green_coach",
+    "name": "Green Line coach",
+    "map": "metro_interior",
+    "defaultSpawn": "coach_door",
+    "fadeMs": 300,
+    "unlock": {
+      "flags": [
+        "metro_tier_1"
+      ]
+    },
+    "signal": 1,
+    "realworld": {
+      "parent": "majestic_interchange"
+    },
+    "quests": [
+      "q_act2_ikea"
+    ],
+    "triggers": [
+      {
+        "zone": "boarded",
+        "setFlags": [
+          "green_line_ridden"
+        ],
+        "unlessFlag": "green_line_ridden"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "coach_door",
+        "to": "hyggeland",
+        "spawn": "store_entrance",
+        "transit": "walk",
+        "minutes": 35,
+        "requiresFlag": "green_ride_over",
+        "lockedText": "The doors are shut. Next stop, Nagasandra."
+      }
+    ],
+    "ride": {
+      "seconds": 25,
+      "exit": "coach_door",
+      "flag": "green_ride_over",
+      "label": "Nagasandra"
+    },
+    "behaviours": [
+      "busRide"
+    ],
+    "audioSources": [
+      {
+        "at": "coach_door",
+        "token": "a.sfx.vehicle.metro.doors",
+        "every": [
+          25,
+          35
+        ],
+        "radius": 8,
+        "kind": "machine"
+      }
+    ]
+  },
+  {
+    "id": "hyggeland",
+    "name": "Hyggeland",
+    "map": "hyggeland",
+    "defaultSpawn": "store_entrance",
+    "act4": {
+      "fallDay": 4
+    },
+    "fadeMs": 400,
+    "unlock": {
+      "flags": [
+        "ikea_planned"
+      ]
+    },
+    "signal": 3,
+    "quests": [
+      "q_act2_ikea"
+    ],
+    "npcs": [
+      {
+        "id": "npc_hygge_staff",
+        "spawn": "help_desk"
+      },
+      {
+        "id": "npc_hygge_cafe",
+        "spawn": "cafe"
+      },
+      {
+        "id": "npc_hygge_cashier",
+        "spawn": "tills"
+      }
+    ],
+    "ambient": {
+      "area": "ambient_area",
+      "base": [
+        "crowd_homemaker",
+        "crowd_techie",
+        "crowd_student",
+        "crowd_elder"
+      ],
+      "count": 5
+    },
+    "triggers": [
+      {
+        "zone": "hyggeland_arrival",
+        "setFlags": [
+          "hyggeland_entered"
+        ],
+        "unlessFlag": "hyggeland_entered"
+      },
+      {
+        "zone": "tag_kitchen",
+        "dialogue": "dlg_hygge_tag_kitchen"
+      },
+      {
+        "zone": "tag_living",
+        "dialogue": "dlg_hygge_tag_living"
+      },
+      {
+        "zone": "tag_bedroom",
+        "dialogue": "dlg_hygge_tag_bedroom"
+      },
+      {
+        "zone": "aisle",
+        "dialogue": "dlg_hygge_aisle",
+        "unlessFlag": "ikea_paid"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "store_exit",
+        "to": "green_coach_home",
+        "spawn": "coach_door",
+        "transit": "metro",
+        "card": "Green Line → Majestic → Purple Line → Whitefield"
+      }
+    ],
+    "realworld": {
+      "lat": 13.0479,
+      "lng": 77.5003,
+      "label": "Nagasandra"
+    },
+    "metroStation": "stn_nagasandra",
+    "audioSources": [
+      {
+        "at": "tills",
+        "token": "a.sfx.world.ticket_machine",
+        "every": [
+          6,
+          10
+        ],
+        "radius": 7,
+        "kind": "human"
+      },
+      {
+        "at": "cafe",
+        "token": "a.sfx.world.plates_stack",
+        "every": [
+          5,
+          9
+        ],
+        "radius": 6,
+        "kind": "human"
+      }
+    ]
+  },
+  {
+    "id": "green_coach_home",
+    "name": "The ride home",
+    "map": "metro_interior",
+    "defaultSpawn": "coach_door",
+    "fadeMs": 300,
+    "unlock": {
+      "flags": [
+        "ikea_paid"
+      ]
+    },
+    "signal": 1,
+    "realworld": {
+      "parent": "hyggeland"
+    },
+    "quests": [
+      "q_act2_ikea"
+    ],
+    "npcs": [
+      {
+        "id": "npc_metro_aunty_boxes",
+        "spawn": "coach_standing"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "boarded",
+        "setFlags": [
+          "ikea_rode_home"
+        ],
+        "unlessFlag": "ikea_rode_home"
+      },
+      {
+        "zone": "seat_zone",
+        "dialogue": "dlg_aunty_boxes",
+        "unlessFlag": "aunty_decided"
+      }
+    ],
+    "exits": [
+      {
+        "zone": "coach_door",
+        "to": "whitefield_street",
+        "spawn": "player_spawn",
+        "transit": "walk",
+        "minutes": 70,
+        "requiresFlag": "home_ride_over",
+        "lockedText": "Whitefield is the last stop. Hold the boxes."
+      }
+    ],
+    "ride": {
+      "seconds": 30,
+      "exit": "coach_door",
+      "flag": "home_ride_over",
+      "label": "Whitefield"
+    },
+    "behaviours": [
+      "busRide"
+    ],
+    "audioSources": [
+      {
+        "at": "coach_door",
+        "token": "a.sfx.vehicle.metro.doors",
+        "every": [
+          25,
+          35
+        ],
+        "radius": 8,
+        "kind": "machine"
+      }
+    ]
+  },
+  {
+    "id": "ward4",
+    "name": "Ward 4, Hebbal General",
+    "map": "ward4",
+    "defaultSpawn": "your_bed",
+    "act4": {
+      "fallDay": 0,
+      "floor": 10
+    },
+    "fadeMs": 400,
+    "realworld": {
+      "lat": 13.0418,
+      "lng": 77.5928,
+      "label": "Hebbal General (fictional)"
+    },
+    "signal": 1,
+    "walkSpeed": 0.7,
+    "unlock": {
+      "flags": [
+        "orr_crash"
+      ]
+    },
+    "quests": [
+      "q_act3_ward4",
+      "q_act3_corridor",
+      "q_act3_three_nights",
+      "q_act3_discharge"
+    ],
+    "npcs": [
+      {
+        "id": "npc_ward_nurse",
+        "spawn": "nurse_station",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_ravi_ward",
+        "spawn": "ravi_bed",
+        "unlessFlag": "ravi_gone"
+      },
+      {
+        "id": "npc_patient_old",
+        "spawn": "patient_old",
+        "unlessFlag": "act4"
+      },
+      {
+        "id": "npc_patient_woman",
+        "spawn": "patient_woman",
+        "unlessFlag": "woman_gone"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "sealed_zone",
+        "dialogue": "dlg_sealed_door",
+        "unlessFlag": [
+          "door_quiet",
+          "act4"
+        ]
+      },
+      {
+        "zone": "tv_zone",
+        "dialogue": "dlg_ward_tv",
+        "unlessFlag": [
+          "ward_tv_seen",
+          "act4"
+        ]
+      },
+      {
+        "zone": "tray_zone",
+        "dialogue": "dlg_ward_tray",
+        "unlessFlag": [
+          "ward_tray_eaten",
+          "act4"
+        ]
+      },
+      {
+        "zone": "ward_exit",
+        "dialogue": "dlg_ward_door",
+        "unlessFlag": "discharged"
+      },
+      {
+        "zone": "sealed_zone",
+        "dialogue": "dlg_sealed_quiet",
+        "requiresFlag": "door_quiet",
+        "unlessFlag": [
+          "discharged",
+          "act4"
+        ]
+      },
+      {
+        "zone": "bed_zone",
+        "action": "sleep",
+        "requiresFlag": "ward_nights_started",
+        "once": false
+      },
+      {
+        "zone": "ward_middle",
+        "dialogue": "dlg_amma_come_home",
+        "requiresFlag": "wn_amma",
+        "unlessFlag": [
+          "amma_home_answered",
+          "act4"
+        ]
+      },
+      {
+        "zone": "sealed_zone",
+        "dialogue": "dlg_sealed_open",
+        "requiresFlag": "discharged",
+        "unlessFlag": "act4"
+      },
+      {
+        "zone": "ward_exit",
+        "action": "card",
+        "card": "card_leaving_ward",
+        "requiresFlag": "discharged",
+        "unlessFlag": "act4"
+      },
+      {
+        "zone": "cabinet_zone",
+        "dialogue": "search:ward4_cabinet",
+        "requiresFlag": "act4",
+        "unlessFlag": "looted:ward4_cabinet"
+      },
+      {
+        "zone": "ward_exit",
+        "dialogue": "dlg_ward_not_yet",
+        "requiresFlag": "act4",
+        "unlessFlag": "looted:ward4_cabinet",
+        "once": false
+      },
+      {
+        "zone": "ward_exit",
+        "action": "card",
+        "card": "card_walk_home",
+        "requiresFlag": "looted:ward4_cabinet"
+      }
+    ],
+    "audioSources": [
+      {
+        "at": "tv_zone",
+        "token": "a.sfx.npc.crowd_murmur",
+        "radius": 4,
+        "kind": "machine"
+      }
+    ],
+    "objects": [
+      {
+        "id": "STRIPPED_BED",
+        "at": "stripped_bed",
+        "requiresFlag": "ravi_gone",
+        "exact": true
+      },
+      {
+        "id": "IV_FLOOR",
+        "at": "iv_floor",
+        "requiresFlag": "ravi_gone",
+        "exact": true
+      },
+      {
+        "id": "ISOLATION_OPEN",
+        "at": "isolation_open",
+        "requiresFlag": "discharged",
+        "exact": true
+      },
+      {
+        "id": "BOY_CHAIR",
+        "at": "boy_chair",
+        "requiresFlag": "discharged",
+        "exact": true
+      }
+    ],
+    "behaviours": [
+      "sleepEvents",
+      "countdown"
+    ],
+    "sleepEvents": [
+      {
+        "after": "ward_nights_started",
+        "nights": 1,
+        "set": [
+          "wn_curfew"
+        ],
+        "toast": "News: Night curfew, 10 PM to 6 AM",
+        "icon": "news"
+      },
+      {
+        "after": "ward_nights_started",
+        "nights": 2,
+        "set": [
+          "wn_amma",
+          "wn_server_busy",
+          "woman_gone",
+          "door_quiet"
+        ]
+      },
+      {
+        "after": "ward_nights_started",
+        "nights": 3,
+        "set": [
+          "ravi_gone"
+        ]
+      }
+    ],
+    "countdown": {
+      "after": "ward_nights_started",
+      "nights": 3,
+      "label": "Discharge",
+      "until": "discharged"
+    },
+    "signalIf": [
+      {
+        "flag": "ravi_gone",
+        "bars": 0
+      }
+    ],
+    "stabilityIf": [
+      {
+        "flag": "wn_curfew",
+        "stability": 85
+      },
+      {
+        "flag": "wn_amma",
+        "stability": 70
+      },
+      {
+        "flag": "ravi_gone",
+        "stability": 62
+      },
+      {
+        "flag": "act4",
+        "stability": 15
+      }
+    ],
+    "walkSpeedUnless": "discharged",
+    "act4Zones": [
+      {
+        "id": "ward",
+        "rect": [
+          0,
+          1,
+          12,
+          7
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "scrubs",
+          "zone": "ward",
+          "lead": [
+            11,
+            1
+          ],
+          "size": 2,
+          "sheets": [
+            "npc_nurse",
+            "inf_base_male_1"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hivr_corridor",
+    "name": "HIVR, containment corridor",
+    "map": "hivr_corridor",
+    "defaultSpawn": "airlock",
+    "fadeMs": 400,
+    "playerSheet": "npc_ravi",
+    "hud": "minimal",
+    "signal": 2,
+    "unlock": {
+      "flags": [
+        "corridor_started"
+      ]
+    },
+    "quests": [
+      "q_act3_corridor",
+      "q_act4_cubbon",
+      "q_act4_ravi"
+    ],
+    "triggers": [
+      {
+        "zone": "clipboard_zone",
+        "dialogue": "dlg_corridor_clipboard",
+        "unlessFlag": [
+          "corridor_checklist_seen",
+          "act4"
+        ]
+      },
+      {
+        "zone": "call_zone",
+        "dialogue": "dlg_appa_call",
+        "unlessFlag": [
+          "appa_answered",
+          "act4"
+        ]
+      },
+      {
+        "zone": "glove_zone",
+        "dialogue": "dlg_glove_station",
+        "requiresFlag": "appa_answered",
+        "unlessFlag": [
+          "glove_station_refused",
+          "act4"
+        ]
+      },
+      {
+        "zone": "tray_zone",
+        "dialogue": "dlg_slide_tray",
+        "requiresFlag": "appa_answered",
+        "unlessFlag": [
+          "tray_unsealed",
+          "act4"
+        ]
+      },
+      {
+        "zone": "glove_zone",
+        "dialogue": "search:hivr_emitter",
+        "requiresFlag": "run4_ready",
+        "unlessFlag": "looted:hivr_emitter"
+      },
+      {
+        "zone": "airlock_back",
+        "action": "card",
+        "card": "card_back_cubbon",
+        "requiresFlag": "looted:hivr_emitter",
+        "unlessFlag": "supply_run_4"
+      },
+      {
+        "zone": "airlock_back",
+        "action": "card",
+        "card": "card_ravi_back",
+        "requiresFlag": "ravi_met",
+        "unlessFlag": "act4_ravi_done"
+      }
+    ],
+    "nightTint": 0.4,
+    "audioSources": [
+      {
+        "at": "tray_zone",
+        "token": "a.sfx.world.uv_lamp.hum",
+        "radius": 4,
+        "kind": "machine"
+      }
+    ],
+    "ownSelfAfter": "act4",
+    "act4Zones": [
+      {
+        "id": "corridor",
+        "rect": [
+          6,
+          3,
+          6,
+          4
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "lab",
+          "zone": "corridor",
+          "lead": [
+            11,
+            5
+          ],
+          "size": 2,
+          "sheets": [
+            "inf_base_male_1",
+            "inf_base_female_1"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4",
+          "startMode": "idle",
+          "unlessFlag": "base_cubbon_done"
+        }
+      ]
+    },
+    "npcs": [
+      {
+        "id": "npc_ravi_hivr",
+        "spawn": "ravi_hivr",
+        "requiresFlag": "ravi_trip_started"
+      },
+      {
+        "id": "npc_meera",
+        "spawn": "meera_glass",
+        "requiresFlag": "ravi_trip_started"
+      }
+    ]
+  },
+  {
+    "id": "hebbal_gate",
+    "name": "Hebbal General · the gate",
+    "map": "hebbal_gate",
+    "defaultSpawn": "hospital_steps",
+    "act4": {
+      "fallDay": 0,
+      "floor": 10
+    },
+    "fadeMs": 400,
+    "realworld": {
+      "lat": 13.0412,
+      "lng": 77.5921,
+      "label": "Hebbal General (fictional) · the gate"
+    },
+    "signal": 0,
+    "unlock": {
+      "flags": [
+        "act4"
+      ]
+    },
+    "stabilityIf": [
+      {
+        "flag": "act4",
+        "stability": 70
+      }
+    ],
+    "quests": [
+      "q_act4_janata",
+      "q_act4_cubbon"
+    ],
+    "npcs": [
+      {
+        "id": "npc_gate_constable",
+        "spawn": "barricade",
+        "unlessFlag": "act4_janata_done"
+      },
+      {
+        "id": "npc_slot_shop",
+        "spawn": "slot_shop",
+        "unlessFlag": "act4_janata_done"
+      },
+      {
+        "id": "npc_balcony_watcher",
+        "spawn": "balcony_1",
+        "unlessFlag": [
+          "janata_balcony",
+          "act4_janata_done"
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "hospital_doors",
+        "dialogue": "dlg_janata_doors",
+        "unlessFlag": "act4_janata_done"
+      },
+      {
+        "zone": "bike_bay",
+        "dialogue": "dlg_janata_bay",
+        "unlessFlag": [
+          "janata_bay_seen",
+          "act4_janata_done"
+        ]
+      },
+      {
+        "zone": "bus_door",
+        "dialogue": "dlg_janata_bus",
+        "unlessFlag": [
+          "janata_bus_seen",
+          "act4_janata_done"
+        ]
+      },
+      {
+        "zone": "balcony_below",
+        "dialogue": "dlg_balcony_watcher",
+        "unlessFlag": [
+          "janata_balcony",
+          "act4_janata_done"
+        ]
+      },
+      {
+        "zone": "street_end",
+        "dialogue": "dlg_janata_whistle",
+        "unlessFlag": [
+          "janata_pass_checked",
+          "act4_janata_done"
+        ],
+        "once": false
+      },
+      {
+        "zone": "street_end",
+        "action": "card",
+        "card": "card_janata_walk",
+        "requiresFlag": "janata_pass_checked",
+        "unlessFlag": "act4_janata_done"
+      },
+      {
+        "zone": "slot_front",
+        "dialogue": "search:hebbal_stores",
+        "requiresFlag": "rathore_runs",
+        "unlessFlag": "looted:hebbal_stores"
+      },
+      {
+        "zone": "street_end",
+        "action": "card",
+        "card": "card_back_cubbon",
+        "requiresFlag": "looted:hebbal_stores",
+        "unlessFlag": "supply_run_1"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "forecourt",
+        "rect": [
+          10,
+          2,
+          16,
+          8
+        ],
+        "encounterRate": 0
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "doors",
+          "zone": "forecourt",
+          "lead": [
+            18,
+            5
+          ],
+          "size": 2,
+          "sheets": [
+            "npc_nurse",
+            "crowd_elder"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "act4_janata_done",
+          "startMode": "idle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "indiranagar_lane",
+    "name": "Indiranagar · a lane",
+    "map": "indiranagar_lane",
+    "defaultSpawn": "lane_top",
+    "act4": {
+      "fallDay": 10
+    },
+    "fadeMs": 400,
+    "realworld": {
+      "lat": 12.9719,
+      "lng": 77.6412,
+      "label": "Indiranagar"
+    },
+    "signal": 0,
+    "unlock": {
+      "flags": [
+        "act4"
+      ]
+    },
+    "stabilityIf": [
+      {
+        "flag": "plates_started",
+        "stability": 50
+      }
+    ],
+    "liveArrivals": true,
+    "failCard": "card_lane_caught",
+    "quests": [
+      "q_act4_five_oclock",
+      "q_act4_cafe"
+    ],
+    "npcs": [
+      {
+        "id": "npc_balcony_1",
+        "spawn": "balcony_t1",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_2",
+        "spawn": "balcony_t2",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_3",
+        "spawn": "balcony_t3",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_4",
+        "spawn": "balcony_t4",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_5",
+        "spawn": "balcony_t5",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_6",
+        "spawn": "balcony_b1",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_7",
+        "spawn": "balcony_b2",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_8",
+        "spawn": "balcony_b3",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_balcony_9",
+        "spawn": "balcony_b4",
+        "requiresFlag": "plates_out",
+        "unlessFlag": "plates_stopped"
+      },
+      {
+        "id": "npc_kumar_trapped",
+        "spawn": "kumar_spot",
+        "requiresFlag": "base_hill_done",
+        "unlessFlag": "kumar_decided"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "lane_mid",
+        "setFlags": [
+          "five_lane_in"
+        ],
+        "unlessFlag": "five_lane_in"
+      },
+      {
+        "zone": "main_road",
+        "action": "card",
+        "card": "card_walk_east",
+        "requiresFlag": "khaki_breaks",
+        "unlessFlag": "act4_five_done"
+      },
+      {
+        "zone": "main_road_far",
+        "action": "card",
+        "card": "card_walk_east",
+        "requiresFlag": "khaki_breaks",
+        "unlessFlag": "act4_five_done"
+      },
+      {
+        "zone": "kumar_call",
+        "dialogue": "dlg_kumar_trapped",
+        "requiresFlag": "base_hill_done",
+        "unlessFlag": "kumar_decided"
+      }
+    ],
+    "behaviours": [
+      "clockEvents"
+    ],
+    "clockEvents": [
+      {
+        "at": 1018,
+        "set": [
+          "plates_out"
+        ],
+        "toast": "“For the doctors,” someone says from a balcony."
+      },
+      {
+        "at": 1019,
+        "set": [
+          "plates_started"
+        ]
+      },
+      {
+        "at": 1020,
+        "set": [
+          "khaki_breaks"
+        ]
+      },
+      {
+        "at": 1021,
+        "set": [
+          "plates_stopped"
+        ]
+      }
+    ],
+    "cueLoops": [
+      {
+        "token": "a.sfx.world.plates_stack",
+        "at": [
+          "balcony_t1",
+          "balcony_t2",
+          "balcony_t3",
+          "balcony_t4",
+          "balcony_t5",
+          "balcony_b1",
+          "balcony_b2",
+          "balcony_b3",
+          "balcony_b4"
+        ],
+        "everyMs": [
+          80,
+          240
+        ],
+        "whileFlag": "plates_started",
+        "untilFlag": "plates_stopped"
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "lane",
+        "rect": [
+          0,
+          7,
+          33,
+          10
+        ],
+        "encounterRate": 0,
+        "cover": [
+          [
+            8,
+            8
+          ],
+          [
+            12,
+            8
+          ],
+          [
+            19,
+            8
+          ],
+          [
+            27,
+            11
+          ]
+        ],
+        "hide": [
+          [
+            20,
+            11
+          ],
+          [
+            25,
+            12
+          ]
+        ]
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "khaki",
+          "zone": "lane",
+          "lead": [
+            8,
+            8
+          ],
+          "leadOptions": [
+            [
+              8,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              12,
+              8
+            ],
+            [
+              1,
+              12
+            ]
+          ],
+          "awayFrom": "main_road",
+          "size": 1,
+          "sheets": [
+            "npc_auto_driver"
+          ],
+          "requiresFlag": "khaki_breaks",
+          "startMode": "alert",
+          "former": "npc_auto_driver",
+          "unlessFlag": "act4_five_done"
+        },
+        {
+          "id": "walkers_top",
+          "zone": "lane",
+          "lead": [
+            8,
+            4
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_officegoer",
+            "crowd_delivery"
+          ],
+          "requiresFlag": "plates_started",
+          "drawnTo": "plates_point",
+          "unlessFlag": "act4_five_done"
+        },
+        {
+          "id": "walkers_bottom",
+          "zone": "lane",
+          "lead": [
+            24,
+            19
+          ],
+          "size": 2,
+          "sheets": [
+            "crowd_techie",
+            "crowd_student"
+          ],
+          "requiresFlag": "plates_started",
+          "drawnTo": "plates_point",
+          "unlessFlag": "act4_five_done"
+        },
+        {
+          "id": "auto_pack",
+          "zone": "lane",
+          "lead": [
+            22,
+            11
+          ],
+          "size": 3,
+          "sheets": [
+            "crowd_delivery",
+            "crowd_hoodie",
+            "crowd_officegoer"
+          ],
+          "minLevel": 0,
+          "requiresFlag": "base_hill_done",
+          "startMode": "idle"
+        }
+      ]
+    },
+    "uv": [
+      {
+        "at": [
+          34,
+          9
+        ],
+        "radius": 2
+      }
+    ],
+    "failCardUntil": "act4_five_done"
+  },
+  {
+    "id": "act4_bench",
+    "name": "Act 4 test bench",
+    "dev": true,
+    "map": "whitefield_street",
+    "defaultSpawn": "cubbon_return",
+    "$comment": "Dev bench for Act 4's run (ADR-145): the Whitefield street with one Fresh pack, ambush cover, two hide spots and a UV lamp. Opened from the Playground's Act 4 node; you start inside the lamp's light (safe); no exits lead here. Its stability is held at 50 (infected) once `act4` is set. Presets (ADR-147): `bench_evolved` adds a pack with one Evolved, `bench_flank` two lone Evolved for the flank test (both drop the street to 20 and need `base_cafe_set`); `bench_host` the Host in the middle of the street (ADR-159, ground zero: 15).",
+    "stabilityIf": [
+      {
+        "flag": "act4",
+        "stability": 50
+      },
+      {
+        "flag": "bench_evolved",
+        "stability": 20
+      },
+      {
+        "flag": "bench_flank",
+        "stability": 20
+      },
+      {
+        "flag": "bench_host",
+        "stability": 15
+      }
+    ],
+    "act4Zones": [
+      {
+        "id": "street",
+        "rect": [
+          1,
+          5,
+          28,
+          12
+        ],
+        "encounterRate": "auto",
+        "cover": [
+          [
+            3,
+            6
+          ],
+          [
+            9,
+            6
+          ],
+          [
+            21,
+            6
+          ],
+          [
+            27,
+            6
+          ],
+          [
+            6,
+            14
+          ],
+          [
+            13,
+            14
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            27,
+            14
+          ]
+        ],
+        "hide": [
+          [
+            2,
+            15
+          ],
+          [
+            12,
+            15
+          ]
+        ]
+      }
+    ],
+    "infected": {
+      "packs": [
+        {
+          "id": "bench_pack",
+          "zone": "street",
+          "lead": [
+            24,
+            12
+          ],
+          "size": 3,
+          "sheets": [
+            "crowd_officegoer",
+            "crowd_delivery",
+            "crowd_autodriver"
+          ]
+        },
+        {
+          "id": "bench_evolved",
+          "zone": "street",
+          "lead": [
+            19,
+            14
+          ],
+          "size": 3,
+          "sheets": [
+            "crowd_hoodie",
+            "crowd_student",
+            "inf_base_male_1"
+          ],
+          "evolved": 1,
+          "requiresFlag": "bench_evolved"
+        },
+        {
+          "id": "bench_flank_a",
+          "zone": "street",
+          "lead": [
+            21,
+            9
+          ],
+          "size": 1,
+          "sheets": [
+            "inf_base_male_1"
+          ],
+          "evolved": 1,
+          "requiresFlag": "bench_flank"
+        },
+        {
+          "id": "bench_flank_b",
+          "zone": "street",
+          "lead": [
+            25,
+            14
+          ],
+          "size": 1,
+          "sheets": [
+            "inf_base_female_1"
+          ],
+          "evolved": 1,
+          "requiresFlag": "bench_flank"
+        },
+        {
+          "id": "bench_host",
+          "zone": "street",
+          "lead": [
+            17,
+            11
+          ],
+          "size": 1,
+          "sheets": [
+            "inf_host"
+          ],
+          "host": true,
+          "requiresFlag": "bench_host"
+        }
+      ]
+    },
+    "uv": [
+      {
+        "at": [
+          8,
+          7
+        ],
+        "radius": 3
+      }
+    ]
+  },
+  {
+    "id": "act4_base_bench",
+    "name": "Act 4 base bench",
+    "dev": true,
+    "map": "hill_flat",
+    "defaultSpawn": "door",
+    "$comment": "Dev bench for Act 4's base (ADR-149): the hill flat as a working base — the bench (folded table), the stock (water drum), three containers, Manju trading, a UV lamp kept lit by fuel, the lamp failing on night 3. Opened from the Playground's Act 4 node with `act4`.",
+    "realworld": {
+      "parent": "ambedkar_nagar_hill"
+    },
+    "base": {
+      "spawn": "door",
+      "uv": [
+        {
+          "at": [
+            6,
+            6
+          ],
+          "radius": 3
+        }
+      ],
+      "lampFailsOnNight": 3
+    },
+    "npcs": [
+      {
+        "id": "npc_bench_manju",
+        "spawn": "boxes_spot"
+      }
+    ],
+    "objects": [
+      {
+        "id": "CARDBOARD_BOX",
+        "at": "box_spot",
+        "requiresFlag": "flat_signed"
+      },
+      {
+        "id": "WATER_DRUM",
+        "at": "drum_spot"
+      },
+      {
+        "id": "COT",
+        "at": "cot_spot",
+        "requiresFlag": "bed_bought"
+      },
+      {
+        "id": "TABLE_CHAIR",
+        "at": "table_spot",
+        "requiresFlag": "bed_bought"
+      },
+      {
+        "id": "INDUCTION",
+        "at": "stove_spot",
+        "requiresFlag": "stove_bought"
+      },
+      {
+        "id": "GUITAR_STAND",
+        "at": "guitar_spot",
+        "requiresFlag": "guitar_owned"
+      },
+      {
+        "id": "FLATPACK_BOXES",
+        "at": "boxes_spot",
+        "requiresFlag": "ikea_rode_home",
+        "unlessFlag": "ikea_assembled"
+      },
+      {
+        "id": "BOOKSHELF",
+        "at": "shelf_spot",
+        "requiresFlags": [
+          "ikea_bought_shelf",
+          "ikea_assembled"
+        ]
+      },
+      {
+        "id": "FLOOR_LAMP",
+        "at": "lamp_spot",
+        "requiresFlags": [
+          "ikea_bought_lamp",
+          "ikea_assembled"
+        ]
+      },
+      {
+        "id": "RUG",
+        "at": "rug_spot",
+        "requiresFlags": [
+          "ikea_bought_rug",
+          "ikea_assembled"
+        ]
+      },
+      {
+        "id": "FOLDED_TABLE",
+        "at": "folded_spot",
+        "requiresFlag": "table_folded"
+      }
+    ],
+    "triggers": [
+      {
+        "zone": "bed",
+        "action": "sleep",
+        "once": false
+      },
+      {
+        "zone": "bench_zone",
+        "dialogue": "craft:bench",
+        "once": false
+      },
+      {
+        "zone": "stock_zone",
+        "dialogue": "base:act4_base_bench",
+        "once": false
+      },
+      {
+        "zone": "kitchen_zone",
+        "dialogue": "search:bench_kitchen",
+        "unlessFlag": "looted:bench_kitchen"
+      },
+      {
+        "zone": "drawer_zone",
+        "dialogue": "search:bench_drawer",
+        "unlessFlag": "looted:bench_drawer"
+      },
+      {
+        "zone": "bag_zone",
+        "dialogue": "search:bench_bag",
+        "unlessFlag": "looted:bench_bag"
+      }
+    ]
   }
 ]

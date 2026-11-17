@@ -1,0 +1,95 @@
+{
+  "id": "act3_discharge",
+  "district": "ward4",
+  "act": 3,
+  "seq": "3.5",
+  "title": "Discharge",
+  "status": "P21",
+  "time": "Thursday morning, 08:00 — the morning 3.4 ends (Ravi's bed empty, 'Discharge · today')",
+  "player_goal": "Get your discharge slip and walk out of Ward 4.",
+  "design_goal": "Act 3 ends on an instruction nobody explains. The ward that held you lets you go too easily: the slip is already signed, the door at the end stands open and clean, the ward boy's chair is empty. The one piece of advice — don't make noise after five — is the rule Act 4 will teach the hard way (4.1's plates and spoons). The player leaves with a cast, a plastic bag of their things, and a question.",
+  "pacing": [
+    "Calm",
+    "Curious",
+    "Tense",
+    "Calm"
+  ],
+  "entry": {
+    "from": "ward4",
+    "spawn": "your_bed",
+    "after": []
+  },
+  "cast": [
+    {
+      "npc": "npc_ward_nurse",
+      "tier": 3,
+      "spawn": "nurse_station",
+      "role": "Hands over the slip and a plastic bag: 'Doctor signed at six. You're done.' Then, without looking up: 'Go home. Stay inside. Don't make noise after five.' Asked 'Why five?' she looks at the isolation door, then back at her register: 'Go home.' Asked about Ravi again: nothing."
+    }
+  ],
+  "quests": [
+    "q_act3_discharge"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Calm",
+      "what": "08:00, Thursday (morning 3). Sister Lalitha, once she has told you Ravi was moved: 'Doctor signed at six. You're done. Your things — the shirt, a key.' The countdown plate goes.",
+      "interact": "dialogue",
+      "flag": "discharged"
+    },
+    {
+      "id": "F2",
+      "pacing": "Curious",
+      "what": "The advice nobody explains: 'Go home. Stay inside. Don't make noise after five.' — 'Why five?' → she looks at the isolation door, then at her register: 'Go home.' (No mention of the plates and spoons — that is 4.1's reveal.)",
+      "interact": "dialogue (choice)",
+      "flag": "five_warning"
+    },
+    {
+      "id": "F3",
+      "pacing": "Tense",
+      "what": "The isolation door at the end stands ajar: the newspaper gone, the lights on, the room behind it empty, the beds stripped, the floor still wet — bleach. Nobody there. (Optional.)",
+      "interact": "zone",
+      "flag": "isolation_empty_seen"
+    },
+    {
+      "id": "F4",
+      "pacing": "Calm",
+      "what": "The ward door: the ward boy's plastic chair is empty, his phone face-down on it. Through the door, a card: the corridor, the stairs, a guard who doesn't look up, the glass doors of Hebbal General, the heat, no autos at the gate. Then the title: ACT 4 — CURFEW. It holds until 4.0 Janata builds the hospital gate (as 3.1 held for the ward).",
+      "interact": "exit → card",
+      "flag": "act3_done"
+    }
+  ],
+  "economy": [],
+  "exits": [
+    {
+      "zone": "ward_exit",
+      "to": "ward4",
+      "transit": "walk",
+      "note": "the ward door plays card_leaving_ward once `discharged` is set; it holds on ACT 4 — CURFEW until 4.0 builds the hospital gate"
+    }
+  ],
+  "save_flags": [
+    "discharged",
+    "five_warning",
+    "isolation_empty_seen",
+    "act3_done",
+    "act3_discharge_done",
+    "act4",
+    "janata_out"
+  ],
+  "assets_needed": [
+    "no new place: Ward 4",
+    "discharge_props — the isolation doors open on an empty room, the ward boy's empty chair with his phone (one generated sheet, first try), placed `exact`",
+    "card_leaving_ward (text panels + the CURFEW title, holds)",
+    "countdown `until`"
+  ],
+  "acceptance": [
+    "after morning 3 the nurse hands over the slip and says the line; 'Why five?' gets no answer",
+    "the isolation door is open and the room behind it empty (optional to look)",
+    "the ward door is no longer 'Not discharged': it plays the leaving card and ACT 4 — CURFEW, then holds",
+    "the walkthrough bot plays it; the headless run stays green (22 of 22)"
+  ],
+  "open_questions": [],
+  "decided": "User 2026-10-17: 'Take the defaults.' — every open question resolved by the draft's default (ADR-143)."
+}

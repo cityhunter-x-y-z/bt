@@ -12,28 +12,37 @@ export interface MapDefinition {
   file: string;
   /** Bundled URL for the .tmj. */
   url: string;
-  /** Tile layers that must be present, matched by exact name. */
-  requiredLayers: string[];
-  /** Layer used as the (invisible) collision stencil. */
+  /** The invisible collision layer: a tile stencil, or an object layer of pixel rects (generated maps). */
   collisionLayer?: string;
-  /** Object layer holding spawn points. */
+  /** Object layer holding spawn points and zones. */
   spawnLayer?: string;
-  /** Object layer holding placed world objects, each typed by an ObjectDef id. */
-  objectLayer?: string;
+  /** The Y-sort band (ADR-125): placed objects typed by ObjectDef id, `cutout` images with a footprint, `above` images. */
+  sortedLayer?: string;
+  /** Object layer of City Pulse slots: named, typed anchors events switch on. */
+  pulseLayer?: string;
   /** Spawn object names the scene code depends on. */
   requiredSpawns: string[];
+  /** Migrated to the render model: the validator is strict about footprints and legacy shapes. */
+  sop?: boolean;
 }
 
 interface ManifestMap {
   file: string;
-  requiredLayers: string[];
   collisionLayer?: string;
   spawnLayer?: string;
-  objectLayer?: string;
+  sortedLayer?: string;
+  pulseLayer?: string;
   requiredSpawns?: string[];
+  sop?: boolean;
 }
 
 export const TILE_SIZE_FROM_MANIFEST: number = manifest.tileSize;
+
+/**
+ * Canonical tile-layer draw order, back to front. WorldScene walks this list
+ * and creates whichever layers a map has — it never names a layer itself.
+ */
+export const LAYER_ORDER: readonly string[] = manifest.layerOrder;
 
 const build = (): Record<string, MapDefinition> => {
   const entries = Object.entries(manifest.maps as Record<string, ManifestMap>);
@@ -58,11 +67,12 @@ const build = (): Record<string, MapDefinition> => {
           key,
           file: def.file,
           url,
-          requiredLayers: def.requiredLayers,
           collisionLayer: def.collisionLayer,
           spawnLayer: def.spawnLayer,
-          objectLayer: def.objectLayer,
+          sortedLayer: def.sortedLayer,
+          pulseLayer: def.pulseLayer,
           requiredSpawns: def.requiredSpawns ?? [],
+          sop: def.sop,
         } satisfies MapDefinition,
       ];
     }),
@@ -71,5 +81,3 @@ const build = (): Record<string, MapDefinition> => {
 
 /** Every map the game knows about, keyed by Phaser cache key. */
 export const MAPS: Record<string, MapDefinition> = build();
-
-export const AIRPORT_MAP = MAPS.airport_map;

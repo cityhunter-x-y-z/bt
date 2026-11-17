@@ -1,0 +1,27 @@
+{
+  "id": "card_lane_caught",
+  "$comment": "Story 4.1, caught (ADR-148): the lane's fail-forward — the same road home, told, landing at the foot of the hill like the walk card (4.2, ADR-150).",
+  "panels": [
+    {
+      "style": "fragment",
+      "text": "You don't remember the way back.",
+      "ms": 3200,
+      "setFlags": [
+        "first_run_done"
+      ]
+    },
+    {
+      "title": "AMBEDKAR NAGAR · 21:30",
+      "text": "Your hands won't stop shaking. At the top of the hill, one light. Purple.",
+      "ms": 4600,
+      "setFlags": [
+        "act4_five_done"
+      ]
+    }
+  ],
+  "then": {
+    "district": "ambedkar_nagar_hill",
+    "spawn": "slope_base",
+    "minute": 1290
+  }
+}

@@ -1,27 +1,12 @@
 node_modules
 dist
-dist-ssr
+dist-portfolio
 *.local
-.env
-.env.*
-!.env.example
 .DS_Store
 
 # Intermediate files from the asset import pipeline — large, regenerable
 scripts/.work/
 
-# Logs
-logs
-*.log
-npm-debug.log*
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-*.tsbuildinfo
+# Movie Mode run reports (Test Playground, dev only)
+playground/reports/
+.vercel

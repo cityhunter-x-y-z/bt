@@ -1,19 +1,28 @@
 import { create } from 'zustand';
+import { gameEvents } from './core/events';
 import {
-  MAX_ENERGY,
-  MAX_STRESS,
   SKILL_XP_THRESHOLDS,
-  STARTING_ENERGY,
-  STARTING_MONEY,
+  STARTING_BATTERY,
+  STARTING_FOOD,
+  STARTING_HEALTH,
+  STARTING_STAMINA,
   STARTING_STRESS,
+  STARTING_WALLET,
+  STAT_BOUNDS,
   DEFAULT_PLAYER_NAME,
+  DEFAULT_PLAYER_SHEET,
 } from './utils/constants';
 import type {
+  AdjustableStat,
+  PlayerAppearance,
+  PlayerProfile,
   PlayerSkills,
   PlayerStats,
+  RelationshipState,
   ReputationState,
   SkillBranchName,
 } from './utils/types';
+import { defaultProfile, sheetForProfile } from './utils/profile';
 
 // Central game state shared between Phaser scenes and the React HUD.
 //
@@ -40,6 +49,14 @@ const levelForXp = (xp: number): number => {
   return level;
 };
 
+/** In-game time (game_components §11): drives bus intervals, hotel nights, tints. */
+export interface GameClock {
+  /** 1-based day since landing. */
+  day: number;
+  /** Minutes since midnight, 0–1439. */
+  minute: number;
+}
+
 export interface QuestState {
   /** quest id -> ids of completed objectives. */
   active: Record<string, string[]>;
@@ -52,10 +69,15 @@ export interface GameState {
    * cumulative figure a leaderboard would rank on.
    */
   totalEarned: number;
+  /** Display name; kept in sync with profile.name. */
   playerName: string;
+  profile: PlayerProfile;
+  appearance: PlayerAppearance;
   botCount: number;
   /** Key of the scene currently on screen — drives what the React HUD shows. */
   activeScene: string | null;
+  /** District WorldScene is rendering, or null outside the world. */
+  activeDistrict: string | null;
   stats: PlayerStats;
   skills: PlayerSkills;
   reputation: ReputationState;
@@ -63,68 +85,166 @@ export interface GameState {
   inventory: string[];
   quests: QuestState;
   flags: Record<string, boolean>;
+  /** Named NPCs spoken to; drives `stats.social`. */
+  met: string[];
+  clock: GameClock;
+  /** Generic numeric state for behaviours (hotel nights left, …). Saved. */
+  counters: Record<string, number>;
+  /** The UPI app's ledger: every rupee in and out, newest last. Saved. */
+  transactions: Transaction[];
+  /** Phone state: chat message ids delivered and read. Saved. */
+  phone: PhoneState;
+  /** A full-screen overlay over the world (the phone, the map, the pause menu). Hides the HUD. Not saved. */
+  overlay: 'phone' | 'map' | 'menu' | null;
+  /** A destination the player set on the map (district id); wins over the quest's. Not saved. */
+  mapDestination: string | null;
+  /** Phone signal bars where the player stands when a zone says so (the hill's rooms, ADR-122); null = the district's. Not saved. */
+  signalOverride: number | null;
+  /** Flag the current signal zone sets when a Reel is tested there (room1_checked…). Not saved. */
+  signalZoneFlag: string | null;
+  /** Named-NPC relationship states (game_components §8, ADR-123). Saved. */
+  relationships: Record<string, RelationshipState>;
+  /** The photo framed where the player stands (a photoSpots zone), or null. Not saved. */
+  photoSpot: string | null;
+  /** Standing at a petrol bunk: the HUD shows the fuel gauge (ADR-126). Not saved. */
+  fuelContext: boolean;
 
   setBotCount: (botCount: number) => void;
   setPlayerName: (playerName: string) => void;
+  /** Store the profile and derive the sprite from it (age + gender + skin). */
+  setProfile: (profile: PlayerProfile) => void;
+  setAppearance: (appearance: PlayerAppearance) => void;
   setActiveScene: (activeScene: string | null) => void;
+  setActiveDistrict: (activeDistrict: string | null) => void;
 
-  adjustEnergy: (delta: number) => void;
-  adjustStress: (delta: number) => void;
-  adjustMoney: (delta: number) => void;
+  /** Move a bounded stat; clamped to STAT_BOUNDS. */
+  adjustStat: (stat: AdjustableStat, delta: number) => void;
+  /** Change the wallet; income accrues to totalEarned, balance never dips below 0. */
+  adjustWallet: (delta: number) => void;
+  /** Record a first conversation. Returns true when the NPC was new (social +1). */
+  markMet: (npcId: string) => boolean;
 
   addXp: (branch: SkillBranchName, amount: number) => void;
+  /** Set a flag; emits `flag:set` so quests can wait on one. */
   setFlag: (key: string, value: boolean) => void;
+  setClock: (clock: GameClock) => void;
+  setCounter: (key: string, value: number) => void;
 
   /** Wholesale replacement — InventoryManager/QuestManager own the rules. */
   setInventory: (inventory: string[]) => void;
   setQuests: (quests: QuestState) => void;
+  /** Append to the UPI ledger (StatsManager does this on every spend/earn). */
+  addTransaction: (tx: Transaction) => void;
+  setPhone: (phone: PhoneState) => void;
+  setOverlay: (overlay: 'phone' | 'map' | 'menu' | null) => void;
+  setMapDestination: (districtId: string | null) => void;
+  setSignalOverride: (bars: number | null, flag?: string | null) => void;
+  setRelationship: (npcId: string, state: RelationshipState) => void;
+  setPhotoSpot: (photoId: string | null) => void;
+  setFuelContext: (on: boolean) => void;
 
   hydrate: (partial: Partial<GameState>) => void;
   reset: () => void;
 }
 
 const initialStats = (): PlayerStats => ({
-  energy: STARTING_ENERGY,
+  health: STARTING_HEALTH,
+  wallet: STARTING_WALLET,
+  social: 0,
+  stamina: STARTING_STAMINA,
+  food: STARTING_FOOD,
   stress: STARTING_STRESS,
-  money: STARTING_MONEY,
+  battery: STARTING_BATTERY,
 });
 
 const initialQuests = (): QuestState => ({ active: {}, completed: [] });
 
 const initialReputation = (): ReputationState => ({ total: 0, byDistrict: {} });
 
-export const useGameStore = create<GameState>((set) => ({
+/** Story 0.1: "Bengaluru. 06:10." */
+export const initialClock = (): GameClock => ({ day: 1, minute: 6 * 60 + 10 });
+
+const initialAppearance = (): PlayerAppearance => ({ sheet: DEFAULT_PLAYER_SHEET });
+
+/** One UPI ledger line. `amount` < 0 is money out. */
+export interface Transaction {
+  amount: number;
+  /** Who/what: "Chai Anna", "Vayu Vajra", "Shanthamma (PG)". */
+  label: string;
+  /** spend()/earn() reason code, for analytics. */
+  reason: string;
+  day: number;
+  minute: number;
+  balance: number;
+}
+
+export interface PhoneState {
+  delivered: string[];
+  read: string[];
+}
+
+const initialPhone = (): PhoneState => ({ delivered: [], read: [] });
+
+export const useGameStore = create<GameState>((set, get) => ({
   totalEarned: 0,
   playerName: DEFAULT_PLAYER_NAME,
+  profile: defaultProfile(),
+  appearance: initialAppearance(),
   botCount: 0,
   activeScene: null,
+  activeDistrict: null,
   stats: initialStats(),
   skills: emptySkills(),
   reputation: initialReputation(),
   inventory: [],
   quests: initialQuests(),
   flags: {},
+  met: [],
+  clock: initialClock(),
+  counters: {},
+  transactions: [],
+  phone: initialPhone(),
+  overlay: null,
+  mapDestination: null,
+  signalOverride: null,
+  signalZoneFlag: null,
+  relationships: {},
+  photoSpot: null,
+  fuelContext: false,
 
   setBotCount: (botCount) => set({ botCount }),
   setPlayerName: (playerName) => set({ playerName }),
+  setProfile: (profile) =>
+    set({
+      profile,
+      playerName: profile.name.trim() || DEFAULT_PLAYER_NAME,
+      appearance: { sheet: sheetForProfile(profile) },
+    }),
+  setAppearance: (appearance) => set({ appearance }),
   setActiveScene: (activeScene) => set({ activeScene }),
+  setActiveDistrict: (activeDistrict) => set({ activeDistrict }),
 
-  adjustEnergy: (delta) =>
-    set((state) => ({
-      stats: { ...state.stats, energy: clamp(state.stats.energy + delta, 0, MAX_ENERGY) },
-    })),
+  adjustStat: (stat, delta) =>
+    set((state) => {
+      const [min, max] = STAT_BOUNDS[stat];
+      return { stats: { ...state.stats, [stat]: clamp(state.stats[stat] + delta, min, max) } };
+    }),
 
-  adjustStress: (delta) =>
+  adjustWallet: (delta) =>
     set((state) => ({
-      stats: { ...state.stats, stress: clamp(state.stats.stress + delta, 0, MAX_STRESS) },
-    })),
-
-  adjustMoney: (delta) =>
-    set((state) => ({
-      stats: { ...state.stats, money: state.stats.money + delta },
+      stats: { ...state.stats, wallet: Math.max(0, state.stats.wallet + delta) },
       // Only income accumulates; spending must not inflate lifetime earnings.
       totalEarned: delta > 0 ? state.totalEarned + delta : state.totalEarned,
     })),
+
+  markMet: (npcId) => {
+    if (get().met.includes(npcId)) return false;
+    set((state) => ({
+      met: [...state.met, npcId],
+      stats: { ...state.stats, social: state.stats.social + 1 },
+    }));
+    return true;
+  },
 
   addXp: (branch, amount) =>
     set((state) => {
@@ -134,22 +254,51 @@ export const useGameStore = create<GameState>((set) => ({
       };
     }),
 
-  setFlag: (key, value) =>
-    set((state) => ({ flags: { ...state.flags, [key]: value } })),
+  setFlag: (key, value) => {
+    const was = get().flags[key] ?? false;
+    set((state) => ({ flags: { ...state.flags, [key]: value } }));
+    if (was !== value) gameEvents.emit('flag:set', { flag: key, value });
+  },
+
+  setClock: (clock) => set({ clock }),
+  setCounter: (key, value) => set((state) => ({ counters: { ...state.counters, [key]: value } })),
 
   setInventory: (inventory) => set({ inventory }),
   setQuests: (quests) => set({ quests }),
+  addTransaction: (tx) => set((state) => ({ transactions: [...state.transactions, tx] })),
+  setPhone: (phone) => set({ phone }),
+  setOverlay: (overlay) => set({ overlay }),
+  setMapDestination: (mapDestination) => set({ mapDestination }),
+  setSignalOverride: (signalOverride, flag = null) => set({ signalOverride, signalZoneFlag: signalOverride === null ? null : flag }),
+  setRelationship: (npcId, state) => set((s) => ({ relationships: { ...s.relationships, [npcId]: state } })),
+  setPhotoSpot: (photoSpot) => set({ photoSpot }),
+  setFuelContext: (fuelContext) => set({ fuelContext }),
 
   hydrate: (partial) => set(partial),
 
   reset: () =>
     set({
       totalEarned: 0,
+      playerName: DEFAULT_PLAYER_NAME,
+      profile: defaultProfile(),
+      appearance: initialAppearance(),
       stats: initialStats(),
       skills: emptySkills(),
       reputation: initialReputation(),
       inventory: [],
       quests: initialQuests(),
       flags: {},
+      met: [],
+      clock: initialClock(),
+      counters: {},
+      transactions: [],
+      phone: initialPhone(),
+      overlay: null,
+      mapDestination: null,
+      signalOverride: null,
+      signalZoneFlag: null,
+      relationships: {},
+      photoSpot: null,
+      fuelContext: false,
     }),
 }));

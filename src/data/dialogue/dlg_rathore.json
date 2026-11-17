@@ -1,0 +1,193 @@
+{
+  "id": "dlg_rathore",
+  "speaker": "Major Rathore",
+  "portrait": "npc_rathore",
+  "enter": [
+    {
+      "flag": "ending_chosen",
+      "node": "chosen"
+    },
+    {
+      "flag": "base_lalbagh_set",
+      "node": "lalbagh"
+    },
+    {
+      "flag": "base_palace_done",
+      "node": "go_lalbagh"
+    },
+    {
+      "flag": "palace_turned",
+      "node": "palace_cut"
+    },
+    {
+      "flag": "base_palace_set",
+      "node": "palace"
+    },
+    {
+      "flag": "base_cubbon_done",
+      "node": "go"
+    },
+    {
+      "flag": "cubbon_turned",
+      "node": "cut"
+    },
+    {
+      "flag": "rathore_runs",
+      "node": "board"
+    }
+  ],
+  "nodes": {
+    "start": {
+      "text": "(A man in a plain olive shirt, a map folded small in his hand.) Rathore. Don't salute — nobody's left to see it. You walked here from Indiranagar? Then you can walk to other places.",
+      "next": "plan"
+    },
+    "plan": {
+      "text": "My engineer says the purple kills the thing in their cells, if you focus it. A gun. He needs five things. First, medicines: the slot shop at Hebbal General, its stockroom.",
+      "choices": [
+        {
+          "text": "(Take the list.)",
+          "next": "gate",
+          "effect": {
+            "flags": {
+              "rathore_runs": true
+            }
+          }
+        }
+      ]
+    },
+    "gate": {
+      "text": "The camp gate, east side. Priya goes with you, if she likes you."
+    },
+    "board": {
+      "text": "The list: medicines, a radio, battery cores, emitter parts. And one more, later.",
+      "choices": [
+        {
+          "text": "(Hand over the medical crate.)",
+          "next": "thanks_1",
+          "requiresItems": {
+            "med_crate": 1
+          },
+          "unlessFlag": "supply_run_1",
+          "effect": {
+            "items_remove": {
+              "med_crate": 1
+            },
+            "flags": {
+              "supply_run_1": true
+            }
+          }
+        },
+        {
+          "text": "(Hand over the radio.)",
+          "next": "thanks_2",
+          "requiresItems": {
+            "radio_set": 1
+          },
+          "unlessFlag": "supply_run_2",
+          "effect": {
+            "items_remove": {
+              "radio_set": 1
+            },
+            "flags": {
+              "supply_run_2": true
+            }
+          }
+        },
+        {
+          "text": "(Hand over the battery cores.)",
+          "next": "thanks_3",
+          "requiresItems": {
+            "battery_cores": 1
+          },
+          "unlessFlag": "supply_run_3",
+          "effect": {
+            "items_remove": {
+              "battery_cores": 1
+            },
+            "flags": {
+              "supply_run_3": true
+            }
+          }
+        },
+        {
+          "text": "(Hand over the emitter parts.)",
+          "next": "thanks_4",
+          "requiresItems": {
+            "uv_emitter_parts": 1
+          },
+          "unlessFlag": "supply_run_4",
+          "effect": {
+            "items_remove": {
+              "uv_emitter_parts": 1
+            },
+            "flags": {
+              "supply_run_4": true
+            }
+          }
+        },
+        {
+          "text": "Later.",
+          "next": "later"
+        }
+      ]
+    },
+    "later": {
+      "text": "The gate's east. The lamps are on till midnight."
+    },
+    "thanks_1": {
+      "text": "Good. Tomorrow: the bus depot at Majestic. The kiosk had a two-way set."
+    },
+    "thanks_2": {
+      "text": "Battery cores next. Church Street — the Reliable Digital counter."
+    },
+    "thanks_3": {
+      "text": "The emitter parts are at HIVR. The lab corridor. (He looks at you a moment too long.) I'm sorry."
+    },
+    "thanks_4": {
+      "text": "That's four. The fifth is in Malleswaram, a scientist's house. Not tonight."
+    },
+    "cut": {
+      "text": "(The lamps along the line are dark.) They cut the line at midnight. The generators went to the Palace grounds, and the engineer with them. So do we, today.",
+      "choices": [
+        {
+          "text": "(Go.)",
+          "next": "go",
+          "effect": {
+            "flags": {
+              "base_cubbon_done": true
+            }
+          }
+        }
+      ]
+    },
+    "go": {
+      "text": "Palace grounds. Walk in the middle of the road."
+    },
+    "palace": {
+      "text": "The engineer's under the tarp. He has four of the five. The fifth is a scientist's hard drive in Malleswaram — ground zero. Take his gun when he gives it to you. Use it there, not here."
+    },
+    "palace_cut": {
+      "text": "(The ring of lamps is dark; the big generator ticks as it cools.) That's the last diesel on this side of the city. Lalbagh — the glass house. The botanists built a lamp room for their orchids. We go now.",
+      "choices": [
+        {
+          "text": "(Go.)",
+          "next": "go_lalbagh",
+          "effect": {
+            "flags": {
+              "base_palace_done": true
+            }
+          }
+        }
+      ]
+    },
+    "go_lalbagh": {
+      "text": "Lalbagh. The middle of the road."
+    },
+    "lalbagh": {
+      "text": "Glass. Of all the things to hide behind. (He taps a pane.) The lamp room holds, and the botanists' generator is the best in the city. Sleep. In the morning, we talk."
+    },
+    "chosen": {
+      "text": "Then that's the way. I'll tell the others."
+    }
+  }
+}

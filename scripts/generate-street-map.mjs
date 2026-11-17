@@ -23,6 +23,9 @@ const id = (name) => {
 };
 
 const blank = () => new Array(W * H).fill(0);
+/** Tiles that stand up (never in a flat layer) and tiles that are doors (walls' exception). */
+const TALL_TILES = ['streetlight_head', 'streetlight_pole', 'tree_canopy', 'tree_trunk'];
+const DOOR_TILES = ['door_wood', 'door_dark'];
 const put = (layer, x, y, name) => {
   if (x < 0 || y < 0 || x >= W || y >= H) return;
   layer[y * W + x] = id(name);
@@ -126,15 +129,15 @@ const place = (type, tx, ty, extra = {}) => {
   });
 };
 
-// Awnings over the storefronts.
-for (let x = 2; x < W - 4; x += 7) place('SHOP_AWNING', x, TOP_BUILDING[1] + 1);
+// Awnings over the storefronts hang over the pavement: props_above (ADR-125), never sorted.
+for (let x = 2; x < W - 4; x += 7) { put(above, x, TOP_BUILDING[1] + 1, 'awning_left'); put(above, x + 1, TOP_BUILDING[1] + 1, 'awning_mid'); put(above, x + 2, TOP_BUILDING[1] + 1, 'awning_right'); }
 
 // Trees: a 1x2 object whose canopy is the background row and whose trunk is
 // the footprint, so it blocks at the trunk only.
 for (let x = 3; x < W - 2; x += 6) place('STREET_TREE', x, TOP_WALK[1] - 1);
 for (let x = 6; x < W - 2; x += 7) place('STREET_TREE', x, BOTTOM_WALK[0]);
 
-place('BENCH', 5, BOTTOM_WALK[1]);
+place('BENCH', 9, BOTTOM_WALK[1]); // the 500-D stop's bench
 place('BIN', 13, BOTTOM_WALK[1], { hueShift: 40 });
 place('BENCH', 21, BOTTOM_WALK[1], { hueShift: 200 });
 place('BIN', 27, BOTTOM_WALK[1]);
@@ -166,15 +169,14 @@ const map = {
   height: H,
   infinite: false,
   layers: [
-    tileLayer('Ground', ground, true, 1),
-    tileLayer('Walls', walls, true, 2),
-    tileLayer('Objects', objects, true, 3),
-    tileLayer('Collision', collision, false, 4),
-    tileLayer('Above Player', above, true, 5),
+    // The seven layers of the render model (ADR-125): walls are `buildings`, props are objects in `sorted`.
+    tileLayer('ground', ground, true, 1),
+    tileLayer('ground_detail', objects, true, 2),
+    tileLayer('buildings', walls, true, 3),
     {
       draworder: 'topdown',
-      id: 6,
-      name: 'Objects Layer',
+      id: 4,
+      name: 'sorted',
       objects: placed,
       opacity: 1,
       type: 'objectgroup',
@@ -182,14 +184,75 @@ const map = {
       x: 0,
       y: 0,
     },
+    tileLayer('props_above', above, true, 5),
+    tileLayer('collision', collision, false, 6),
+    tileLayer('fx', blank(), true, 7),
     {
       draworder: 'topdown',
-      id: 7,
-      name: 'Spawns',
+      id: 8,
+      name: 'spawns',
       objects: [
         { id: 1, name: 'player_spawn', point: true, rotation: 0, type: '', visible: true, x: 15 * T, y: 10.5 * T, width: 0, height: 0 },
         { id: 2, name: 'vendor', point: true, rotation: 0, type: '', visible: true, x: 7 * T + 16, y: TOP_WALK[1] * T + 24, width: 0, height: 0 },
         { id: 3, name: 'auto_driver', point: true, rotation: 0, type: '', visible: true, x: 20 * T + 16, y: BOTTOM_WALK[0] * T + 24, width: 0, height: 0 },
+        // Where the airport bus drops you: left end of the top pavement.
+        { id: 4, name: 'bus_stop', point: true, rotation: 0, type: '', visible: true, x: 2 * T + 16, y: TOP_WALK[1] * T + 8, width: 0, height: 0 },
+        // The hotel: a storefront bay on the top row. Walking into the doorway
+        // zone enters whitefield_hotel; leaving it drops you at hotel_door.
+        { id: 6, name: 'hotel_door', point: true, rotation: 0, type: '', visible: true, x: 10 * T + 16, y: TOP_WALK[0] * T + 24, width: 0, height: 0 },
+        { id: 7, name: 'hotel_zone', rotation: 0, type: 'door', visible: true, x: 10 * T, y: TOP_BUILDING[1] * T + 8, width: T, height: T + 16 },
+        // East end of the top pavement turns into Prashanth Layout, the PG lane
+        // (story 0.3). Walking off the edge enters it; coming back lands at lane_return.
+        { id: 8, name: 'lane_return', point: true, rotation: 0, type: '', visible: true, x: 27 * T + 16, y: TOP_WALK[0] * T + 40, width: 0, height: 0 },
+        { id: 9, name: 'lane_zone', rotation: 0, type: '', visible: true, x: (W - 1) * T, y: TOP_WALK[0] * T, width: T, height: (TOP_WALK[1] - TOP_WALK[0] + 1) * T },
+        // West end of the top pavement: the long walk to the ITPL gate (story 1.1, ADR-121) — free, forty minutes.
+        { id: 10, name: 'office_walk', rotation: 0, type: '', visible: true, x: 0, y: TOP_WALK[0] * T, width: T, height: (TOP_WALK[1] - TOP_WALK[0] + 1) * T },
+        // The BMTC stop near where the airport bus dropped you: 335-E to Ambedkar Nagar (story 1.4, ADR-122; ADR-162).
+        // You wait on the top footpath (and kerb) between the trees at x 3 and 9; the bus keeps left — eastbound in
+        // the top lane — coming in from the west edge when you're at the stop and leaving east.
+        { id: 11, name: 'hill_bus', rotation: 0, type: '', visible: true, x: 4 * T, y: (TOP_WALK[0] + 1) * T, width: 3 * T, height: (KERB_TOP - TOP_WALK[0]) * T },
+        { id: 33, name: 'e335_in', point: true, rotation: 0, type: '', visible: true, x: -120, y: ROAD[0] * T + 34, width: 0, height: 0 },
+        { id: 34, name: 'e335_halt', point: true, rotation: 0, type: '', visible: true, x: 5.5 * T, y: ROAD[0] * T + 34, width: 0, height: 0 },
+        { id: 35, name: 'e335_out', point: true, rotation: 0, type: '', visible: true, x: W * T + 80, y: ROAD[0] * T + 34, width: 0, height: 0 },
+        // BMTC 500-D to Cubbon Park (story 1.5, ADR-123; ADR-160): the bus keeps left — westbound in the bottom lane,
+        // drifting over from the lane to the bottom kerb as it pulls in (bus_halt: wheels on the kerb's lip, which the
+        // kerb tile draws at its bottom edge) and back out to the lane as it leaves west. You wait on the footpath
+        // beside it (bus_500d, the footpath's full depth, clear of the trees at x 6 and 13) and press E while the doors are open.
+        { id: 12, name: 'bus_500d', rotation: 0, type: '', visible: true, x: 8 * T, y: BOTTOM_WALK[0] * T, width: 3 * T, height: (BOTTOM_WALK[1] - BOTTOM_WALK[0] + 1) * T },
+        { id: 13, name: 'bus_in', point: true, rotation: 0, type: '', visible: true, x: W * T + 80, y: KERB_BOTTOM * T - 4, width: 0, height: 0 },
+        { id: 14, name: 'bus_halt', point: true, rotation: 0, type: '', visible: true, x: 9.5 * T, y: KERB_BOTTOM * T + 26, width: 0, height: 0 },
+        { id: 15, name: 'bus_out', point: true, rotation: 0, type: '', visible: true, x: -120, y: KERB_BOTTOM * T - 4, width: 0, height: 0 },
+        // The metro station being built across the road (story 1.5 F1): barricade sheets on the bottom pavement's
+        // east end, the sign read from the pavement in front of them.
+        { id: 16, name: 'barricade_spot', point: true, rotation: 0, type: '', visible: true, x: 23 * T, y: (BOTTOM_WALK[0] + 1) * T, width: 0, height: 0 },
+        { id: 17, name: 'pillar_spot', point: true, rotation: 0, type: '', visible: true, x: 26 * T, y: BOTTOM_WALK[0] * T, width: 0, height: 0 },
+        { id: 18, name: 'metro_sign', rotation: 0, type: '', visible: true, x: 23 * T, y: (BOTTOM_WALK[0] + 2) * T, width: 3 * T, height: 24 },
+        // BMTC towards ITPL Main Road (story 2.1, ADR-126; ADR-162): the next stop east on the top footpath, past the
+        // hotel and the scooter bay, the same eastbound lane.
+        { id: 20, name: 'itpl_bus', rotation: 0, type: '', visible: true, x: 11 * T, y: (TOP_WALK[0] + 1) * T, width: 3 * T, height: (KERB_TOP - TOP_WALK[0]) * T },
+        { id: 36, name: 'itpl_in', point: true, rotation: 0, type: '', visible: true, x: -120, y: ROAD[0] * T + 34, width: 0, height: 0 },
+        { id: 37, name: 'itpl_halt', point: true, rotation: 0, type: '', visible: true, x: 12.5 * T, y: ROAD[0] * T + 34, width: 0, height: 0 },
+        { id: 38, name: 'itpl_out', point: true, rotation: 0, type: '', visible: true, x: W * T + 80, y: ROAD[0] * T + 34, width: 0, height: 0 },
+        // Where your scooter stands once you own one (ADR-126): by the kerb, east of the 500-D stop.
+        { id: 21, name: 'scooter_park', point: true, rotation: 0, type: '', visible: true, x: 10 * T, y: TOP_WALK[1] * T, width: 0, height: 0 },
+        // Opening day (story 2.2, ADR-127): the finished station mouth stands where the barricade was; its foot is the
+        // stairs exit (reachable only once the barricade object is gone), bunting and a flagpole on the pavement,
+        // marigold pots and crowd barriers at the kerb, three opening-day citizens. All placed by `metro_open`.
+        { id: 22, name: 'station_spot', point: true, rotation: 0, type: '', visible: true, x: 23 * T, y: BOTTOM_WALK[0] * T, width: 0, height: 0 },
+        { id: 23, name: 'station_stairs', rotation: 0, type: '', visible: true, x: 23 * T + 24, y: (BOTTOM_WALK[0] + 1) * T + 12, width: 2 * T - 16, height: 12 },
+        { id: 24, name: 'station_mouth', point: true, rotation: 0, type: '', visible: true, x: 24 * T + 16, y: (BOTTOM_WALK[0] + 2) * T + 20, width: 0, height: 0 },
+        { id: 25, name: 'station_zone', rotation: 0, type: '', visible: true, x: 20 * T, y: (BOTTOM_WALK[0] + 1) * T, width: 9 * T, height: 2 * T },
+        { id: 26, name: 'bunting_spot', point: true, rotation: 0, type: '', visible: true, x: 20 * T, y: BOTTOM_WALK[0] * T, width: 0, height: 0 },
+        { id: 27, name: 'flag_spot', point: true, rotation: 0, type: '', visible: true, x: 27 * T, y: BOTTOM_WALK[0] * T, width: 0, height: 0 },
+        { id: 28, name: 'pots_spot', point: true, rotation: 0, type: '', visible: true, x: 21 * T, y: (BOTTOM_WALK[0] + 2) * T, width: 0, height: 0 },
+        { id: 29, name: 'barrier_spot', point: true, rotation: 0, type: '', visible: true, x: 27 * T, y: (BOTTOM_WALK[0] + 2) * T, width: 0, height: 0 },
+        { id: 30, name: 'crowd_a', point: true, rotation: 0, type: '', visible: true, x: 19 * T + 16, y: (BOTTOM_WALK[0] + 2) * T + 8, width: 0, height: 0 },
+        { id: 31, name: 'crowd_b', point: true, rotation: 0, type: '', visible: true, x: 26 * T + 16, y: (BOTTOM_WALK[0] + 1) * T + 8, width: 0, height: 0 },
+        { id: 32, name: 'crowd_c', point: true, rotation: 0, type: '', visible: true, x: 29 * T + 16, y: (BOTTOM_WALK[0] + 2) * T + 8, width: 0, height: 0 },
+        // Where the 500-D home drops you: the footpath by the stop.
+        { id: 19, name: 'cubbon_return', point: true, rotation: 0, type: '', visible: true, x: 9 * T + 16, y: (BOTTOM_WALK[0] + 1) * T + 8, width: 0, height: 0 },
+        // The walkable band (pavement, kerb, road) that ambient citizens stay inside.
+        { id: 5, name: 'ambient_area', rotation: 0, type: '', visible: true, x: T, y: TOP_WALK[0] * T, width: (W - 2) * T, height: (BOTTOM_WALK[1] - TOP_WALK[0] + 1) * T },
       ],
       opacity: 1,
       type: 'objectgroup',
@@ -198,7 +261,7 @@ const map = {
       y: 0,
     },
   ],
-  nextlayerid: 8,
+  nextlayerid: 9,
   nextobjectid: 100,
   orientation: 'orthogonal',
   renderorder: 'right-down',
@@ -217,6 +280,10 @@ const map = {
       tilecount: meta.tileCount,
       tileheight: T,
       tilewidth: T,
+      // Tile properties the map validator reads (ADR-125): `tall` tiles may only sit in props_above or as sorted objects; `door` tiles are the exception to walls-need-collision.
+      tiles: Object.entries(meta.ids)
+        .filter(([n]) => TALL_TILES.includes(n) || DOOR_TILES.includes(n))
+        .map(([n, i]) => ({ id: i, properties: [{ name: TALL_TILES.includes(n) ? 'tall' : 'door', type: 'bool', value: true }] })),
     },
   ],
   tilewidth: T,
@@ -229,5 +296,5 @@ writeFileSync(join(assets, 'tilemaps/whitefield_street.tmj'), `${JSON.stringify(
 const solid = collision.filter(Boolean).length;
 console.log(
   `✓ whitefield_street.tmj — ${W}x${H} tiles, ${solid} solid tiles, ` +
-    `${placed.length} placed objects, 3 spawns`,
+    `${placed.length} placed objects, 38 spawn objects`,
 );

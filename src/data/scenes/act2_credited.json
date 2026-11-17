@@ -1,0 +1,166 @@
+{
+  "id": "act2_credited",
+  "district": "scooter_showroom",
+  "act": 2,
+  "seq": "2.1",
+  "title": "Credited",
+  "status": "P10",
+  "player_goal": "Buy (or decide not to buy) your first scooter.",
+  "design_goal": "Reveal #11: the scooter + fuel gauge (ADR-06). The first salary as a reward; EMI as the first standing cost.",
+  "pacing": [
+    "Reward",
+    "Curious",
+    "Engaged",
+    "Tense",
+    "Reward",
+    "Calm"
+  ],
+  "cast": [
+    {
+      "npc": "npc_noor",
+      "tier": 2,
+      "spawn": "showroom",
+      "role": "Second-hand scooter ₹38,000 (floor ₹35,000, slick); EMI ₹6,000 + ₹3,200 × 10 on salary days → scooter_owned"
+    },
+    {
+      "npc": "npc_bunk_attendant",
+      "tier": 2,
+      "spawn": "bunk",
+      "role": "Full tank ₹350 / ₹100 worth; the fuel gauge shows on his forecourt"
+    }
+  ],
+  "quests": [
+    "q_act2_credited"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Reward",
+      "what": "The salary lands (₹42,000, ADR-122) - 'Salary credited' and the tutorial toast: a two-wheeler gets you to work and nearby areas fast - mind the fuel. From now on a salary lands every 30 nights.",
+      "interact": "automatic",
+      "flag": "first_salary"
+    },
+    {
+      "id": "F2",
+      "pacing": "Curious",
+      "what": "Sameer's chat: second-hand, ITPL Main Road, ask for Noor, don't pay sticker. The 500-D from the Whitefield street's second bay drops you by the shelter.",
+      "interact": "phone + bus",
+      "flag": "showroom_arrived",
+      "economy": "₹20"
+    },
+    {
+      "id": "F3",
+      "pacing": "Engaged",
+      "what": "Noor: the grey scooter, ₹38,000. Outright is a slick haggle (compare the online listing, cash today, the dent; never lowball) that lands near ₹35,000–36,000. EMI is ₹6,000 down and ten instalments on salary days - a standing cost.",
+      "interact": "dialogue + negotiation",
+      "flag": "noor_met, scooter_decided",
+      "economy": "₹6,000 or ₹35,000–38,000"
+    },
+    {
+      "id": "F4",
+      "pacing": "Tense",
+      "what": "Keys, four litres in the tank. The bunk next door: full tank ₹350 or ₹100 worth. The fuel gauge appears while you stand on the forecourt.",
+      "interact": "dialogue",
+      "flag": "fuel_filled",
+      "economy": "₹100–350"
+    },
+    {
+      "id": "F5",
+      "pacing": "Reward",
+      "what": "Maps → any visited Whitefield pocket → RIDE · FUEL -N%: the ride card says Scooter → … with the fuel line; the gauge shows for a moment on landing; your scooter stands parked where you arrive.",
+      "interact": "map",
+      "flag": "scooter_ridden"
+    },
+    {
+      "id": "F6",
+      "pacing": "Calm",
+      "what": "Salary days: the EMI leaves through the ledger ('Noor Motors EMI'); a short wallet bounces it with stress. Ten paid → scooter_paid_off.",
+      "interact": "automatic",
+      "flag": "scooter_paid_off"
+    }
+  ],
+  "economy": [
+    {
+      "trigger": "bus to ITPL Main Road",
+      "spend": 20,
+      "canAfford": true
+    },
+    {
+      "trigger": "scooter outright",
+      "spend": "35000-38000",
+      "canAfford": true
+    },
+    {
+      "trigger": "scooter EMI down",
+      "spend": 6000,
+      "canAfford": true
+    },
+    {
+      "trigger": "EMI instalment",
+      "spend": 3200,
+      "canAfford": true
+    },
+    {
+      "trigger": "petrol",
+      "spend": "100-350",
+      "canAfford": true
+    }
+  ],
+  "exits": [
+    {
+      "zone": "bus_out",
+      "to": "whitefield_street",
+      "spawn": "cubbon_return",
+      "transit": "bus"
+    },
+    {
+      "zone": "road_east",
+      "to": "office_gate",
+      "spawn": "auto_drop",
+      "transit": "walk"
+    }
+  ],
+  "save_flags": [
+    "first_salary",
+    "showroom_arrived",
+    "noor_met",
+    "scooter_decided",
+    "scooter_owned",
+    "scooter_bought_outright",
+    "emi_started",
+    "fuel_filled",
+    "scooter_ridden",
+    "scooter_paid_off",
+    "act2_credited_done"
+  ],
+  "assets_needed": [
+    "scooter_showroom render + spec (done)",
+    "scooters prop sheet (done)",
+    "sheets: Noor, bunk attendant (done)"
+  ],
+  "acceptance": [
+    "the first salary toasts the two-wheeler tutorial and resets the countdown to 30 nights",
+    "the Whitefield street's second bay buses you to the showroom; arrival sets showroom_arrived",
+    "Noor's outright haggle lands at ₹35,000-36,000 with compare + reasons and refuses a lowball; EMI spends ₹6,000 and starts emi_left = 10",
+    "both deals set scooter_owned and put four litres (30%) in the tank; the grey scooter appears parked at the showroom, the street and the hill",
+    "standing on the bunk forecourt shows the fuel gauge; the attendant fills ₹350 → 100% or ₹100 → +30%",
+    "Maps offers RIDE · FUEL -N% to visited pockets once owned; the ride spends fuel and game minutes, the card shows the fuel line, the gauge shows on landing",
+    "a salary day spends ₹3,200 as 'Noor Motors EMI'; a short wallet bounces it; ten paid → scooter_paid_off"
+  ],
+  "open_questions": [],
+  "time": "Weekday evening",
+  "entry": {
+    "from": "whitefield_street",
+    "spawn": "bus_drop",
+    "after": [
+      "F1"
+    ]
+  },
+  "objects": [
+    {
+      "id": "SCOOTER_GREY",
+      "at": "scooter_park",
+      "requires": null
+    }
+  ]
+}

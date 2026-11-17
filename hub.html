@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bangalore Times — Dev Hub</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0e0f0d;
+        --panel: #161814;
+        --panel-hi: #1c1f1a;
+        --ink: #e9e6dc;
+        --dim: #9d9c8f;
+        --line: #2b2e27;
+        --lcd: #c3c58f;
+        --game: #e05454;
+        --play: #e0a454;
+        --mocks: #6fa8dc;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.55 "Atkinson Hyperlegible", system-ui, sans-serif;
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 48px 20px 64px;
+        display: grid;
+        gap: 40px;
+      }
+      header { display: grid; gap: 10px; }
+      .eyebrow {
+        font-family: "Pixelify Sans", ui-monospace, monospace;
+        color: var(--lcd);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-size: 12px;
+      }
+      h1, h2 {
+        font-family: "Pixelify Sans", ui-monospace, monospace;
+        font-weight: 700;
+        margin: 0;
+        text-wrap: balance;
+      }
+      h1 { font-size: clamp(28px, 4.5vw, 40px); line-height: 1.05; }
+      h2 { font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--lcd); }
+      p { margin: 0; max-width: 70ch; color: var(--dim); }
+      .meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--dim); }
+      .meta b { color: var(--ink); font-weight: 400; }
+      section { display: grid; gap: 14px; }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        position: relative;
+        display: grid;
+        gap: 8px;
+        padding: 18px 18px 16px;
+        background: var(--panel);
+        border: 2px solid var(--line);
+        border-radius: 2px;
+        color: inherit;
+        text-decoration: none;
+        transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+      }
+      .card:hover, .card:focus-visible {
+        background: var(--panel-hi);
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+      .card:focus-visible { outline: 2px solid var(--lcd); outline-offset: 2px; }
+      .card .kbd {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        font-family: ui-monospace, monospace;
+        font-size: 11px;
+        color: var(--dim);
+        border: 1px solid var(--line);
+        padding: 1px 6px;
+        border-radius: 2px;
+      }
+      .card h3 {
+        font-family: "Pixelify Sans", ui-monospace, monospace;
+        font-size: 20px;
+        margin: 0;
+        color: var(--accent);
+        letter-spacing: 0.02em;
+      }
+      .card .path {
+        font-family: ui-monospace, monospace;
+        font-size: 12.5px;
+        color: var(--ink);
+        background: #0b0c0a;
+        border: 1px solid var(--line);
+        padding: 3px 7px;
+        justify-self: start;
+        border-radius: 2px;
+      }
+      .card p { font-size: 14px; color: var(--dim); }
+      .card[data-surface="game"] { --accent: var(--game); }
+      .card[data-surface="playground"] { --accent: var(--play); }
+      .card[data-surface="mocks"] { --accent: var(--mocks); }
+
+      .tools {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2px;
+        background: var(--line);
+        border: 2px solid var(--line);
+      }
+      .tool {
+        display: grid;
+        gap: 4px;
+        padding: 12px 14px;
+        background: var(--panel);
+      }
+      .tool code {
+        font-family: ui-monospace, monospace;
+        font-size: 13px;
+        color: var(--ink);
+        user-select: all;
+      }
+      .tool span { font-size: 12.5px; color: var(--dim); }
+
+      footer {
+        display: grid;
+        gap: 6px;
+        padding-top: 8px;
+        border-top: 1px solid var(--line);
+        font-size: 13px;
+        color: var(--dim);
+      }
+      footer code { font-family: ui-monospace, monospace; color: var(--ink); }
+      .hint { font-size: 12.5px; }
+      .err { color: var(--game); }
+
+      @media (prefers-reduced-motion: reduce) {
+        .card { transition: none; }
+        .card:hover, .card:focus-visible { transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Dev-only entry (ADR-163). One server, every surface. Served by
+         `pnpm hub`; never part of a build (vite.config.ts builds index.html
+         only; scripts/check-dist.mjs fails a dist that mentions hub.html). -->
+    <div class="wrap">
+      <header>
+        <span class="eyebrow">Dev hub · one server</span>
+        <h1>Bangalore Times</h1>
+        <p>
+          Everything the repo can show you, behind one dev server. Pick a surface — the game keeps
+          <code>/</code>, the Playground keeps <code>/playground.html</code>, and the mock boards are
+          served by the same process under <code>/mocks/</code>.
+        </p>
+        <div class="meta">
+          <span>package <b id="pkg">bangalore-times</b></span>
+          <span>version <b id="ver">—</b></span>
+          <span>node <b id="node">—</b></span>
+          <span>port <b id="port">—</b></span>
+        </div>
+      </header>
+
+      <section>
+        <h2>Open</h2>
+        <div class="cards">
+          <a class="card" data-surface="game" href="/" data-keys="1">
+            <span class="kbd">1</span>
+            <h3>Game</h3>
+            <span class="path">/</span>
+            <p>The real build: title screen, districts, story. This is what ships to web, PWA and the native shells.</p>
+          </a>
+          <a class="card" data-surface="playground" href="/playground.html" data-keys="2">
+            <span class="kbd">2</span>
+            <h3>Test Playground</h3>
+            <span class="path">/playground.html</span>
+            <p>Jump to any intro, scene or beat with everything earlier already done. Dev only — never in <code>dist/</code>.</p>
+          </a>
+          <a class="card" data-surface="mocks" href="/mocks/p6-style-board/p6-mock-board.html" data-keys="3">
+            <span class="kbd">3</span>
+            <h3>Mock boards</h3>
+            <span class="path">/mocks/p6-style-board/p6-mock-board.html</span>
+            <p>UI style boards from <code>docs/mocks/</code>, served from outside the root by the hub plugin. Dev only.</p>
+          </a>
+        </div>
+        <p class="hint">Press <b>1</b>, <b>2</b> or <b>3</b> to open a surface. <b>Alt+←</b> comes back here.</p>
+      </section>
+
+      <section>
+        <h2>Commands</h2>
+        <div class="tools">
+          <div class="tool"><code>corepack pnpm hub</code><span>this page — one server, all three surfaces</span></div>
+          <div class="tool"><code>corepack pnpm dev</code><span>the same server, straight into the game</span></div>
+          <div class="tool"><code>corepack pnpm test</code><span>vitest</span></div>
+          <div class="tool"><code>corepack pnpm validate</code><span>maps + content + platform boundary</span></div>
+          <div class="tool"><code>corepack pnpm typecheck</code><span>tsc --noEmit</span></div>
+          <div class="tool"><code>corepack pnpm build</code><span>validate → typecheck → vite build (+ PWA)</span></div>
+          <div class="tool"><code>corepack pnpm movie</code><span>headless Movie Mode, exit 1 on a red scene</span></div>
+          <div class="tool"><code>corepack pnpm art</code><span>regenerate sprites, tiles, street map</span></div>
+        </div>
+      </section>
+
+      <footer>
+        <span>
+          One codebase, three platforms — and one dev server. Ports stay in the 6174–6177 block (port rule 8);
+          the old separate <code>pnpm playground</code> (:6175) and <code>pnpm mocks</code> (:6176) commands still work
+          if you want them side by side.
+        </span>
+        <span class="err" id="warn" hidden></span>
+      </footer>
+    </div>
+
+    <script type="module">
+      const $ = (id) => document.getElementById(id);
+
+      try {
+        const info = await fetch('/__hub/info', { cache: 'no-store' }).then((r) => r.json());
+        if (info.version) $('ver').textContent = info.version;
+        if (info.node) $('node').textContent = info.node;
+        if (info.port) $('port').textContent = info.port;
+      } catch {
+        const warn = $('warn');
+        warn.hidden = false;
+        warn.textContent = 'Could not read /__hub/info — the hub plugin may not be loaded. The links still work.';
+      }
+
+      document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        const target = event.target;
+        if (target instanceof HTMLElement && target.closest('input, textarea, select, [contenteditable]')) return;
+        const card = document.querySelector(`.card[data-keys="${event.key}"]`);
+        if (!card) return;
+        event.preventDefault();
+        window.location.assign(card.getAttribute('href'));
+      });
+    </script>
+  </body>
+</html>

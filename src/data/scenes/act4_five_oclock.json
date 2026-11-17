@@ -1,0 +1,104 @@
+{
+  "id": "act4_five_oclock",
+  "district": "indiranagar_lane",
+  "act": 4,
+  "seq": "4.1",
+  "title": "Five O'Clock",
+  "status": "P22",
+  "draft": "Claude's draft 2026-10-17 from story_script_v1 §7 (4.1: walking home through Indiranagar at 16:58; plates and spoons on every balcony; the sound rolls; things come out of side lanes toward it; the ritual is the trigger; the first encounter is a run, not a fight [C,F]), ADR-10 (respect: no mockery of the ritual, no real leaders or dates), chapter_board_merge §B1 (merged by plan Q2: the map re-renders live — desaturate, green fog, music to heartbeat — a figure in auto-driver khaki sprints from behind a car, no tutorial text, the player must figure out RUN), Act 4 systems plan v1 (approved 'default', 2026-10-17) §3.2–3.5 (run costs energy, crouch, hide; infected numbers ADR-49; encounters from cover; fail-forward), infected doc §5 (former NPCs keep their clothes), act4 doc §1 (Kumar = npc_auto_kannada; his stand colleague). Needs step S2 (the run) before it can be built.",
+  "time": "Act 4 day 0 — 16:57 to about 17:10 (lands a minute before the balconies)",
+  "player_goal": "Get through Indiranagar and out to the main road before dark.",
+  "design_goal": "Mechanic reveal #19 (run / energy / noise / hiding) with no tutorial text. The kindest sound in the city — a whole street banging plates together for the doctors — is what calls them. The player learns 'noise = danger' by watching it happen, then has to run with a cast on one wrist. Escapable, never comfortable: one chase, short, survivable; the khaki shirt tells them who these people were.",
+  "pacing": [
+    "Calm",
+    "Curious",
+    "Engaged",
+    "Tense",
+    "Reward"
+  ],
+  "entry": {
+    "from": "hebbal_gate",
+    "spawn": "lane_top",
+    "after": []
+  },
+  "cast": [
+    {
+      "npc": "npc_balcony_1",
+      "tier": 1,
+      "spawn": "balcony_t1",
+      "role": "Nine neighbours on the balconies (npc_balcony_1…9): out at 16:58 with plates and spoons, gone in at 17:02. The infected are not cast: the khaki shirt (npc_auto_driver's Fresh self, from behind the cars, already turning on you) and four Fresh walkers from the side lanes drawn to the noise — act4Threat packs, ADR-148."
+    }
+  ],
+  "quests": [
+    "q_act4_five_oclock"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Calm",
+      "what": "16:40, a tree-lined Indiranagar residential lane, low sun, every gate shut. A cat, a scooter under a cover, a water tanker abandoned with its tap dripping. Quiet; the city sound bed already thin.",
+      "interact": "walk",
+      "flag": "five_lane_in"
+    },
+    {
+      "id": "F2",
+      "pacing": "Curious",
+      "what": "16:58: doors open on the balconies; people step out with steel plates, spoons, a ladle, a thali. A grandmother says to nobody: 'For the doctors.' A phone notification on yours (it got through): News — 'At 5 PM, thank our frontline workers from your balconies.'",
+      "interact": "watch",
+      "flag": "plates_out"
+    },
+    {
+      "id": "F3",
+      "pacing": "Engaged",
+      "what": "17:00: the banging starts and rolls down the lane and across the city (a huge noise event: everyone's `noise` peak). The map re-renders live — a `stabilityIf` flag drops the lane to 'infected' (≈50): colour drains, green at the edges, music to heartbeat. From the side lanes, figures walk out toward the sound. One by one the balconies see them and go quiet.",
+      "interact": "watch (the player is free; standing still and crouching is safe for now)",
+      "flag": "plates_started"
+    },
+    {
+      "id": "F4",
+      "pacing": "Tense",
+      "what": "The khaki shirt breaks from behind a parked car — growl (0.5 s), then the chase. No text. The player must run (energy pips appear the first time they run), break line of sight, or hide (an open shutter, an auto). Being touched costs health and stress and gives a second to keep running. Reaching the lane's far end (the main road) ends it.",
+      "interact": "chase (S2)",
+      "flag": "first_run_done"
+    },
+    {
+      "id": "F5",
+      "pacing": "Reward",
+      "what": "The main road, dusk: empty in both directions, a UV street lamp flickering purple at a petrol bunk (the first UV light, unexplained). Relief music. Card: the long walk east in the dark along the old airport road, every balcony shut, a single bike passing without lights. It lands at the foot of the hill at 21:30 (4.2). If caught (health 0): the fail-forward card lands at the same place, 'You don't remember the way back.'",
+      "interact": "exit → card",
+      "flag": "act4_five_done"
+    }
+  ],
+  "economy": [],
+  "exits": [
+    {
+      "zone": "main_road",
+      "to": "ambedkar_nagar_hill",
+      "transit": "walk",
+      "note": "card_walk_east (or card_lane_caught when caught) — holds at the hill until 4.2 is built"
+    }
+  ],
+  "save_flags": [
+    "five_lane_in",
+    "plates_out",
+    "plates_started",
+    "first_run_done",
+    "act4_five_done"
+  ],
+  "assets_needed": [
+    "a new pocket: an Indiranagar residential lane with balconies on both sides (real street via OSM, e.g. a cross road off 12th Main), ~36×24 tiles, side-lane mouths, parked cars as cover, an open shutter and an abandoned auto as hide spots",
+    "balcony NPCs (sitting/standing on balcony tiles), plates-and-spoons animation frames (2 frames: up/down)",
+    "infected sheets: the khaki shirt + 3–4 Fresh (ADR-28 recipe over existing sheets; references from the user first, plan §5)",
+    "audio: the plates-and-spoons wave (original, many layered metal clangs rolling in from a distance), the growl, chase music (exists as a placeholder)",
+    "map spec `zones` (level, cover, hide) — S2 data",
+    "card_walk_east + the fail-forward card"
+  ],
+  "acceptance": [
+    "at 16:58 the balconies fill; at 17:00 the noise wave plays and the lane's stability drops live",
+    "the khaki shirt chases; running, line of sight, hiding and the lane end all work; no tutorial text",
+    "being caught sends you on with the fail-forward card; reaching the road plays the relief and the card",
+    "the walkthrough bot plays it with `flee` (S2); the headless run stays green and deterministic"
+  ],
+  "open_questions": [],
+  "decided": "User 2026-10-17: 'take the defaults and build 4.0 and 4.1' — every open question resolved by the draft's default (ADR-148)."
+}

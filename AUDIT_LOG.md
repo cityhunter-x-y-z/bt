@@ -1,0 +1,512 @@
+# NAMMA OUTBREAK — Audit Log
+> After each phase the user audits; Claude records corrections here as REUSABLE style rules, then applies them to all later phases.
+Updated: 2026-10-12
+
+## Format
+### [Phase] — YYYY-MM-DD
+- Correction: <what the user asked to change>
+- Rule going forward: <the generalised rule Claude will now always follow>
+
+## Entries
+
+### [P0 foundations] — 2026-10-12
+- Correction: the game is titled **Bangalore Times** (not Namma Quest / Namma Outbreak).
+- Rule going forward: every user-facing string, package/app id and doc header says *Bangalore Times*; "NAMMA OUTBREAK" survives only inside the settled `docs/design/` files as the historical working title. Never introduce a third name.
+- Correction: on ADR-66 (`src/` layout) and ADR-67 (layer names) the user delegated: "if anything better is there you can make it". Decided: keep both as built.
+- Rule going forward: when the user delegates an engineering call, record the decision in `DECISIONS.md` and move on — do not re-ask. Reserve audit questions for taste, story and product calls.
+- Correction: ADR-75 (Capacitor appId / SPM / plugins) was not understandable as written.
+- Rule going forward: proposed ADRs shown at an audit get a one-line plain-English "what this means for you" before the technical text; purely technical calls with no product impact are decided, not asked.
+- Mobile smoke: **sync OK, not booted** (no Xcode / Android SDK on this Mac — T-018).
+
+### [P1 Style Lock — round 1] — 2026-10-12
+- Correction: candidate B's **rendering** (GPT image model: rich, slightly muted colour, detailed facades) is the register the user wants; candidate A rejected. But neither matched the **camera** of the references: the game must read as Pokémon LeafGreen / RPG Maker top-down.
+- Rule going forward: every environment prompt states the camera explicitly and negatively — "orthographic, straight down, no perspective, no vanishing point, no isometric, no horizon; flat roof on top with the front facade as a flat band beneath; street runs left→right on a 32px grid". "3/4 top-down" alone is not enough — image models read it as isometric.
+- Rule going forward: when picking between candidates, judge camera/projection first, rendering second — projection is what the tile pipeline cannot fix afterwards.
+
+### [P1 Style Lock — locked] — 2026-10-12
+- Decision: **candidate D locked** as `src/assets/_meta/style/style_sheet.png`; its 48 colours are `src/assets/_meta/palette.gpl`. (C: richer facades but taller than a LeafGreen map draws them; A/B rejected in round 1.)
+- Correction: the style sheet is a reference, never game content. The people drawn in it are not sprites.
+- Rule going forward: nothing is ever cut out of a reference image. Tiles, placed objects and characters are each generated as their own sheets (tilesets → Tiled layers; objects → depth-sorted placed layer; characters → 32×48 sheets on the entity layer), all quantised to `palette.gpl`. Reference images are cited in prompts, not loaded by the game.
+
+### [P2 Character creation — round 1] — 2026-10-12
+- Correction: the code-drawn rig v2 sprites "are not at all like the screenshots" — the references have rounded heads, large eyes with whites and irises, hair with strands and highlights, 2–3 shade tones per material, soft coloured outlines. A rectangle rig cannot reach that.
+- Rule going forward: character and prop art is **generated in the reference style and imported** through the pipeline (art_pipeline_v1 §4–5: chroma-key → grid-snap → bottom-align → quantise to `palette.gpl` → pack), never drawn as rectangles in code. The procedural generator is for ground tiles and placeholders only.
+- Rule going forward: before showing any sprite to the user, put it side by side with the reference at the same zoom and ask "would this sit in the reference sheet?" — if not, don't ship it to the audit.
+
+### [P2 Character creation — round 2] — 2026-10-12
+- Correction: "better than the previous sprites", but (1) the standing pose appears twice per row — one is enough; (2) in the side views the walk frames do not swap legs: the same leg stays in front, so the stride never visibly changes.
+- Rule going forward: sheet contract is **3 frames per row — [stride, idle, opposite stride]** (96×192). The animation plays 0,1,2,1; the sheet never stores a duplicate frame. Matches the user's reference sheets.
+- Rule going forward: a walk cycle's two stride frames must be visibly different; in profile the near and far leg must swap. The import pipeline measures the two strides per row and, if they are near-identical, synthesises the opposite stride (mirror the leg band about the hips) rather than shipping a stride that does not alternate. Generation prompts spell out which leg is forward in each cell.
+
+### [P2 Character creation — approved] — 2026-10-12
+- Decision: round 3 approved ("yes looks better"). Player bases locked: `_raw/characters/player_m.png`, `player_f.png`; sheet contract 96×192 [stride, idle, opposite].
+- Mobile smoke: sync OK, not booted (T-018).
+
+### [P3 M0 minimal loop — approved] — 2026-10-12
+- Decision: approved ("go for P4"). No corrections raised.
+- Mobile smoke: joystick + A verified on a phone viewport (stepped loop; pane hidden); sync OK, not booted (T-018).
+
+### [P4 Hotel — approved] — 2026-10-12
+- Decision: approved ("proceed"). No corrections raised.
+- Mobile smoke: unchanged since P3 (no new input surface); sync OK, not booted (T-018).
+
+### [P5 PG Hunt — round 1] — 2026-10-12
+- Decisions: Shanthamma's voice approved as drafted (T-025); ADR-97 food drain (−1 per 6 game minutes) confirmed over the profile doc; HiveNest ₹62,000 retune confirmed.
+- Correction 1: the walking crowd was the old code-drawn rig — "not according to what we discussed, their art style is different". Static NPCs and the player were fine.
+- Rule going forward: **every character on screen — player, named NPC, walking crowd — comes through the generated-sprite pipeline.** No rig or tinted placeholder ships to an audit (extends ADR-98 to the crowd).
+- Correction 2: in the generated lane the lamppost did not cover the player walking behind it; the player walked over ground objects and static NPCs; some road was blocked for no visible reason; at the blue gate the player's feet went up onto the gate instead of stopping at its bottom edge.
+- Rule going forward: **collision follows the art, at pixel precision, where things meet the ground** — gate and wall bottoms, pole bases, bins, cart wheels, table legs, scooters, trunks. Air is never blocked (no blocking a canopy or the space above a pole); roads and pavements are open unless something visibly stands on them.
+- Rule going forward: **anything that stands up in front of a character behind it is an occluder** — lamp, poles, canopies, gate pillars, carts, counters — a transparent cut-out of the render depth-sorted by the line where it meets the ground. Low foliage at the edge of a path is an occluder, not a wall.
+- Rule going forward: **people are solid.** NPCs and the crowd have feet bodies the player cannot walk through.
+- Rule going forward: before showing a generated map, render the debug preview (blocks + occluders over the darkened map) and walk every route in the browser — road, lane, both pavements, every shop front, every door.
+- Correction 3: inside the PG room the player was tiny next to the table and chair, and the whole background looked enlarged.
+- Rule going forward: **interiors are imported at the characters' scale** — a cot about 2 tiles, a chair under 1 tile, art pixels close to sprite pixels. A room smaller than the screen sits centred on black, like Pokémon LeafGreen. Specs are authored in source pixels so the scale is one number (`cols`/`rows`).
+- Mobile smoke: joystick moves the player in the lane on a phone viewport; sync OK, not booted (T-018).
+
+### [P5 PG Hunt — approved] — 2026-10-12
+- Decision: round-1 fixes approved ("approved, go for P6").
+- Request before P6: rebuild the opening title screen after a reference screenshot (a fan-made pixel title: big blocky logo top-centre, living landscape, short menu with a sprite cursor), "in our native style", with motion and warmth — "a cityscape with moving trees and cars along with actions to proceed".
+- Rule going forward: a reference image from the user is a **style and layout reference only** — nothing is copied from it (no characters, lettering or composition details); everything is generated in our own Bengaluru context.
+- Rule going forward: the title screen is the game's first promise — warm (golden hour), alive (traffic, metro, clouds, birds, falling petals, the newcomer walking in) and still fully legible with reduced motion (everything shown, nothing moving).
+
+### [Idle breathing — round 1] — 2026-10-12
+- Correction: "the whole body is moving up and down" — the whole-sprite 1px offset (ADR-106) lifted the feet off the ground; the character floated.
+- Rule going forward: **Breathing = upper body only, 1px DOWN at the waistline, feet planted, baked frames, never whole-sprite offset.** Head dips first, then head+torso (overlapping action); never shift up (it would open a gap at the waist).
+- Rule going forward: breath lines (`head_y`, `waist_y`) are per character and direction in `_raw/characters/breath.json`, proposed by detection + eye and approved by the user before any batch bake.
+
+### [Breathing parked + playground direction] — 2026-10-12
+- Decision: breathing switched OFF for now ("still the whole body is moving… switch it off and proceed; we can come back to this"). `CORE_BEHAVIOURS` is empty; the baked-frame pipeline (ADR-107) stays for later (T-029).
+- Rule going forward: seated characters (on a chair, bench) never breathe — `breathing: false` for any sitting pose when breathing returns.
+- Direction for the Test Playground (during the build): keep it simple — no wall of properties; a short read-only summary and the main actions, input fields only on request (closed "Edit…" folds); light mode by default with a dark toggle; left and right panel widths draggable; a phone-in-landscape simulation with thumbs and controls as its own item in the left panel, its settings on the right.
+- Request recorded for the next task: replace the demo airport (the user's early rudimentary version) with a brand-new airport in the current generated style, related to the next scenes — keep the luggage carousel and make it move with luggage on it; replace every placeholder airport character with generated sprites (T-031).
+
+### [Airport rebuild — built] — 2026-10-13
+- Request (user): "remove this one and make something relatable to the next scenes… keep the carousel, make the carousel move with the luggage moving on top… replace the rudimentary sprites in the airport scene."
+- Built: generated arrivals hall + kerb (`kempegowda_arrivals`, same pipeline and rules as the lane: pixel collision at ground lines, occluders, people solid), moving luggage carousel (`beh_carousel`), all six airport placeholders replaced with generated sheets; the old reference-project tilesets of unknown provenance are deleted.
+- Rule going forward: when a generated render draws a doorway shut, open it with a reproducible spec `patch` (copy part of the same render), never by hand-painting the raw.
+- Mobile smoke: joystick drives the player in the airport inside the playground's iPhone 15 frame. Finding from the simulation: at a real iPhone size the HUD + quest panel cover about a third of the screen (T-024).
+
+### [Airport, Test Playground, title screen — approved] — 2026-10-13
+- Decision: "approved, go for P6" — covers the new airport (ADR-109), the Test Playground (ADR-104/105/108) and the living title screen (ADR-101/102). ADR-101 (title keeps its own 64-colour palette) stands — not superseded.
+- Breathing stays parked (T-029).
+
+### [P6 style board + mocks — approved] — 2026-10-13
+- Brief (user): a full UI style board for P6 — phone, fullscreen map, HUD, menus, font — with 4 reference images (dark symbolic map; notched phone with pill lists; olive dot-matrix LCD app grid; colour party plates). Mocks approved: "OK, start P6a".
+- Decisions: ADR-113 (no minimap, fullscreen map only — the brief's "ADR-65") and ADR-114 (style board, Pixelify Sans, separate UI palette — the brief's "ADR-66"); renumbered because 65/66 were taken.
+- Correction (user, on image numbering): "use them as per requirement, think like an art director and take the best call."
+- Rule going forward: **when the user hands over art direction, decide, show it in the mock, and log the call in the ADR** — don't send the choice back as a question. Ask only where the brief conflicts with a logged decision.
+- Rule going forward: **reference images are style references only** — never trace their artwork, icons, wallpaper or real app names; draw our own in that style (and no real brands — `NAMMA NET`, `NAMMA PAY` are parodies).
+- Rule going forward: **one UI family**: map-style label cards (grey 2px border, open right edge, dotted trail), phone-style pills, block rows for every meter/slider; every piece is a UI-kit molecule with default / focus / pressed / disabled / locked.
+- Rule going forward: **UI text is the bitmap font, never browser-rendered** — Pixelify Sans sampled on its own grid, integer scales only, pixel bold; any glyph that reads wrong at 1× is hand-drawn in `scripts/import-font.mjs` OVERRIDES (so far ₹ 5 Z B ( ) , and UI marks), and every player-visible string must be drawable (validator).
+- Rule going forward: **touch zones ≥ 44 game px (≈ 48pt on an iPhone 15)** even when the drawing is smaller; nothing tappable in the bottom 19px (home indicator); motion stepped, reduced motion collapses it.
+- Rule going forward: no raw hex — UI colours come from `ui-palette.gpl` tokens (`phone.*`, `hud.*`, `map.*`), translucency via `rgba(token, a)`.
+
+### [P6a phone + font — approved] — 2026-10-13
+- Decision: "approved, go for P6b" — covers the bitmap font (incl. the hand-drawn ₹ 5 Z B ( ) , and keeping Pixelify's H tooth), the UI palette, the kit molecules and PhoneScene. No corrections raised.
+- Mobile smoke: phone opens by button tap and keys inside the playground's iPhone 15 frame; touch zones ≥ 48pt; dock clear of the home indicator; joystick + A hidden while open. Native: sync OK, not booted (T-018).
+
+### [P6b map — approved, then extended] — 2026-10-13
+- Decision: "approved, go for P6c" — the fullscreen symbolic map (ADR-115) stands.
+- Request (user, before P6c): make the map relatable to the real place — "if they know the Prashanth Extension area in real life they can feel what is there before they explore", legible routes only, and "the game area should be proportional to what the player sees in the map". Choices made by the user: OpenStreetMap data (ODbL, credited); map side first (Area view), pocket art unchanged; anchor to the real Prashanth Extension, keep the name Prashanth Layout.
+- Rule going forward: **every outdoor pocket has a real place**: `realworld.area` + an OSM extract (`scripts/fetch-osm-area.mjs`) + a pocket placement at character scale (1.2 m/tile) whose `tiles` equal its tilemap — the map box is always the true size of the walkable map.
+- Rule going forward: **new pockets (P7+) are generated to follow their real streets** from the start (the lane's direction and junctions match the OSM extract); the Prashanth pocket is re-laid only if the user asks.
+- Rule going forward: map data from OpenStreetMap only (never copied from Google Maps); "© OpenStreetMap contributors" visible wherever OSM data is drawn.
+- Also: Test Playground moved to its own port 6175; mock boards live in the repo under `docs/mocks/` and run on 6176 (ADR-116).
+
+### [Map Area view — approved] — 2026-10-13, confirmed 2026-10-16
+- Decision: "Area view approved, start P6c" (user, 2026-10-16) — the OpenStreetMap Area view (ADR-117) stands with no corrections; P6c (T-034) begins.
+
+### [P6c HUD — approved] — 2026-10-16
+- Decision: "approved, start P6d" — the in-canvas HUD, dialogue card, touch controls and rotate panel (ADR-118) stand with no corrections; the art-director calls listed in ADR-118 (4 s / 5 s / 3 s holds, wallet after payment only, meter thresholds, tiers dropped from the always-on HUD) are confirmed.
+- Rule going forward: **nothing the player sees in play is DOM** — HUD, prompts, toasts, dialogue, touch controls and menus are Phaser scenes in the bitmap font; the React shell is the canvas and the host's back pill only.
+- Rule going forward: **a scene that subscribes to the store or the event bus unsubscribes on SHUTDOWN and DESTROY** (the host remounts the game; a leaked listener bakes into a dead renderer).
+
+### [P6d menus — approved] — 2026-10-16
+- Decision: "approved, start P7" — the pause/settings/save/load menus, gamepad support and Larger text (ADR-119) stand with no corrections; the art-director calls in ADR-119 (clock plate as touch pause, pause autosaves, autosave slot read-only, dialogue card unscaled for now) are confirmed. P6 is complete.
+- Rule going forward: **a new setting is an atom plus a data row** (`settings.defaults.json` + `data/menus/settings.json`); the validator refuses one without the other.
+- Rule going forward: **every scene that can be driven by keys is driven by the pad too** through `attachGamepad` — no scene reads a gamepad on its own.
+
+### [P7 references — user direction] — 2026-10-16
+- Direction (user): "You don't have to be very accurate. Just the architecture of the building matching will be enough. Entry gates or exit gates or the guards sitting position, those need not be accurate. Just from the Google images or Google Maps, whatever you can find, you can use them. And you can assume things based on your instinct and general knowledge of Bangalore context."
+- Rule going forward: **for new pockets, reference photos may come from Google Maps place photos and user photospheres, look-only** — architecture and materials are matched, never traced, copied or saved into the repo; gate layout, guard cabins, auto stands and shuttle bays are drawn from general Bangalore knowledge. The user need not supply photos (relaxes ADR-30's "ask the user" to "ask, or look it up"). Street geometry still comes from OpenStreetMap only.
+- Spot taken (my call, told to the user): the office is the International Tech Park Bengaluru main gate on ITPL Main Road, beside the Pattandur Agrahara metro station (under construction in Act 1, as the story says) and Park Square Mall.
+
+### [P7 Monday / office — approved] — 2026-10-16
+- Decision: "approved, start P8" — the ITPL gate pocket, the Monday systems and script, the workday card, the autos and the Act 1 cast (ADR-120/121) stand with no corrections; the art-director calls in ADR-121 (6-second card, sky in the world palette, Prakash at the cabin, 40-minute walk, shared driver sheet) are confirmed.
+- Rule going forward: **new pockets follow the P7 recipe** (MEMORY.md): spot chosen and logged → OSM extract → one render matched to look-only reference photos → px spec with a debug preview → routes probed in the browser → audit. One session per pocket.
+
+### [P8 Ambedkar Nagar hill flat — approved] — 2026-10-16
+- Decision: "approved, start P9" — the hill lane and flat pockets, the Reels signal test, Aunty's haggle, furniture by flag, the salary countdown and bus 335-E (ADR-122) stand with no corrections; the art-director calls listed in ADR-122 (three terraces, Reels as the meter, 0/1/2 bars, 4 s give-up, Aunty warm, ₹42,000, the balcony house kept for Kavya) are confirmed.
+- Rule going forward: **a story beat that spans two places is two scene components or one whose `district` is where its cast stands** (1.5's cast rides the bus, so `act1_bus_cubbon` is a `bus_interior` scene entered from the street) — the validator holds a scene's cast to its district.
+
+### [P9 Cubbon Park + Ananya + City Moments — approved] — 2026-10-16
+- Decision: "push and next start" — the bus on an interval, the ride, the Camera and City Moments, Ananya and the relationship word, the Notes wishlist, the Cubbon and bus pockets (ADR-123/124) stand with no corrections; the art-director calls listed in ADR-123/124 (90 s / 20 s / 25 s, the timer plate, the Note not a pin, "booked till Tuesday", one compressed pocket, standing passengers) are confirmed. Pushed as 6fdcb5b. Act 1 is complete.
+- Rule going forward: **Acts 2–4 are built scene by scene from STUBS the user has co-authored** (SCENE_TEMPLATE §E): Claude drafts the stub's beats, cast, economy and acceptance from the story script, the user edits the words and the numbers, then the build runs the usual recipe (pocket → quest → dialogue → validate → browser → audit).
+
+### [Render model — user's layering brief, Part A started] — 2026-10-16
+- Direction (user): the SOP in the brief — seven layers in manifest order, a Y-sort band with feet-Y depth and bottom-centre origins, overhead props above everyone, buildings = walls below + roof above + full collision, feet-box physics, validator rules A3, tests A4, every map re-audited by the A5 walk, Playground Locations (Part B). Plan approved "ok"; the ADR-92/99/100/109 one-render pipeline is kept and extended (ADR-125).
+- Rule going forward: **Standing objects → sorted band (feetY depth). Overhead → props_above. Buildings = walls below + roof above + full collision. Feet-box physics. Never flat-layer a tall prop.** In a generated map that means: every pole, tree, counter, bench, planter, cart and vehicle is a `sorted` cut-out with a `footprint`; wires, awnings, canopies and gate headers are `above` cut-outs; walls are `buildings` rects; the spec's debug preview must show all three before the browser walk.
+- A5 re-audit — **kempegowda_arrivals (airport), migrated 2026-10-16**: 30 sorted cut-outs with footprints (desk, podium, gate posts, trolleys, 10 pots, 2 benches, kiosk, chai stall + bench, shelter + plant, 3 bougainvillea, 5 bollards), 1 above (gate header), 4 buildings (hall wall, glass wall ×2, canopy band), 7 prop blocks (carousel island, posts, road). Scripted walk: behind / in front of bollard_3, bougainvillea_2, pot_bench_1 and the trolleys — depth order correct both ways; under the gate header — header depth 10 > player; top wall, glass wall from both sides, canopy band — the feet box stops at the rect edge; the gate opening is the only way out (walked through onto the mat); feet box 20×12 at (6, 35). Validator: zero errors. **Awaiting the user's audit before the other nine maps.**
+- Found by the new reachability rule and fixed (not redrawn): the hill's electricity pole was blocked full-height and sealed the upper lane (now its base only); the ITPL autos and tea cart were blocked to their roofs and left a 12 px pavement (now their ground contact only). Both maps still await their own A5 migration.
+
+### [Render model — airport approved] — 2026-10-16
+- Decision: "approved, migrate the remaining maps" — ADR-125 and the airport migration stand with no corrections; the three art-director calls (one-render maps kept, pixel-rect collision on generated maps, overhead images in the sorted object layer at the props_above depth) are confirmed.
+
+### [Render model — A5 re-audit of the remaining nine maps] — 2026-10-16
+Every map re-authored into `buildings` / `sorted` (cut-outs with footprints) / `above`, `sop: true`, re-imported, and walked by the scripted A5 (behind and in front of every cut-out with a footprint, every `above` at the overhead depth, every building rect approached from each free side with the feet box, feet box read back). Validator zero errors on all ten.
+| Map | buildings | sorted cut-outs | above | A5 result |
+|---|---|---|---|---|
+| whitefield_hotel | 9 (walls, partition, bathroom-door wall) | 8 (counter, cooler, chairs, plant, bed, side table, wardrobe, desk) | — | 7 ok, 1 unreachable both sides (wardrobe against the wall), walls 10 ok |
+| shanthamma_pg | 7 | 9 (3 cots, almirah, desk, chair, buckets, purifier stand, shoe rack) | — | 4 ok, 5 wall-backed (skipped), walls 6 ok |
+| hill_flat | 8 | 4 (sink counter, hob counter, low counter, cylinder) | 1 (ceiling fan) | 4 ok, fan above, walls 10 ok |
+| bus_interior | 4 (window bands, cabin, rear door) | 3 (two poles, conductor box) | — | 2 ok, 1 skipped, walls 1 ok (the rest unreachable by design) |
+| prashanth_layout | 6 (both house rows) | 22 (3 poles, lamp, bin, dog, cart, neem, banana, corner tree, 2 pillars, shrub, 2 tables, drum, 2 scooters, 2 pots, corner plant, stand board) | — (the lane's cables stay painted: a clean key was not achievable; T-051) | 22 ok, walls 9 ok |
+| office_gate | 6 (compound wall ×2, cabin, office block ×3) | 21 (pillars, barrier, bollards, planters, autos, cart, umbrella, trees, shelter bench/posts, bins) | 2 (shelter roof, canopy) | 18 ok, 3 skipped, above 2, walls 8 ok |
+| ambedkar_nagar_hill | 10 (every house and wall) | 6 (pole, transformer, chai table, stools, shop display, pot) | 2 (tin awning, chai tarp) — slope cables stay painted (T-051) | 3 ok, 3 skipped (lane-backed), above 2, walls 14 ok |
+| cubbon_park | 5 (library, court building, shop row, wall ×2) | 20 (2 trees with trunk footprints, bandstand + plinth, 4 lamps, 4 benches, cycle shed, ice-cream cart, bin, tap, sign, 4 gate pillars) | — | 20 ok, walls 8 ok |
+| whitefield_street (tile-built) | buildings tile layer + collision stencil | 22 placed objects (trees, lamps, benches, bins, planters, fence) | awnings as `props_above` tiles | storefront wall stops the feet box at its edge; behind / in front of a tree correct; `tall` and `door` tile properties in the tileset |
+| kempegowda_arrivals | 4 | 30 | 1 | 30 ok, above 1, walls 6 ok (re-run) |
+- Known limits logged: thin poles against the lane's road key with a fringe of road pixels (bgShare 0.03–0.06); cables on Prashanth and the hill remain painted on the ground (T-051: hand-paint cable overlays, or re-render with cables off and add them as sprites).
+
+### [Layering brief — Part A (all maps) + Part B (Playground Locations) approved] — 2026-10-16
+- Decision: "approved, push and start P10" — the render model on all ten maps and the Playground Locations stand with no corrections; the logged limits (cables painted, pole fringes — T-051) are accepted for now. Pushed.
+
+### [P10 2.1 "Credited" — approved] — 2026-10-16
+- Decision: "approved, push and start 2.2" — paydays every 30 nights, Noor Motors on ITPL Main Road, the outright haggle and the EMI, fuel and the bunk, Maps RIDE with the contextual gauge and the parked scooter (ADR-126) stand with no corrections; the art-director calls listed in ADR-126 (Sameer's chat + toast as the tutorial, no make name, rides through Maps only, the showroom west of Pattandur Agrahara) are confirmed. Pushed.
+- Rule going forward: **a bought thing that changes how you move (scooter, metro card) lives in Maps as a travel mode with its own cost line, never as a steerable sprite or a per-pocket exit** — one mechanism, every pocket gains it for free.
+
+### [P11 2.2 "Metro Opens" + 2.2b "First Train" — built, awaiting audit] — 2026-10-16
+- Built from the user's "ok, take the defaults" on the 2.2 draft (ADR-127). A5 re-audit of the two new maps, both on the render model, validator zero errors:
+| Map | buildings | sorted cut-outs | above | A5 result |
+|---|---|---|---|---|
+| metro_station (24×16, second render — the first drew a back wall sealing the ticket hall; rule 7 caught it) | 1 (train band) | 16 (4 gates, 2 railings, pillar, counter, 2 token machines, bench, bins, 2 pots, 2 stair rails) | — | behind / in front of the pillar correct both ways (player hidden behind it at feet y 122, drawn over it at 175); gate lanes walkable, platform strip boards the train; stairs down land on the street's station mouth |
+| metro_interior (12×8, the bus pattern) | 2 (window-and-seat band, door wall) | 3 (poles) | — | boarding spawn moved off the door zone (the "doors are shut" toast fired on arrival at first); seat_zone fires the ajji on a step up-left from the door; the 30 s ride ends through coach_door into Cubbon Park's metro_drop |
+- Scripted flow (playground, one clock): kid → "find the man in the yellow vest" → companion steps after the player → guard handover sets lost_kid_returned, +1 rep, the kid leaves the concourse; token uncle → token_jam_fixed; platform → coach (first_metro_ride) → ride timer "Cubbon Park · 0:28" → Cubbon Park (metro_ridden, act2_metro_done, metro_tier_1, +2 quest rep); Maps from the street with Cubbon Park visited: METRO · ₹45, METRO · ₹0 with metro_free_day; the street draws the station mouth, finished pillar, bunting, flagpole, pots, barriers and the three opening-day citizens with the barricade and caged pillar gone.
+- Art-director calls to confirm or overturn: the world palette has no purple, so the "Purple Line" quantises blue-violet in world art while Maps keeps its purple (adding purples to palette.gpl would re-quantise approved art — not done); the ticket hall is open at both ends of the gate row (the render's layout; the guard's "don't jump the flap" line covers it); the ajji's check also fires as a zone so the ride is never silent; the kid vanishes once returned rather than walking off.
+
+### [P11 2.2 "Metro Opens" + 2.2b "First Train" — approved] — 2026-10-16
+- Decision: "approved, push and start step 2" — the opening event, the station mouth and opening-day street, the concourse challenges, the coach ride with the seat check, Maps METRO fast travel and metro_tier_1 (ADR-127) stand with no corrections; the art-director calls listed under the P11 build entry (blue-violet line in world art, open gate row, zone-fired seat check, the kid vanishing) are confirmed. Pushed. The Playground Movie Mode plan (HANDOFF §9) is approved; step 2 (bot + vocabulary + controls on the airport scene only) starts.
+- Rule going forward: **a world event is a behaviour on the trigger (a sleep, a payday) that sets flags, and everything it changes in the world is data keyed on those flags** — `unlessFlag` / `requiresFlag` on objects, NPCs, exits and district unlocks — never a scene-specific branch.
+
+### [Movie Mode step 2 — bot + vocabulary + controls on the airport, built, awaiting audit] — 2026-10-16
+- Built from the approved plan (ADR-128): `src/playground/movie/*`, `MovieBar.tsx`, `src/data/walkthroughs/act0_arrivals.json` (hand-authored for step 2; the generator is step 3), `validateWalkthroughs`, `POST /__pg/reports`, the dist check, 12 tests. The airport scene plays itself through the real input path: 14 steps green — chai bought (₹20 through `spend()`), the tout refused, the lanyard corner walked through (`seen_hivr_lanyard`), the Vayu Vajra taken (₹250), landed on the Whitefield street with `act0_arrived`; ~32 s of game time at 1×; a run report lands in `playground/reports/`.
+- What the airport taught the bot (each a rule in the code now): the walk grid must come from the player's **colliders**, not every static body — trigger and exit zones are physics zones and would wall off their own targets; the crowd collider is a plain array; a route's first waypoint is the start cell (a citizen standing on the player dilates their own cell shut, and a diagonal first leg walked straight into the helper NPC); zone goals aim 6 px inside the zone (a one-pixel overlap on the grid can be no overlap for the body); a fired exit is the walk's arrival (the scene changes under the bot); three replans before "stuck" (the crowd wanders); `play()` queues behind a stopping run's report.
+- Known limits for the audit: playing **from a beat** sets earlier beats' flags but not earlier quest objectives, so a scene whose exit needs its quest complete (the airport's street unlock) is refused from F5 — the report says `timeout:scene_loaded` rather than "locked door"; the airport's route to the lanyard corner and the exit goes round the carousel's left end (the grid's shortest free path), ~10 s each at 1×; `phone app/tap` is step 3; the title card's bars cover the HUD's top plates for 1.5 s by design.
+
+### [Movie Mode step 2 — approved] — 2026-10-16
+- Decision: "approved, push and start step 3" — the bot, the vocabulary, the controller bar and the report on the airport scene (ADR-128) stand with no corrections; the calls listed under the step-2 entry (collider grid, start-cell waypoint, 6 px zone inset, exit = arrival, three replans) are confirmed. Pushed. Step 3 starts: the walkthrough generator from `beats[]` + quests, walkthroughs for every built scene, the full movie, the run report.
+- Rule going forward: **the bot plays the real game or says so** — a step the generator cannot resolve ships as `unresolved` (yellow), a hand-set flag ships as `set_flag` (yellow, logged), and a broken step is fixed in the game or in the walkthrough data, never by silencing the report.
+
+### [Movie Mode step 3 — generator + every built scene + the full movie, built, awaiting audit] — 2026-10-17
+- `scripts/generate-walkthroughs.ts` derives one walkthrough per built scene from the scene's quests (objectives in order), its district (NPCs, triggers, exits), the dialogue graphs, the negotiation definitions, the phone's reels and photo spots, read against the Playground's prerequisite state (earlier scenes' `save_flags` + the new `entry.after` beats). Every objective becomes real-input steps — walk, talk, choose (by node id; a negotiation accepted at the asking total when affordable), advance, sleep, phone app / tap / close — or an `unresolved` step naming what could not be derived. It never emits `set_flag`. Twelve walkthroughs, one `unresolved` left (optional): the scooter ride through Maps (RIDE needs a pointer path the bot does not have yet).
+- **The full movie passes: 12 of 12 scenes green, 0 failed, 0 cheated, ~5 minutes of game time at 1×**, through the real input path: the airport, the hotel's three beats and a night, the PG hunt with Shanthamma's negotiation and Amma's call, the office Monday (ID card, Divya, the workday card), Ravi, the PG exit with furniture, notice and seven nights, the hill (three rooms by Reels, the flat haggle, furniture, the first night), the bus to town, Cubbon Park (five City Moments by Camera, Ananya's walk, the guitar wishlist, the bus home, Amma's news, the last Act 1 sleep), the scooter (EMI, petrol), the metro opening (lost kid, token jam, boarding, the ride) and the ride itself.
+- **Game bugs the bot found and fixed** (real play was affected, not just the movie): (1) the PG notice countdown lived only on the lane district, never on the PG interior where you sleep — seven nights could never pass, so the hill could never unlock (`pgNoticeTimer` now on `shanthamma_pg`); (2) a bed reached while a phone call is up (the hotel's room and bed zones overlap) was spent and the entry watcher latched "inside" — standing on the bed afterwards never fired it (`Triggers`/`EntryWatcher`: a declined trigger stays armed); (3) beds fired once per visit — the second night needed a trip outside (`once: false` on sleep triggers); (4) Cubbon's arrival zone set `cubbon_arrived` and `city_moments_taught` together with one `unlessFlag`, so a state that already knew the park never taught the camera (two triggers, one flag each); (5) `auto_fare_paid` is spent on boarding but was carried in `act1_first_day.save_flags`, so every later lane scene had an armed auto stand that whisked the player to the office when they walked past it (dropped from save_flags; `entry.after` F1 only).
+- Bot rules learned from the eleven scenes (all in code): a 2 px planning grid with the real feet box (an 8 px grid sealed the shop pavement and the gap between parked autos); string-pulled routes with line-following steering (a corridor beside an exit zone is as wide as the body); exits and bed/door zones are walls unless targeted, at a margin that includes the steering slack, and the plan falls back to "without them" when that seals the way; the crowd is planned around first and through second, and a walk sidesteps only onto clear ground, with time added per replan; zone goals prefer a cell whose centre is inside and not claimed by a sibling zone (photo spots and signal rooms read "first zone wins"); a press-in to the nearest interior point after arrival; a conversation that opens at the target is the next step's; an arrival conversation counts as "scene loaded"; interact waits out the 80 ms re-enable and presses again once; sleeping again means stepping fully off the bed first (the watcher needs a real exit), through the planner; the pause menu that the hidden tab opens is closed inside every wait.
+- Known limits for the audit: `wait_for scene_loaded` and the timed rides make the metro and bus scenes ~40 s each; the Ananya walk's library stop and the hill lane cost a few sidesteps each run (the crowd); the optional scooter ride stays unresolved (needs Maps through the pointer); playing from a beat still does not complete earlier quest objectives.
+
+### [Movie Mode steps 3–4 — audits deferred by the user] — 2026-10-17
+- Decision: "continue with the things remaining to be built … I'll audit later" — the user keeps the step-3 audit open and asks the build to go on. Steps 3 and 4 stay **awaiting audit**, committed locally and **not pushed**; nothing is pushed until the user approves. Logged so the gate is visible, not skipped (CLAUDE.md §0.1).
+- Rule going forward: **a deferred audit stacks, it does not vanish** — every phase built while an audit is open is listed in HANDOFF §1 and the final message as "awaiting audit", and "approved, go for X" approves the whole stack.
+
+### [Movie Mode step 4 — headless `pnpm movie`, determinism, the bot haggles, built, awaiting audit] — 2026-10-17
+- `pnpm movie` (ADR-130): Vite on 6177, playground.html in headless Chromium (`playwright-core` 1.63.0, the browser build already in the Playwright cache), one stepped clock driven from Node; prints one line per scene and exits 1 on a red scene. Result: **12 of 12 green, 0 failed, 0 cheated, ~290 s of game time in ~90 s wall time.** `--twice`: two runs in fresh pages gave an **identical 243-step trace and identical per-scene game times** (tolerance 0 ms).
+- The bot haggles: `planHaggle` searches the counters the rules allow with the game's own arithmetic (`src/systems/negotiationMath.ts`, now shared by `Negotiation`) — Shanthamma ₹18,000 → ₹14,300 (Monday, green-gate PG, Amma), the hill flat ₹25,000 → ₹19,900; the PG hunt now ends with ₹20,640 (was ₹16,940), the hill with ₹10,100 (was ₹3,300). The scooter is still bought on EMI (the shortest route in Noor's dialogue), so its cash haggle is not exercised.
+- Per-scene seeds (`sceneSeed`): a scene now plays the same from ▶ PLAY and ▶ from here (Cubbon 66.4 s both ways); the scenes after a "from here" start can differ by ~0.1 s from the full movie (state carried from the scene before).
+- Known limits for the audit: two runs inside **one** page still drift (game clock and leftover state) — the determinism check uses a fresh page per run; `--scene` plays from that scene on (like ▶ from here), there is no "only this scene"; the bot's haggle assumes no local reputation (the game may give a little more).
+
+### [P12 2.3 "Guitar" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "take the defaults, build 2.3" — every open question in the draft took its default (new Church Street pocket at MG Road station + a shop interior; "Tuesday" = the first sleep after the metro ride; ₹6,500 flat, chart free; a new RhythmScene, 8 bars, 70% to pass; G · C · D; one lesson a night; −10 stress a lesson, −5 a free strum; the clip moves Ananya to warm; 2.3b decided with 2.6; the owner keeps his label, the busker plays an unnamed three-chord song). ADR-131.
+- Built: `church_street` (36×24, first render; shop row, café tables, book stands, mural, lamps/trees/benches as sorted cut-outs, the MG Road stair canopy solid with walkable stairs, a bus shelter + the 335-E home; OSM area fetched) and `guitar_shop` (12×8 so the owner behind his counter is in talking range; first render); `npc_church_busker` and `guitar_props` (first try each); `guitarNights`; `knownIf` (Maps METRO to Church Street before the first visit); the purchase through `spend()` + the chord chart; the flat's guitar (object + `rhythm` trigger); `MINIGAMES.guitar` + `systems/rhythm.ts` + `RhythmScene`; the clip conversation + Ananya's replies + a Photos entry; notes READY → chords; the owner leaves Cubbon's pavement on `guitar_in_stock`.
+- Verified: in the browser pane (one clock) — Church Street with the busker and his case, the shop with the owner and the TALK prompt, the lane mid-song (CLEAN, 5/16, "10 of 16 to learn it" after the busker's tip), the flat with the guitar on its stand and "Lesson 1 · G — learned."; headless — `pnpm movie --twice`: **13 of 13 green, identical 277-step trace and scene times**; 2.3 alone: 34 steps, all three lessons learned through real E presses, wallet ₹28,495 (₹60 from Ananya, −₹6,500 guitar, −₹10 busker, −₹35 + −₹20 buses — the ledger matches). 454 tests, validators, typecheck, `pnpm build` green.
+- Calls to confirm or overturn: the shop at 12×8 (smaller than other interiors so the counter stays in reach); the long name "Guitar shop, Church Street" shortened to "Guitar shop" (it collided with the wallet plate); a failed lesson still uses the night (the draft's words); the lane card is plain (title, chords, the lane, STRUM) — no guitar picture yet; the guitar on the player's back is not drawn; the busker's tip lowers G to 60%.
+- Generator/bot rules added: a `rhythm` step (E on the intro, E a frame before each note, E on the result); the generator resolves lesson flags through `rhythm` triggers, earlier lessons first, a sleep between sessions; a goto into a zone that opens the lane counts as arrival.
+
+### [User audit — fans on the floor] — 2026-10-17
+- Correction (user): "in few of the scenes, which is inside a room, I saw a fan that is on the ground … not required. Just remove the fan." A ceiling fan drawn in a straight-down render reads as an object lying on the floor.
+- Fixed: the fan is painted out of the three renders that had one — `shanthamma_pg.png`, `whitefield_hotel.png` (guest room), `hill_flat.png` — by patching each with a matched, light-corrected piece of the same floor (the hotel's checker aligned to its tile period), feathered at the edges; the hill flat's `above: fan` cut-out is gone; the three maps re-imported. The PG's chair/bucket cut-outs key a little differently now (their floor sample used to sit on a fan blade).
+- Rule going forward: **no ceiling fans (or anything else that hangs from a ceiling) in top-down interior renders** — every interior prompt says "no ceiling fan, nothing hanging from the ceiling"; if a render draws one anyway, paint it out before import. Wall-mounted things (tube lights, calendars, AC units on the wall band) are fine.
+
+### [P13 2.4 "IKEA Run" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "Take the defaults." — Hyggeland; a Majestic pocket with the lost uncle; 3 boxes comfortable, a 4th allowed; table + chairs ₹4,999 (2) · bookshelf ₹2,499 (2) · lamp ₹999 (1) · rug ₹1,499 (1) · shoe rack ₹699 (1), no fridge; the table always folds; Sameer cancels; a three-step dialogue manual; the first sleep after the guitar; the ₹10/box luggage ticket; no flat-pack on the scooter. ADR-132.
+- Built: `majestic_interchange` and `hyggeland` (first renders, no ceiling fans per the fan rule), `npc_majestic_uncle` + `npc_hygge_staff` + `ikea_props` (first try each), the two coach districts on the existing coach map, `carry` + BOXES plate + `farePerBox`, choice locks, `requiresFlags` + live object sync, `sleepEvents`, the dialogues (uncle, staff, café, three tags, aisle, tills, aunty with a four-box version, the manual with table / no-table branches), Sameer's four messages (₹699 back by UPI for the rack), `q_act2_ikea`.
+- Verified: browser pane (one clock) — Majestic with the uncle's choices, Hyggeland with "BOXES 2/3" and −₹4,999, the flat right after assembly (the boxes gone, the folded table placed live); the ledger: −₹4,999 table, −₹20 bag, −₹40 hill bus (₹20 + 2 boxes × ₹10). Headless — `pnpm movie --twice`: **14 of 14 green, identical 315-step trace**. 463 tests, validators, typecheck, `pnpm build` green.
+- Found on the way (fixed): the ride home first landed on `station_mouth`, beside the station-stairs exit — the bot's walk to the hill bus clipped it and went back up into the station; the coach now lands where METRO arrivals land (`player_spawn`). The bot's `choose` failed on a dialogue that opens with choice-less lines (the manual's "Step 1") — `choose` now steps through them. Placed objects only refreshed on entering a district — they now follow flags live.
+- Calls to confirm or overturn: the coaches reuse the Purple Line coach art (no green stripe); each box is paid at the aisle as you scan it (the till only checks you out); the BOXES plate shares the bus icon; Sameer's "Typical." (no rack) is not in — he only writes if you brought it; the staff, café and till share one sprite sheet; the aunty wears the crowd's homemaker sheet.
+
+### [User audit — the hill flat is off scale] — 2026-10-17
+- Correction (user, on the flat's screenshot): "this home is insanely off scale with the sprite and the furnitures." The flat had been imported at 24×16 tiles from its 1536×1024 render (P8), so the room came out twice too big: the front door ~90 px wide next to a 32 px player, the furniture props toy-sized on a huge floor.
+- Fixed: `hill_flat` re-imported at **12×8** (the bus / coach / guitar-shop scale; the door now ~34 px, the design-system 32×48 door). Every furniture spot re-laid on the 128-source-px tile grid (cot left wall, table-chair · shelf · guitar · drum · lamp along the window wall, rug and the 2.4 boxes mid-floor, the folded table and the Act 1 box in the bottom-left corner); the bed, guitar and assembly zones redrawn. Verified fully furnished in the browser; `pnpm movie` 14/14 (five scenes walk this room).
+- Checked the rest by the same test: hotel and PG room 10×7, guitar shop / bus / coaches 12×8 — in scale; the halls (Whitefield station, Majestic, Hyggeland) stay 24×16, their gates and lanes come out 40–50 px.
+- Rule going forward: **scale a room by its door** — import a generated room so its door comes out ≈32 px wide (the design-system door): rooms from a 1536×1024 render land at 10×7 or 12×8; only halls whose gates/lanes come out ≥ 32 px may be 24×16. Check the door width before the browser walk.
+
+### [Hill flat scale fix — approved] — 2026-10-17
+- Decision: "Yes, looking good now." — the 12×8 flat with the re-laid furniture stands. (Movie Mode 3–4, P12 and P13 remain awaiting audit until the user says so.)
+
+### [P14 2.5 "Ravi, 1 AM" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "take the defaults." — the Electro night = a power cut; Ravi's own message wakes you; ₹2,000 fixed; sit and give both allowed; leaving = silence; night rules and the night look everywhere; one line of Appa foreshadowing; Ravi's words as drafted. ADR-133.
+- Built: night rules (`systems/night.ts`), `nightLook` (core), `sleepEvents` `wakeAt`/`clear`, the after-midnight sleep fix, `minutes` effect, night autos (hill road ↔ office auto stand), the office crowd `onlyAt: day`, the guard's and Ravi's night dialogue, Ravi's two messages, `q_act2_ravi_1am`, validator checks for `onlyAt` / `sleepEvents`.
+- Verified: browser pane — the office gate at 01:11 in moonlight blue, empty, Ravi at the shuttle shelter, the three choices; headless — `pnpm movie --twice` **15 of 15 green, identical 335-step trace**, every earlier scene's time unchanged (the night rules do not leak into the day); 2.5 alone: wake 00:50 → night auto ₹160 → Ravi → night auto ₹160 → sleep → `act2_ravi_done`. 471 tests, validators, typecheck, `pnpm build` green.
+- Found on the way (fixed): going to bed after midnight skipped a whole day (wake two mornings later) — `sleep()` now keeps the day before 07:00. The night look first multiplied by the warm `sky.night` (a brown dusk); it now uses the palette's one blue (`world.night`). A full-screen even dim reads as "normal" in a screenshot by eye — check a pixel value, not the look.
+- Calls to confirm or overturn: the bot takes the shortest path and LEAVES Ravi (the support paths are covered by tests, not by the movie); the night look is a flat tint (street lamps and lit windows are not brighter yet); Ravi stands by the bench (no sitting pose); the crowd is empty at night everywhere unless a district sets `nightCount`.
+
+### [P15 2.6 "The App" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "take the defaults" — the match is Tanvi (the logged rename; Priya stays the Act 4 ally), avoidable by NOPE on everyone, the app is "Jodi", the date at the Church Street café, no 2.3b fade-to-black, the notification lands while Ananya holds the phone, four equal answers → strained, repair later (act TBD). ADR-134.
+- Built: Jodi (data, rules, phone screen), `npc_tanvi` + four portraits (first try), the date, Ananya's Sunday branch, Tanvi's thread, the Hebbal reel, app `until`, contact `noteIf`, sleep events (install after Ravi's night; Jodi gone the night after it settles), `q_act2_the_app`.
+- **Real bugs the bot found in Maps (fixed; players hit them too):** (1) tapping Church Street picked the MG Road station ring drawn under it — a tap now prefers a place; (2) Maps showed "No way there from here yet" and no METRO for any place without a road route — so Church Street (2.3) could not be reached through Maps at all; METRO / RIDE now count as a way; (3) after any trip, the second open of the map in a place with an Area view crashed (stale images across MapScene's restart) and left it stuck on "opening" — `create()` now resets every cached object. My 2.3 check had started the scene on Church Street and never used Maps.
+- Verified: the Jodi screen in the pane (IT'S A JODI!, OPEN CHAT); headless — `pnpm movie --twice` **16 of 16 green, identical 363-step trace**; 2.6 alone plays Jodi by taps, the bus to Whitefield, METRO to Church Street by Maps, the date (₹480), METRO to Cubbon, the bandstand. 479 tests, validators, typecheck, build green.
+- Calls to confirm or overturn: "Jodi uninstalls itself after a week" is the next night in this build; the bot always matches (the NOPE-all path is covered by tests); the Jodi portraits are in colour on the LCD-green phone; Ananya meets you at her usual spot near the bandstand, not on it.
+- Rule going forward: **verify a new place the way a player reaches it** — through Maps, from where the previous scene ends — not only by starting the scene inside it.
+
+### [P16 2.7 "Breadcrumbs" — built, awaiting audit; Act 2 complete] — 2026-10-17
+- Decision before the build: the user picked 2.7 as "the next phase" (over jumping to Act 3 or Act 4), then "take the defaults." — four compressed days; the headlines as drafted, the director named; Sameer recovers; the guard's salute unexplained; AMR-07 a clue only; Deepa waits for Act 3; Amma's call ends Act 2; News as a tappable list. ADR-135.
+- Built: `sleepEvents.nights`, the News app, four Reels, Sameer's three states, the AMR-07 trigger + Divya's message, the guard's salute, Amma's call, `act2_done`, `q_act2_breadcrumbs`.
+- Verified: the News screen in the pane (Week 3 open with its story, Weeks 2 and 1 below); headless — 2.7 alone 46 steps: four nights, two trips to the office (the clue, the salute), Amma, the last sleep.
+- Found on the way (fixed, in the bot): the generator had no idea of the time of day — at 7 AM it chose the hill road's night-only auto and the day bus took it to Whitefield instead; it also walked off while the workday card was still playing. It now tracks the minute and waits out the workday. In the full movie (not alone — crowd placement differs with what ran before) the walk to the auto stand on the morning pavement got pinned between two citizens and gave up after five sidesteps; the bot now replans up to ten times and waits longer each time. While diagnosing, live zones that take the world over (a bed, the office door, the guitar lane) became hard walls for the planner unless they are, or overlap, the target — a crowd-sealed route can no longer fall back through the office door into a workday. Full movie: **17 of 17 green, identical 410-step trace**.
+- Calls to confirm or overturn: the guard salutes when you arrive (any time that day), not specifically in the evening; the bus-aunties rice argument became a Reel; Act 2 spans four in-game days although the headlines say four weeks.
+
+### [P17 3.1 "Outer Ring Road" — built, awaiting audit; Act 3 opens] — 2026-10-17
+- Decision before the build: "take my defaults and proceed." The defaults: Divya sends you to HIVR for AMR-07; the day and the ride are a card sequence (no playable ride); HIVR is shown only as a card; the 02:14 / rainy Thursday / night_ops overwrite; Sameer's bike if you have no scooter; recognition by the green lanyard and APPA; the scooter is wrecked; one still; an ACT 3 — FEVER title. ADR-136.
+- Built: CardScene + card data (reusable for any "told, not played" moment), the `card` trigger action and sleepEvent `card`, the Hebbal junction still (`still_hebbal_night`, generated first try, 32 colours of its own), the title card, Divya's Act 3 lines, the office door's card, her chat, the fifth headline, `q_act3_orr`, validator + generator support, `act3_orr.test.ts` (10 tests).
+- Verified in the browser pane: the title card on waking in the flat (then the world is free again); the HIVR panels centred on black; the junction panel over the still; the cut; the fragments; the hold on "Ravi." with every flag and 23:55 applied; the no-scooter path opens on Sameer's keys. Headless: 3.1 alone 11 steps, 49.5 s, green (Divya → office door → the whole sequence → `act3_orr_done`).
+- Full movie: **18 of 18 green, identical 422-step trace** (`pnpm movie --twice`). 495 tests, validators, typecheck, `pnpm build` green.
+- Found on the way (fixed): the card first left `hivr_assigned` set forever, which would have switched the office's workday off for good — the card clears it when it settles. Divya's late-day-one message blocked her whole thread for on-time players (chats deliver in order; the MEMORY rule says optional branches must say so — this one predates the rule).
+- Calls to confirm or overturn: the title card says **FEVER** big with "ACT 3" small under it; the story HOLDS on "Ravi. / ACT 3 CONTINUES IN WARD 4" until 3.2 is built (a save made there reloads at the office gate with the flags set; 3.2 will add the ward landing); E / tap moves one panel at a time, so the sequence cannot be skipped in one press; your scooter is wrecked but the fuel/EMI keeps counting (4.0 says 'gone from hospital parking'); the HIVR day costs no canteen food and moves no stress (the workday does).
+- Rule going forward: **a scene that ends on a card into a place not built yet holds on its last panel** (`end: "hold"`), and the next scene's build gives it a landing; never drop the player back into the world they just left.
+
+### [P18 3.2 "Ward 4" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "Take the defaults." — land at 10:20 the next morning; one 12×8 ward; the cast = slower walk, no running; your own clothes; Sister Lalitha (remembers you only if you talked on the bus); Ravi says only "I answered"; the dark isolation door with tapping; the storm-drain TV ticker; three phone messages; the ward stays playable (no second hold). ADR-137.
+- Built: card `then` (3.1 now lands here), district `walkSpeed`, the ward (render + spec, first try, door ~36 px), three lying sprites (first try), the nurse, Ravi in bed, two patients, the isolation door, the TV, the tray (food +30, once), the ward boy at the door, Amma / Sameer / Divya messages, `q_act3_ward4`, validator + generator support, `act3_ward4.test.ts` (11 tests).
+- Verified in the browser pane **the way a player reaches it**: played 3.1's card to its end → the ward fades in at day 31 10:22 with the nurse at her desk, Ravi and two patients in their beds; Ravi's first line with `ravi_supported`; Maps opens in the ward (you are at Hebbal). Ravi first lay with his head below the bed's pillow — the three lying spawns moved up 6 px. Headless: 3.1 → 3.2 green (12 + 19 steps).
+- Calls to confirm or overturn: the patients are asleep and only have a one-line look; the tapping is text, not sound (no audio yet) and nothing moves behind the glass; the cast shows nowhere on the player sprite; Ravi's three loops are three separate talks (you can do them back to back); the ward boy is a line of text at the door, not a sprite; Maps lists the ward as a pin once you've crashed.
+- Rule going forward: **a place you reach only by a card is still verified by playing the card into it** — and the world validator now treats a card landing as a way in, so such a place must name the card that leads there.
+
+### [P19 3.3 "The Corridor" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "Take your defaults and proceed." — Ravi offers the story ("Tell me." / "Rest, Ravi."); one 12×8 corridor; you play as Ravi with the objective only; Appa's three lines, Ignore greyed out ("It's Appa."); the glove station refuses; the plain-text checklist; the ant in four stills; Vikram only as his locker; "your first week in Bangalore" on the card; back in the ward at 18:30. ADR-138. (The same message took the audio plan's defaults — ADR-139 comes with audio step A1.)
+- Built: `playerSheet`, `hud: minimal`, `nightTint`, dialogue effect `card`; the corridor (first try), the ant stills and the locker still (first try), two cards, four conversations, Ravi's offer, `q_act3_corridor`, validator + generator support, `act3_corridor.test.ts` (8 tests).
+- Verified in the browser pane the way a player reaches it: in the ward, Ravi → "Tell me." (a real click) → the card → the corridor as Ravi, no clock/wallet/phone on screen; Appa's call starts as you cross the corridor. Headless: 3.2 → 3.3 green (19 + 21 steps).
+- Found on the way (fixed): the bot's "player is free" check is the overlay gate, so gating the phone/map there froze the bot in the corridor — overlays now have their own gate (`allowsOverlays`). The corridor's cold light came out beige after palette quantising — a fixed night shade (`nightTint` 0.4) restores the cold. The generator skipped a card on the last line of a path (the tray) — it now collects the line a path ends on.
+- Calls to confirm or overturn: the call fires as you cross the middle of the corridor, before the glove station (you can't reach the station first); the corridor runs on your real clock behind the scenes (invisible — the HUD hides it); Appa's lines are labelled "RAVI" on the dialogue card with "Appa:" in the text (one speaker per conversation); the ant captions are mine ("The spore finds the ant." …); 02:14 on the tray ties to 3.1's log entry.
+- Rule going forward: **a gate that means "the player is free" (the bot and the HUD read it) never carries a place-specific rule** — give the place its own gate.
+
+### [Audio A1 — the sound system + Act 0, built, awaiting audit] — 2026-10-17
+- Decision before the build: the user's full audio brief → `docs/audio_plan_v1.md` → "Take your defaults and proceed" (Ravi = the APPA ringtone, base_night = your G–C–D; noise = ADR-49 tiles; WAV until ffmpeg; Kenney asked again at A3; P19 first, then A1). Then "A start, I'll audit it later." ADR-139.
+- Built: AudioSystem + pure mix/buses/noise; 224 tokens (beds 35, music 10, player, NPCs + four voices, vehicles, world incl. guitar chords, infected, combat, City Pulse, stings, uncanny reuse), every one with an original placeholder (249 files, 9.2 MB); `beds.json` for all 21 places by time of day + the four stability bands + transit/workday beds; the airport's positional sources; NPC voices for every speaking NPC; cues in menus, dialogue, phone, map, title, HUD events, cards (APPA, the siren, the cut, FEVER); the Settings note "No audio in this build yet" removed; `validateAudio`; `audio.test.ts` (17 tests).
+- Verified in the browser pane (by the mix readout — I can't hear it): one click on the title unlocks audio; the airport plays its hall, kerb traffic and crows with calm music; walking to chai Anna plays the ladle, whistle, the tout's shout and a bus horn from where they are; the bus idling at the stop gets louder as you approach (0 → 0.29); footsteps 4 a second on tile; chai Anna's line bleeps in an adult male voice and the music ducks to half under it; the bus exit plays the Vayu Vajra bed during the ride card and Whitefield at dawn arrives with birds and light traffic; the music slider at 0 silences the music and 70 brings it back; no console errors. 531 tests, validators, build green; `pnpm movie --twice` 20/20 with the same 463-step trace as before audio (sound changes nothing the game decides).
+- Calls to confirm or overturn: everything sounds like a placeholder (8-bit synth) until recordings land; music is off at night everywhere and in rooms/buses unless the mood turns (the corridor still gets tense music); NPC voices are my guesses (e.g. the information desk is a woman's voice); the airport is mixed as hall + kerb; the UI follows the SFX slider; footsteps don't change surface within a place yet (pavement vs road comes with spec surfaces in A2); audio isn't available offline until each sound has played once.
+- Rule going forward: **no scene plays a sound** — it emits a token (`cue()` / events) and the AudioSystem decides; every token lives in the manifest with a licence.
+
+### [Audio A2 — every scene, footstep areas, the Act 4 test bench, built, awaiting audit] — 2026-10-17
+- Decision: "Proceed with the next." (after the audio roadmap) — A2 as planned. ADR-140.
+- Built: sound sources in 19 of 21 places (people marked `human`, machines `machine`, the chai stalls and the metro chime with uncanny replacements); Cubbon's footstep areas (paths gravel, pavement and gate steps stone, lawns grass) and Whitefield's from its street tiles; strums in the guitar lane; bus arrivals and ride-start sounds; dialogue cues (the ward's glass tap, the TV, the tray, APPA in the corridor); the Playground Audio node (token list with ▶, bus meters + solo, live mix readout, the Act 4 test bench) and the `audio` map overlay.
+- Verified in the Playground: the test map opens with the Audio node still selected; stability 100 → 50 → 25 → 5 moves the street from birds 0.6 + traffic 0.3 to (warning) traffic 0.15 + sirens, announcements, dogs, to (infected) one crow, wind, flies, drip, to (deep) room tone, heartbeat, groans; an infected 3 tiles away → heartbeat + tense music; Chase → chase music; unticking → relief; reset → calm again. The overlay draws Cubbon's sources with their radius. Footsteps: Cubbon's ring path and east path read gravel, its pavement concrete, lawns fall back to grass; a column down Whitefield reads pavement · road · pavement. No console errors. 535 tests, validators, build green; `pnpm movie --twice` 20/20, the same 463-step trace.
+- Found on the way (fixed): a bed or song still loading was asked for again every 100 ms, so several copies could start when it landed (the extras stayed silent, never cleaned up). Opening the test map from the Audio node used to jump to the map's node and hide the bench — it now keeps the Audio node selected.
+- Calls to confirm or overturn: which places got which sources (my picks); the busker plays only G and C; the guitar shop owner "tunes" with an E chord; the ward TV is a murmur loop; people halve at warning (not quieter, not silent); the uncanny chai whistle and metro chime are the same files slightly flat with a long gap; Cubbon's path areas are rectangles over curved paths (a few steps at the curves sound wrong).
+
+### [HUD settings gear + Playground sound controls, built, awaiting audit] — 2026-10-17
+- Decision: the user asked for a settings button on the in-game HUD and picked: gear left of the phone, opens the pause menu, looks like the phone button (no new reference). They also asked for mute and volume up/down in the Playground toolbar. ADR-141a. The title screen already had SETTINGS, which opens the full settings menu (checked in the browser pane).
+- Built: `settingsButton` in the HUD layout + gear plate in the HUD chrome + its tap zone → pause menu; a layout test for both scales (gear ≥ 44px tap zone, never overlapping the phone's); Playground toolbar 🔊/🔇, −, master value, + (Settings → Audio `muted` / `master`, step 10).
+- Verified in the Playground: the gear draws beside the phone at 1×; a tap opens PAUSED with RESUME / SETTINGS / SAVE / LOAD; − twice takes the master 80 → 60, + twice back to 80; mute toggles 🔊 ↔ 🔇. 537 tests, validators, typecheck green.
+- Calls to confirm or overturn: the gap between the gear and the phone is 16px (so the two touch zones don't overlap) and the clock moved left by 44px to make room; the gear stays visible in a minimal HUD (the corridor) because it's the only visible way to pause on a phone there; the gear has no pressed animation (it opens the menu straight away).
+- Rule going forward: **every overlay you can reach by a key has a visible touch way in on the HUD** (phone, pause/settings).
+
+### [Audio A3 batch 1 — Kenney's CC0 packs, built, awaiting audit] — 2026-10-17
+- Decision: "Proceed with the audio A3. After that, draft 3.4." — the Kenney download OK'd; ffmpeg not installed (not installed for the user — outside the repo). ADR-141b.
+- Built: 60 tokens final from 92 Kenney files (UI 13, phone 10, HUD 6, footsteps 6 surfaces × 4, player 7, world 10, combat 7, infected hit) with their licences; the browser-based decoder and `prepare()`; `wav16`; validation of raws and licences; tests (23 audio tests).
+- Verified: every decoded file has its real length and a consistent level (RMS 0.126 for SFX); re-decoding is byte-identical; in the game the real files preload, and walking Whitefield from the pavement onto the road switches from the concrete to the asphalt footsteps. 539 tests, validators, build green; `pnpm movie --twice` 20/20, identical 463-step trace. Audio is 9.9 MB of 15.
+- Found on the way: the first decoder package carried an LGPL dependency — removed, replaced by the browser decode (no new dependency at all).
+- Calls to confirm or overturn: gravel footsteps are Kenney's snow steps (they crunch); asphalt reuses the concrete steps (another four of them); indoor tile uses the RPG pack's generic steps; the title-start jingle, the UPI success jingle, the phone buzz and the ringtones stay ours (original); money ticks are casino chips (they sound like coins); the ward's glass tap stays synthesised (two slow taps).
+
+### [P20 3.4 "Three Nights, Again" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "Take the defaults." ADR-142.
+- Built: the countdown plate as data, the ward bed, three nights of changes (curfew; Amma, the empty bed, the silent door, "Server busy"; Ravi gone, no signal), the nurse's and Ravi's lines, Amma's call, the stripped bed and IV line (first try), stability by flag, `q_act3_three_nights`, validator support, `act3_three_nights.test.ts` (11 tests).
+- Verified in the browser pane: on morning 3 (from night 2's state, sleeping in the ward bed) the HUD reads "Discharge · today" at day 34 07:01, Ravi and the woman are gone, the stripped bed sits over Ravi's drawn bed (a sliver of the drawn frame shows at the edges) and the IV stand lies on the floor beside it. Headless: 3.3 → 3.4 green; `pnpm movie --twice` **21 of 21, identical 481-step trace**. 550 tests, validators, build green.
+- Found on the way (fixed): Amma's call is a trigger on the ward aisle that only works once morning 2's flag is set; the first aisle zone touched the bed, so a player who slept with their feet in it had already "entered" it (before the flag) and the call never came until they stepped out. The aisle zone now keeps clear of the bed. Rule going forward: **a trigger zone that waits for a flag must not overlap the place the player stands when that flag is set** (a zone counts an entry even while its flag is missing).
+- Calls to confirm or overturn: Amma calls as you leave your bed on morning 2 (not on waking); the tea/payment "Server busy" is a banner only; the ward sound reaches "warning" on morning 2 and stays there on morning 3 (no deeper); the stripped bed's stripes look pale after palette quantising.
+
+### [P21 3.5 "Discharge" — built, awaiting audit; Act 3 complete] — 2026-10-17
+- Decision before the build: "Take the defaults." ADR-143.
+- Built: the sign-out and warning ("Why five?" gets no answer), the countdown clearing, the open isolation room, the ward boy's empty chair, the leaving card → CURFEW (holds), `q_act3_discharge`, `act3_discharge.test.ts` (7 tests).
+- Verified in the browser pane: on the discharge morning the isolation doors stand open on a lit empty room, the blue chair sits beside the ward door, Ravi's bed is stripped; the plate shows "Discharge · 2 nights" on entering mid-countdown and clears with the slip. Headless: 3.4 → 3.5 green; `pnpm movie --twice` **22 of 22, identical 490-step trace**. 557 tests, validators, build green.
+- Found on the way (fixed): (1) the new sign-out line was first named `discharge` — the same id as 3.2's "When can I go home?" answer, which it silently replaced (caught by 3.2's test); renamed `sign_out`. Rule going forward: **before adding a dialogue node by script, check the id is free** (JSON merges, it doesn't complain). (2) The countdown plate did not appear when entering the ward mid-countdown (the first message went out before the HUD existed) — it now waits one tick. (3) The chair was first placed in a bed's column and hid under it — moved beside the door.
+- Calls to confirm or overturn: the hold screen reads "CURFEW / ACT 4 BEGINS AT THE HOSPITAL GATE" until 4.0 exists; the plastic bag is only in the line (no inventory item); the isolation room is seen through the doors, not walked into; the nurse's slip comes on her second talk that morning (after "Moved.").
+
+### [Act 4 S1 "the dial" — built, awaiting audit] — 2026-10-17
+- Decision before the build: the Act 4 systems plan (`docs/act4_systems_plan_v1.md`) → "default" (every §8 default taken). ADR-144.
+- Built: stability per place from the Act 4 day (fall order as data on 11 pockets, interiors inherit), `grade()` with five levels driving the look (colour drain, green edges, red rim, glitch), the sound band, and the crowd; the harsh survival table once Act 4 begins; the Act 4 day counter; the Playground's "Act 4 · stability dial" node; validator rules for `act4`; `stability.test.ts` (17 tests).
+- Verified in the browser pane (Whitefield street at 12:00, reached by script with `act4` set): day 0 = normal, 40 people out; day 8 (75, warning) = a fifth of the colour gone, 20 people; day 12 (55, infected) = half the colour, green edges, nobody out; day 15 (31, hot) = most colour gone, green edges and a red rim; the ward on day 6 = ground zero (10). The HUD stays in full colour. The Playground panel itself was not opened in this session's pane (another session's server holds :6175); its tree entry is tested.
+- Found on the way (fixed): the world camera's colour drain also greyed the edges drawn in the world (the red rim came out brown) — the edges moved to `GradeScene`, just above the world; with both rims at once the green and red blended orange, so the red became a thinner, stronger three-band rim. Also: another session pushed everything to GitHub at 19:04 (only the plan commit was local).
+- Calls to confirm or overturn: the fall days (Hebbal 0 · airport 2 · Nagasandra 4 · Majestic 6 · Cubbon/Church Street 8 · Whitefield pockets 12 · the hill 13) and the curve (85 → −2/day; 55 on the day; −8/day; floor 25, Hebbal 10); how strong each level looks; the glitch is a camera shake; Act 3's ward now looks a fifth paler on its last two nights (it was always "warning" in sound — now the look agrees); harsh hunger = −0.5 health/min at food 0.
+- Rule going forward: **nothing in a place grades itself** — a look, a sound or a crowd that changes with danger reads `grade(stabilityNow())`, and anything drawn to sit "on top of the world" but outside its colour goes in `GradeScene` / the HUD, never in the world camera.
+
+### [Act 4 S2 "the run" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "take the defaults and proceed with S2" (also takes every default in the Act 4 drafts, NEED_TO_AUDIT #18). ADR-145.
+- Built: energy pips, crouch (C / the action button), hide spots, the infected (wander → growl → chase → search, packs, zones, UV, Namma hesitation, night), ambushes from cover with flash + slow motion, harm with a one-second grace, fail-forward to the base, the threat summary feeding the audio's chase/heartbeat, the Act 4 test bench + its Playground view, Movie Mode `flee` / `hide`, validators for the new data, `act4_run.test.ts` (18 tests).
+- Verified in the browser pane (the bench, by script on :6174 and through the Playground on :6175): running at the pack — spotted at ~7.5 tiles, growl, all three chase, they stop at their area's edge, search, wander; pips 3 → 0 over ~6 s, then forced walking. Standing still while hunted: 100 → 80 (touch) → 45 → 10 (grabs) → 0 → the card → the hill flat at 07:03 the next day, Act 4 day 1, health 40, one of two water bottles gone, the ID card kept. Crouched still on a hide spot with loud noise: nobody came. Inside the UV lamp shouting: nothing; one step out: the pack turned. Crouch-walking the pavement: an ambush after 32 steps (three out of cover, alert). The bot's `hide` and `flee` passed on the bench.
+- Found on the way (fixed): leaving a place crashed the teardown (physics already gone); three ambushers could land three hits in a second (now one grace for everyone); a narrow escape was charged per chaser (now once per 5 s); the bench dropped you next to the pack (you now start in the lamp's light); `import Phaser` as a value in a behaviour breaks every Node test that loads the registry.
+- Calls to confirm or overturn: the infected look (placeholder grey tint of crowd sheets — your references needed); crouch has no animation (the sprite dims); the numbers (chase 171 px/s vs your run 190; touch/grab; a second of grace; 8-step rolls at the grade's rate — 25 % at 'infected' is a lot on a crouch walk); fail-forward wakes you at 40 health with stress +20; ambushers melt away after 30 s or when you leave their area; the bench is a copy of the Whitefield street.
+- Rule going forward: **behaviours import Phaser as a type only** (the registry is loaded by Node tests and the validator), and **any random outcome in gameplay comes from a seeded generator** (`systems/rng`), never Math.random.
+
+### [Infected sprites step 1 — three bases generated, awaiting approval] — 2026-10-17
+- Decision: "use your judgement and proceed" + the user's infected spec (generate the bases, show zoomed sheets for approval BEFORE compositing; stop after step 1). ADR-146.
+- Built: `inf_base_{male,female,elder}` (lurching walk, tones 1–5) and `inf_base_*_actions` (alert / lunge / stagger × 4 directions), raws + provenance, breathing off; review board `docs/review/infected_bases_v1.png`.
+- Found: at 32×48 the pale eyes and the grey-green pallor mostly disappear (they quantise to ordinary skin) — the Degraded recipe (desaturate, green skin, pale eyes) is what will make them read; the bases are slimmer and smaller-headed than the chibi crowd; the action sheets are a little more cartoonish than the walks; the elder's action skin came out warmer than his walk.
+- Calls to confirm: see NEED_TO_AUDIT #20 (the look; the conflicts with logged decisions — frame counts, attire layers, the Host's size, the speed numbers).
+- Rule going forward: when a user spec conflicts with a locked pipeline or ADR, build the part that doesn't depend on the conflict and put the conflict to them at the stop — don't silently follow either.
+
+### [Infected step 2 + the Evolved — built, awaiting audit] — 2026-10-17
+- Decision: "proceed with step 2 after this" with the Evolved addendum (rare, gory, lethal); the step-1 defaults (NEED_TO_AUDIT #20) taken. ADR-147.
+- Built: the recipe (Fresh/Degraded from people's own sheets, 28 sheets), the Evolved sheets (6), the Evolved tier in the AI and harm (speed, sight/hearing, 10 s hunt, red-flash telegraph, 40-damage swipe with knock-back and bleeding cured by UV, stress held red, flanking, spawn gates), the bench presets, tests (24 in act4_run).
+- Verified in the browser pane (bench, by script): the Degraded crowd and the Evolved render, the Evolved posing its alert frame; the Evolved peaks at 209 px/s (your run 190); its swipe took 100 → 60, stress to 70, pushed the player 40 px, then bleeding 60 → 40 over 6 s away from the light and nothing more once in the lamp ("Bleeding. Get to the light." / "The bleeding stops."); two Evolved approach on different lines and the first lands its hit.
+- Found on the way (fixed): **an S2 bug — a chase along a straight line froze** (the only path point was dropped; turns hid it in S2's tests; regression test added); the recipe's first eye pass bleached brows and hair into a white mask (now only small dark blobs in the upper face); the generator refused the first Evolved prompt (raw flesh / gashes) — stains and scratches passed.
+- Calls to confirm: NEED_TO_AUDIT #21.
+- Rule going forward: **`corners()` never includes the start** — never `.slice(1)` its result.
+
+### [P22 4.0 "Janata" + 4.1 "Five O'Clock" — built, awaiting audit] — 2026-10-17
+- Decision before the build: "take the defaults and build 4.0 and 4.1". ADR-148.
+- Built: the hospital gate and the Indiranagar lane (maps, specs, data), the constable sheet, the dialogue, quests, three cards (+ the leaving card's landing), the phone's Act 4 state, the clock events and plate clangs, the five o'clock packs, no travel in Act 4, tests (act4_janata.test.ts, 11), walkthroughs for both.
+- Verified: `node scripts/movie.mjs --scene act4_janata` plays both scenes (4.0 in 45 s, 4.1 in 22 s, the bot fleeing to the main road). In the browser pane (my own :6174, by script): the leaving card lands on the steps at 08:32 with "Get past the barricade" and the NEW place card; the shop's conversation opens through the shutter; in the lane, 16:58 nine neighbours and the toast, 16:59 the plates (16 clangs) and four walkers, 17:00 the khaki shirt in alert, the lane drained with green edges.
+- Found on the way (fixed): the shop row faces the bottom pavement in the art and my first collision sealed it (now a gap beside the last shop); collision rects snap to whole tiles, which closed the strip under the tea stall (the balcony trigger moved into the gap); from the lane the camera never shows the balconies (the neighbours moved to their gates and terraces); a scene whose `time` reads 16:40 seeds the bot's clock at 16:40 (4.1's says 16:57); the Playground on :6175 (another session's server) lost its game instance to hot reload mid-check — verified on my own server instead.
+- Calls to confirm: NEED_TO_AUDIT #22.
+- Rule going forward: **trace a generated map against the art's facing** (which pavement a shop opens onto), and remember collision snaps to whole tiles.
+
+### [Act 4 S3 "the base" — built, awaiting audit] — 2026-10-17
+- Decision: "take the defaults and proceed with S3". ADR-149.
+- Built: items (19 new, act4_value on all), recipes, barter, loot, built-from-data conversations (bench, trader, containers, stock), the base (stock nights, the lamp, home, sleep rule, fail-forward home), the base bench + Playground button, validator `validateTrade`, `act4_base.test.ts` (9).
+- Verified in the browser pane (my :6174, by script): the stock shelf's conversation opens from data; three nights take one food/water/fuel each, night 2 "No water.", night 3 "Nothing to eat. No water. The lamp failed in the night. Something tried the door." (stress +15), home set, Act 4 day 0 → 3; the lane refuses sleep ("Not here. Not safe."). Crafting, trading and searching are covered by the tests (locks, swaps, the haggle's skill lock, found-once).
+- Found on the way (fixed): the barter check's margin was backwards at first (a trader asks 1.5×, it doesn't give 1.5×); the 4.2 draft's first trade broke the plan's values (changed, call to confirm); standing in a repeating trigger's zone keeps reopening its conversation, which blocks sleep — the bench's zones are small and apart.
+- Calls to confirm: NEED_TO_AUDIT #23.
+- Rule going forward: **every item has an `act4_value`; every deal passes the value check** (validator).
+
+### [P23 4.2 "The Hill" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.2". ADR-150.
+- Built: the landing at the hill, Act 4's hill (people gone, Mani's warning, the still pair, the purple lamp, Suresh and the stock, Manju and the death of UPI, Karthik), the ransacked flat as the first base (table → base, the first night → day 1, the bench from the morning, three containers), Suresh's sheet + six props, `act4_the_hill.test.ts` (7), the walkthrough.
+- Verified: `node scripts/movie.mjs --scene act4_the_hill` passes (23 steps); the bot's failure screenshots along the way show the hill at 21:3x with Suresh by his door, the generator and the violet lamp post, Manju at his table on the middle terrace, Karthik; the flat with the ransacked heap, the guitar, the crafting bench's four recipes drawn as locked choices.
+- Found on the way (fixed): the generator, lamp and Suresh first stood on the narrow top walkway and sealed it; Karthik stood on the one-tile join of the mid path and the big stairs; the bag container sat on the door → table path; the bot's flee budget assumed running (Act 4 energy runs out on the long stairs); the generator emitted `flee` for Act 1's hill (a pack that only exists in Act 4); after "unfold the table" closed, the player settled a few px deeper into the table's spot and the crafting conversation opened at once — the bench now works from the first morning. (A trial "zones stand still while a conversation is up" change didn't fix it and was reverted.)
+- Calls to confirm: NEED_TO_AUDIT #24.
+- Rule going forward: **never place an NPC or a solid prop on a one-tile walkway or a join** — check the walk grid around every new spot (the bot finds it first).
+
+### [Act 4 S4 "your hands" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and proceed with S4". ADR-151.
+- Built: the swing (shove / knife / bat / UV torch; a pip; loud; stun 2 s, knockback, angry 5 s), throws (noise maker, tumbler, bottle, stones as lures; smoke bomb breaks sight), the 8-slot bag as a built-from-data conversation (eat, bandage → stops a bleed, ready, leave), "No room in the bag" locks on trades/recipes/searches, HIT / BAG / THROW touch plates and pad B / X / RB, `validateCombat`, the Playground "Your hands" bench, 19 new tests.
+- Verified in the browser pane (Playground :6175, by script): the bag reads "Your bag: 5 of 8 slots." with the bat "(in hand)" and the noise maker "(ready)"; a bat swing knocked the nearest infected back 1.5 tiles, it dimmed 2 s, then chased, and the swing's noise woke the rest; a noise maker thrown 5 tiles pulled all three (two from cover) to where it landed; the smoke cloud draws where it lands; touch mode shows HIT / BAG / THROW around the action button with 44 px zones.
+- Found on the way: a focused Playground button swallows the game's keys (click the canvas first; the bench note says so).
+- Calls to confirm: NEED_TO_AUDIT #25.
+- Rule going forward: **combat numbers live in `combat.json`; a weapon only stuns (validator: ≤ 5 s)**.
+
+### [P24 4.3 "Four Nights" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.3". ADR-152. The chain is built one base per phase (the stub's default); this is B1, the hill.
+- Built: Suresh's mornings and decision, Mani's store, Deepa (new sheet, first try) bitten and the medicine run, Ward 4 ruined with two infected in scrubs (the recipe on the nurse's sheet), the cards there and back, Karthik leaving, the scripted lamp failure → the hill turns; 10 new tests.
+- Verified: `node scripts/movie.mjs --scene act4_the_hill` plays 4.2 then 4.3 (44 steps: the store, the sleeps, Deepa, the ward walk past the scrubs, home, the medicine, two nights, the lamp card, Suresh).
+- Found on the way (fixed): the bot always ran (a full stick), and a run's noise woke the hill's still pair, which boxed it in on the stairs. The generator now walks past still infected (`pace: 'walk'`). The bot couldn't name a built-from-data choice ("taken"). 4.2's `save_flags` missed `hill_first_night`. An exit's `card` field is its ticket label, so the walk edges use `walkCard`.
+- Calls to confirm: NEED_TO_AUDIT #26.
+- Rule going forward: **in Act 4 the bot walks past anything that stands still; only a pack that can come for you makes a walk a flee.**
+
+### [P25 4.3b "The Tiffin Room" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.3b". ADR-153. B2 of the chain.
+- Built: the walk west, Kumar's rescue, the tiffin room (new interior, first try) with Uncle (new sheet, first try), the Whitefield run (the office's shuttle bay, the AMR-07 log), Raju's rescue, Deepa reading the log, the generator's last night; Acts 0–2's people cleared from the places Act 4 revisits; no strollers in Act 4; 8 new tests.
+- Verified: `node scripts/movie.mjs --scene act4_cafe` (41 steps); in the browser pane (Playground, scripted clock) the café renders with Uncle at the counter, Suresh, Raju and Kumar on the left, Deepa against the right wall.
+- Found on the way (fixed): Uncle stood as a green placeholder until `pnpm art` imported his sheet; a rescued Raju, then Deepa, stood in the one passage between the right-hand tables and sealed the way to the counter (the bot couldn't reach Uncle after the dark night); the validator didn't count a zone conversation's card as a way in.
+- Calls to confirm: NEED_TO_AUDIT #27.
+- Rule going forward: **an interior with tables has one or two passages — never stand an NPC in one; put people against walls.**
+
+### [P26 4.3c "The Line" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.3c". ADR-154. B3 of the chain.
+- Built: the walk to Cubbon, the camp on the lamp line, Rathore and Priya (new sheets, first try), Ananya or her photo, four supply runs through places from earlier acts, deliveries, the fire, the line cut; 8 new tests.
+- Verified: `node scripts/movie.mjs --scene act4_cubbon` passed first time (69 steps: four runs, three nights, the fire, the cut line); in the browser pane (scripted clock) the camp shows Rathore by the tap, Priya beside him, the lamp line's glow by the gate.
+- Found on the way: the ADR-24 pacing check wants a Calm between Tense beats (the evenings at the camp are Calm); the generator needs each run's "night after" as its own objective to sleep before the next gate opens.
+- Calls to confirm: NEED_TO_AUDIT #28.
+- Rule going forward: **a revisited place in Act 4 lists who leaves with `act4` and which triggers stay quiet — check every NPC and trigger, not only the ones you touch.**
+
+### [P27 4.3d "Twenty Charges" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.3d". ADR-155. B4 of the chain.
+- Built: the Palace grounds and a Malleswaram lane (new maps, first try), Vikram (new sheet, first try), Sathish and the Pulse Gun, run 5, Vikram's choice, the lamp ring failing; 7 new tests.
+- Verified: `node scripts/movie.mjs --scene act4_palace` passed first time (36 steps); in the browser pane (scripted clock, the Pulse Gun bench) one SPACE dropped the nearest infected (on its side, greyed, no body), the counter went 20 → 19, and the shot's noise woke the other two.
+- Calls to confirm: NEED_TO_AUDIT #29.
+- Rule going forward: **a weapon that kills is data (`combat.json` `pulse`) with a counter you can see; every charge is spent by a deliberate press.**
+
+### [P28 4.3e "The Glass House" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.3e". ADR-156. B5, the end of the chain.
+- Built: the walk to Lalbagh, the glass house (new interior, first try), everyone you kept, the table; 5 new tests.
+- Verified: `node scripts/movie.mjs --scene act4_lalbagh` (13 steps); in the browser pane, with every optional person present, the bot's planner reaches every person and every spot.
+- Found on the way (fixed): at 12×8 the ten people walled off half the room (and one sealed the only way to the table) — re-imported at 16×11, everyone along an edge; four long council lines in a row ran past the bot's 10 s budget — tightened to two.
+- Calls to confirm: NEED_TO_AUDIT #30.
+- Rule going forward: **size an interior by who stands in it: check every person and spot is reachable with everyone present (the planner check in the pane), not only in the bot's own run.**
+
+### [P29 4.5 "Ravi" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.5". ADR-157.
+- Built: the message, the branching pin, the HIVR branch (the corridor, Meera behind the glass — new sheet), the Yelahanka branch (new room, his mother — new sheet), the voice note; 6 new tests.
+- Verified: `node scripts/movie.mjs --scene act4_ravi` (16 steps, the HIVR branch); in the browser pane the Yelahanka room renders (his mother on the cot, Ravi at the stove) and the planner reaches Ravi and the door.
+- Found on the way (fixed): the full run's bot had sent Ravi home in 2.5 while a solo start of 4.5 assumed he was supported — 2.5's quest gains an optional "stay with him" objective so both agree (the stub's default); a spawn named `door_*` is a door to the map validator; the chat font has no pin emoji.
+- Calls to confirm: NEED_TO_AUDIT #31.
+- Rule going forward: **when a later scene branches on an earlier choice, the bot's earlier choice and the solo prereq must agree — make the bot's path an explicit (optional) objective.**
+
+### [P30 4.6 "The Tunnel" — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults and build 4.6". ADR-158. The game now runs from the airport (0.1) to the end card.
+- Built: the Purple Line tunnel (new map, first try), the split at Majestic, three ending cards, `MyBangaloreScene` + `systems/myBangalore`, credits cards in the engine, the validator, the generator and the bot; 5 new tests.
+- Verified: `node scripts/movie.mjs --scene act4_tunnel` (12 steps → the Evacuate card → the end card); in the browser pane the tunnel renders (dark, the walkway, the stalled train) and the planner reaches Majestic's steps; the end card renders its lines and the two plates.
+- Found on the way (fixed): after a credits card there is no world to be "free" in — the bot waits for the end card scene instead; "0 people" / "₹0 on chai" read badly — singular and none have their own lines.
+- Calls to confirm: NEED_TO_AUDIT #32.
+- Rule going forward: **an ending is data: a credits card with `game_complete` on a panel everyone sees.**
+
+### [The infected spec steps 3–6 — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults" — HANDOFF's default (the infected spec's leftovers). ADR-159.
+- Built:
+  - twitch frames (49 `__twitch` sheets, derived);
+  - seeded asymmetry (pace, limp, animation rate);
+  - photophobia path costs (UV halo, sun vs shade);
+  - the Host: new sheet, first try; the one 48×64 class; can't be stunned or shoved; blocks; 3 Pulse charges; glowing eyes;
+  - the bench preset;
+  - 13 new tests (706 in all).
+- Verified:
+  - in the browser pane, the Host loads as 48×64 frames and spawns on the bench with its 30×16 feet box;
+  - walking into it stops you at its edge; its blow cost 40 health and 35 stress and threw you back;
+  - the twitch animations exist for every infected sheet.
+- Found on the way: the Host's raw had both side views' third frame facing the wrong way — the two cells are swapped in the raw before import (provenance notes it); the colour drain at ground zero greys its eyes (a call, with the tunnel's red lights).
+- Calls to confirm: NEED_TO_AUDIT #33.
+- Rule going forward: **a cost a path prefers is never a wall: photophobia lives in `Grid.cost`, so reachability (the validator, the bot) never changes; draw quirks from their own seeded stream so a new random never reshuffles a place's other rolls.**
+
+### [The 500-D boards with E at the bottom kerb — built, awaiting audit] — 2026-10-18
+- Correction (the user, testing story 1.5): "I'm unable to get in the bus." The walk-in stop was a strip of road above the bus that only fired on entry, so standing there before the bus came did nothing. ADR-160.
+- Built: interact exits (`board: interact`), behaviour offers to E (`offer`), BOARD over the bus door, the stop on the bottom footpath with the bus pulling over to the kerb, a toast when the 500-D is still story-locked; validator and walkthrough generator know interact exits; 1 new test.
+- Verified: in the browser pane the bus pulls over at the bottom kerb, `[E] BOARD` shows over its door only while you stand on the footpath beside it, and a real E keypress lands in `bus_interior` with `on_bus_500d` set; validate, typecheck and tests green.
+- Calls to confirm: NEED_TO_AUDIT #35.
+- Rule going forward: **a vehicle is boarded, never walked into: stand by it, see the verb over it, press E — the same prompt as talking to someone. A prompt that does nothing must say why.**
+
+### [Every bus boards with E — built, awaiting audit] — 2026-10-18
+- Decision: "yes, do the same for the other buses". ADR-162.
+- Built: on-call buses (`onCall`) at six stops on five maps, the airport coach bay as an undrawn stop, buses that keep left and mirror when driving east, the hill's night auto on its own zone, Cubbon's bus arrival moved to the south gate, night/Act 4/locked toasts for E stops, validator + walkthrough generator; 2 new tests (709 in all).
+- Verified: in the browser pane all seven stops bring a bus (2.5 s pull-in) and draw `[E] BOARD` — in one session, back to back; a real E keypress at Whitefield's ITPL stop paid ₹20 and landed on ITPL Main Road; E at a story-locked stop says "You can't go there yet."; `pnpm movie` 32/32.
+- Found on the way (fixed): the HUD rebuilt its prompt bubble empty on every scene start but kept the old label, so a prompt you'd already seen elsewhere ("[E] TALK", "[E] BOARD") was invisible in every later place.
+- Calls to confirm: NEED_TO_AUDIT #36.
+- Rule going forward: **every vehicle stop is a footpath zone + a bus that comes to it; a vehicle runs only when its exit does. A UI element rebuilt in `create()` resets every cache that describes it.**
+
+### [Act 4 polish — built, awaiting audit] — 2026-10-18
+- Decision: "take the defaults" — #33's calls defaulted, then HANDOFF's polish list. ADR-161.
+- Built:
+  - glows through the drain (registry + GradeScene; the tunnel's 8 lights from the map art's red blobs, the Host's eyes, the camp fire);
+  - the Pulse meter;
+  - 49 `__fall` sheets + the fall on a Pulse kill;
+  - the Cubbon camp (new prop sheet, first try; objects at tiles);
+  - 6 new tests (712 in all).
+- Verified in the browser pane (this branch on :6178):
+  - the tunnel's red lights stay red through the ground-zero drain;
+  - the camp renders with its glowing fire; the Pulse meter shows 6/10 blocks at 11 charges;
+  - every camp piece is placed; the fall animations exist for every infected sheet.
+- Found on the way: another chat was editing the same folder (bus boarding, ADR-160) — this work lives on branch `polish-adr161` in a worktree under `scripts/.work/`; the first blue-tent spot (34,16) jammed it against the east gate — moved to (20,15).
+- Calls to confirm: NEED_TO_AUDIT #34.
+- Rule going forward: **a light that must survive a grade goes in the glow registry (GradeScene draws it), never as a world object; a prop pitched on open ground can sit at a tile, so a map being edited elsewhere needn't change.**
+
+### [Act 4 + the infected spec + the polish — approved as built] — 2026-10-18
+- Decision: "approve #16–34 as built" — the user signed off every item from Act 4 S1 (#16) to the polish (#34), each call kept as built (the defaults taken along the way stand).
+- Covers: ADR-144 … ADR-159 and ADR-161 (S1–S4 systems, the infected spec steps 1–6, every Act 4 scene 4.0 → 4.6, the endings and "My Bangalore", the polish).
+- Not pushed: pushing still waits for "approved, push". ADR-161 lives on branch `polish-adr161` until the other chat's ADR-160 (bus boarding, its own audit) is committed on `main` and the branch merges.
+- Still waiting on the user: #1–15 (Movie Mode steps 3–4, the Acts 0–3 audits).
+
+### [#1–15 — approved as built] — 2026-10-18
+- Decision: "approve #1–15 as built" — Movie Mode steps 3–4 (ADR-128…130) and the Acts 0–3 audits, every call kept as built. With #16–34 earlier today, **everything in NEED_TO_AUDIT is approved**; nothing waits for an audit.
+- Not pushed: pushing still waits for "approved, push"; ADR-161 and these records live on branch `polish-adr161` until it merges into `main` (after the other chat's ADR-160 commit).
+
+### [13a and #35–36 — approved as built; everything pushed] — 2026-10-18
+- Decision: "approve 13a and #35–36 as built", then "approved, push". 13a: the HUD settings gear + Playground mute/volume (ADR-141a). #35–36: the bus chat's bus boarding (ADR-160 the 500-D, ADR-162 every bus). Every NEED_TO_AUDIT item is now approved.
+- Before the push: the merged main (ADR-159, ADR-160/162, ADR-161 + the approvals) — validate, typecheck, build, 715 tests, `pnpm movie --twice` 32/32 with an identical 799-step trace.
+

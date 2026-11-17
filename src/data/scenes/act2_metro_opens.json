@@ -1,0 +1,145 @@
+{
+  "id": "act2_metro_opens",
+  "district": "metro_station",
+  "act": 2,
+  "seq": "2.2",
+  "title": "Metro Opens",
+  "status": "P11",
+  "time": "A weekday morning, the first sleep after 2.1's scooter decision",
+  "player_goal": "Ride the Purple Line on opening day.",
+  "design_goal": "Reveal #13: the metro network (ADR-05 world event). Progress: the map grows from one bus route to a line. Reward: the first ride is free. The Whitefield metro challenges start the station-unlock ladder (game_components §6) that 2.4 IKEA cashes in at Majestic.",
+  "pacing": [
+    "Curious",
+    "Reward",
+    "Engaged",
+    "Engaged",
+    "Tense"
+  ],
+  "entry": {
+    "from": "whitefield_street",
+    "spawn": "station_stairs",
+    "after": [
+      "F1"
+    ]
+  },
+  "cast": [
+    {
+      "npc": "npc_metro_guard",
+      "tier": 2,
+      "spawn": "gates",
+      "role": "Gate attendant in a high-vis vest: free today, tokens tomorrow; takes the lost kid if you bring him (+1 rep)"
+    },
+    {
+      "npc": "npc_lost_kid",
+      "tier": 2,
+      "spawn": "concourse_corner",
+      "role": "Adi, six, Spider-Man T-shirt, by the garlanded pillar. Challenge #1: follows you (companion) to the guard or to his mother -> lost_kid_returned; gone once returned"
+    },
+    {
+      "npc": "npc_kid_mother",
+      "tier": 2,
+      "spawn": "token_queue",
+      "role": "In the token queue, hasn't noticed yet; the reunion is the warmer route (+3 rep, -5 stress)"
+    },
+    {
+      "npc": "npc_token_uncle",
+      "tier": 2,
+      "spawn": "token_machine",
+      "role": "Feeding a torn ₹10 note for the fourth time. Challenge #2: it's free today / press cancel / lend ₹10 -> token_jam_fixed"
+    }
+  ],
+  "quests": [
+    "q_act2_metro_opens"
+  ],
+  "beats": [
+    {
+      "id": "F1",
+      "pacing": "Curious",
+      "what": "The sleep after the scooter decision: the Purple Line's Whitefield stretch opens (toast), Sameer's chat and a reel land. On the street the blue sheets and the caged pillar are gone - a finished station mouth with stairs, bunting, a flagpole, marigold pots, crowd barriers, a selfie group, a man filming, an aunty with a garland.",
+      "interact": "sleep + walk",
+      "flag": "metro_open, metro_opening_seen"
+    },
+    {
+      "id": "F2",
+      "pacing": "Reward",
+      "what": "Up the stairs into the concourse: ticket counter, two token machines, four gates, the garlanded pillar, the platform and the train beyond. The guard at the gates: free today, tokens from tomorrow.",
+      "interact": "exit + dialogue",
+      "flag": "metro_station_entered, guard_met"
+    },
+    {
+      "id": "F3",
+      "pacing": "Engaged",
+      "what": "Challenge #1, the lost kid by the pillar. He takes two fingers of your hand and follows: to the guard (announcement, +1) or to his mother in the token queue (+3, -5 stress). Either way he's gone from the concourse after.",
+      "interact": "dialogue + companion walk",
+      "flag": "lost_kid_returned"
+    },
+    {
+      "id": "F4",
+      "pacing": "Engaged",
+      "what": "Challenge #2, the token machine jam: it's free today (he won't believe you till the guard waves) / press cancel (it irons the note) / lend ₹10 (he'll GPay you; he won't).",
+      "interact": "dialogue",
+      "flag": "token_jam_fixed",
+      "economy": "₹0 or ₹10"
+    },
+    {
+      "id": "F5",
+      "pacing": "Tense",
+      "what": "Through a gate lane onto the platform strip: the doors are open. Boarding fades to the coach (2.2b).",
+      "interact": "exit",
+      "flag": "first_metro_ride"
+    }
+  ],
+  "economy": [
+    {
+      "trigger": "metro ride, opening day",
+      "spend": 0,
+      "canAfford": true
+    },
+    {
+      "trigger": "lend the token uncle ₹10",
+      "spend": 10,
+      "canAfford": true
+    }
+  ],
+  "exits": [
+    {
+      "zone": "stairs_down",
+      "to": "whitefield_street",
+      "spawn": "station_mouth",
+      "transit": "walk"
+    },
+    {
+      "zone": "platform",
+      "to": "metro_interior",
+      "spawn": "coach_door",
+      "transit": "metro"
+    }
+  ],
+  "save_flags": [
+    "metro_open",
+    "metro_free_day",
+    "metro_opening_seen",
+    "metro_station_entered",
+    "guard_met",
+    "kid_following",
+    "kid_to_guard",
+    "kid_to_mother",
+    "lost_kid_returned",
+    "token_jam_fixed",
+    "first_metro_ride"
+  ],
+  "assets_needed": [
+    "metro_station render + spec (done)",
+    "metro_props sheet: entrance, bunting, flagpole, barriers, pots, finished pillar (done)",
+    "sheets: guard, lost kid, mother, token uncle (done)",
+    "street generator: station mouth + flagged spots (done)"
+  ],
+  "acceptance": [
+    "the first sleep after scooter_decided sets metro_open and metro_free_day; the street draws the station mouth, bunting, flagpole, pots and barriers instead of the barricade and the caged pillar; Sameer's chat and the reel arrive",
+    "the station mouth leads to the metro_station pocket (locked with 'Barricades. Not yet.' before the opening); arrival sets metro_station_entered; the guard's line says rides are free today",
+    "the lost kid follows once asked; the guard or the mother sets lost_kid_returned (+1 / +3 rep) and the kid leaves the concourse",
+    "the token uncle's jam clears by any of three options; lending spends ₹10",
+    "the platform strip boards the coach with the Purple Line card"
+  ],
+  "open_questions": []
+}

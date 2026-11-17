@@ -1,0 +1,2710 @@
+{
+  "$comment": "Breath lines per character base and direction (rows of the 32x48 frame). head_y = first row below the chin (rows above it are the head); waist_y = first hip/belt row (it and everything below never move). Proposed at the P5+ breathing audit by detection + eye, from the front view; all four directions share one baseline. player_* apply to all five skins. Consumed by scripts/art/breath.mjs via pnpm art.",
+  "approved": false,
+  "player_m": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": true
+    }
+  },
+  "player_f": {
+    "down": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "npc_chai_anna": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "npc_shanthamma": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    }
+  },
+  "npc_gate_owner": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "npc_neighbour_leela": {
+    "down": {
+      "head_y": 20,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 20,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 20,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 20,
+      "waist_y": 29,
+      "enabled": true
+    }
+  },
+  "npc_coliving_rhea": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    }
+  },
+  "npc_darshini_raju": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    }
+  },
+  "npc_provision_basava": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "npc_hotel_reception": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "crowd_autodriver": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "crowd_delivery": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "crowd_elder": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 29,
+      "enabled": true
+    }
+  },
+  "crowd_homemaker": {
+    "down": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    }
+  },
+  "crowd_hoodie": {
+    "down": {
+      "head_y": 21,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 21,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 21,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 21,
+      "waist_y": 28,
+      "enabled": true
+    }
+  },
+  "crowd_officegoer": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 28,
+      "enabled": true
+    }
+  },
+  "crowd_student": {
+    "down": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 21,
+      "waist_y": 29,
+      "enabled": true
+    }
+  },
+  "crowd_techie": {
+    "down": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "left": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "right": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    },
+    "up": {
+      "head_y": 23,
+      "waist_y": 30,
+      "enabled": true
+    }
+  },
+  "npc_airport_info": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    }
+  },
+  "npc_airport_porter": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    }
+  },
+  "npc_security_guard": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    }
+  },
+  "npc_kiosk_shopkeeper": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    }
+  },
+  "npc_cab_tout": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    }
+  },
+  "npc_hivr_courier": {
+    "down": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 22,
+      "waist_y": 30,
+      "enabled": false
+    }
+  },
+  "npc_prakash": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_divya": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_sameer": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_ravi": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_auto_driver": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_manju": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_owner_aunty": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_hill_kid": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_hill_chai": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_furniture_rafiq": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_nurse": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_bus_uncle": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_bus_kid": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_cycle_guy": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_ananya": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_icecream": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_jogger": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_guitar_shop": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_noor": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_bunk_attendant": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_metro_guard": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_lost_kid": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_kid_mother": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_token_uncle": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_metro_ajji": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_church_busker": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_majestic_uncle": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_hygge_staff": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_tanvi": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_ravi_bed": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_patient_old_bed": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_patient_woman_bed": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_male": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_male_actions": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_male_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_male_2": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_male_3": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_male_4": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_male_5": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_female": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_female_actions": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_female_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_female_2": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_female_3": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_female_4": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_female_5": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_elder": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_elder_actions": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_elder_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_elder_2": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_elder_3": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_elder_4": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_base_elder_5": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_autodriver": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_delivery": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_elder": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_homemaker": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_hoodie": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_officegoer": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_student": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_crowd_techie": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_inf_base_elder_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_inf_base_female_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_inf_base_male_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_npc_auto_driver": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_npc_chai_anna": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_npc_prakash": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_evolved_elder": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_evolved_elder_actions": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_evolved_female": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_evolved_female_actions": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_evolved_male": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_evolved_male_actions": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_autodriver": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_delivery": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_elder": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_homemaker": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_hoodie": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_officegoer": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_student": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_crowd_techie": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_inf_base_elder_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_inf_base_female_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_inf_base_male_1": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_npc_auto_driver": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_npc_chai_anna": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_npc_prakash": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_gate_constable": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_suresh": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_deepa": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_degraded_npc_nurse": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_fresh_npc_nurse": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_uncle": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_rathore": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_priya": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_vikram": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_meera": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "npc_ravi_amma_bed": {
+    "down": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 24,
+      "waist_y": 32,
+      "enabled": false
+    }
+  },
+  "inf_host": {
+    "down": {
+      "head_y": 18,
+      "waist_y": 36,
+      "enabled": false
+    },
+    "left": {
+      "head_y": 18,
+      "waist_y": 36,
+      "enabled": false
+    },
+    "right": {
+      "head_y": 18,
+      "waist_y": 36,
+      "enabled": false
+    },
+    "up": {
+      "head_y": 18,
+      "waist_y": 36,
+      "enabled": false
+    }
+  }
+}
