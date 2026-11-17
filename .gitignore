@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-portfolio
 *.local
 .DS_Store
 
@@ -8,3 +9,4 @@ scripts/.work/
 
 # Movie Mode run reports (Test Playground, dev only)
 playground/reports/
+.vercel

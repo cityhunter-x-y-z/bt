@@ -14,7 +14,7 @@ SAME codebase via Capacitor (ADR-64). This file drives the whole build. Follow i
 5. **Hard constraints.** Tiles 32×32, characters 32×48 (validator enforces). No GPL runtime deps (MIT/Apache/CC0 only). No real brand logos/names in art (parody). No pay-to-win; monetization never touches balance.
 6. **One codebase, three platforms.** Game code never calls browser/Capacitor APIs directly — only `src/platform/`. Touch-first, safe areas, audio unlock, native-safe saves. Web ships first; mobile is a smoke test at every gate until M1. (ADR-64)
 7. **Scope.** Every change happens exclusively inside this repository directory. Never touch files outside it.
-8. **Ports.** Never use a port beginning with 4 or 5 (no 4xxx/5xxx, so no Vite 5173). Dev server = **6174**, pinned in `vite.config.ts` (`strictPort`); Test Playground = **6175**, mock boards = **6176** (both `strictPort`, package.json scripts); headless Movie Mode (`pnpm movie`) = **6177** (`strictPort`, `scripts/movie.mjs`). Numbers like `4326` in map data are EPSG codes, not ports.
+8. **Ports.** Never use a port beginning with 4 or 5 (no 4xxx/5xxx, so no Vite 5173). Dev server = **6174**, pinned in `vite.config.ts` (`strictPort`) — `pnpm hub` and `pnpm dev` are the same server, and it also serves `/playground.html` and, via the hub plugin, `/mocks/**`; the standalone Test Playground = **6175**, mock boards = **6176** (both `strictPort`, package.json scripts, for running them side by side); headless Movie Mode (`pnpm movie`) = **6177** (`strictPort`, `scripts/movie.mjs`). Numbers like `4326` in map data are EPSG codes, not ports.
 9. **Content is validated, not trusted.** `pnpm build` runs `validate-maps` + `validate-content` before `tsc` and `vite build`. Changing a content shape means extending the validator in `scripts/`. A build that skips validation is not a build.
 10. **Art is generated, not hand-committed** (until P1 Style Lock lands a real pipeline). `pnpm art` regenerates sprites/tiles/street map from `scripts/generate-*.mjs`; `scripts/.work/` is gitignored. Provenance in `CREDITS.md`.
 11. **Dependencies are declared here.** Own lockfile; no monorepo to borrow from. If a build needs a package, add it.
@@ -25,7 +25,9 @@ Phaser 3.90 · TypeScript 5.9 strict (`tsc --noEmit` before Vite) · Zustand 5 �
 
 ## 2. Commands
 ```bash
-corepack pnpm dev        # http://localhost:6174 (the game)
+corepack pnpm hub        # http://localhost:6174/hub.html (one server: game + playground + mock boards)
+corepack pnpm dev        # http://localhost:6174 (the game, same server)
+corepack pnpm export:portfolio # optional: build for /game/ into the portfolio repo (ADR-165; Vercel is now primary, ADR-166)
 corepack pnpm playground # http://localhost:6175/playground.html (Test Playground, dev only)
 corepack pnpm mocks      # http://localhost:6176 (UI mock boards in docs/mocks/, dev only)
 corepack pnpm movie      # headless Movie Mode on :6177 — every built scene, exit 1 on a red one (--twice: determinism)

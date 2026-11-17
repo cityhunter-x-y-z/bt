@@ -5,15 +5,20 @@
   "description": "Bangalore Times — a top-down pixel RPG set in Bengaluru. Phaser 3 + React, shipped as an installable PWA.",
   "type": "module",
   "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/validate-maps.mjs && node scripts/validate-content.ts && node scripts/validate-platform.mjs && tsc --noEmit && vite build && node scripts/check-dist.mjs",
+    "hub": "vite --open /hub.html",
+    "export:portfolio": "vite build --base=/game/ --outDir dist-portfolio && node scripts/export-portfolio.mjs",
+    "build": "node scripts/validate-maps.mjs && node --experimental-strip-types scripts/validate-content.ts && node scripts/validate-platform.mjs && tsc --noEmit && vite build && node scripts/bundle-static.mjs && node scripts/check-dist.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "validate:maps": "node scripts/validate-maps.mjs",
     "preview": "vite preview",
-    "validate:content": "node scripts/validate-content.ts",
+    "validate:content": "node --experimental-strip-types scripts/validate-content.ts",
     "validate": "node scripts/validate-maps.mjs && node scripts/validate-content.ts && node scripts/validate-platform.mjs",
     "art": "node scripts/generate-art.mjs && node scripts/generate-street-map.mjs",
     "audio": "node scripts/audio-pipe.mjs",

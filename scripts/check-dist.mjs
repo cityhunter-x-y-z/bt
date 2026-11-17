@@ -11,6 +11,13 @@ import { fileURLToPath } from 'node:url';
 
 /** Strings that only exist in playground / dev-API code. */
 export const MARKERS = ['__nqDev', '__pg/', 'installDevApi', 'Test Playground', 'PLAYGROUND_SAVE_NAMESPACE', 'pg-toolbar', 'playground.html', 'MovieRunner', 'Movie Mode'];
+/**
+ * Pages the build ships on purpose (ADR-165): the static hub and the mock
+ * boards. Their text mentions the Playground and links to it, which would read
+ * as shipped playground code; the files themselves are plain HTML with no
+ * playground imports. Everything else is still scanned.
+ */
+const INTENTIONAL_PAGES = /^(hub\.html$|mocks[\\/])/;
 const TEXT = /\.(js|mjs|css|html|json|webmanifest|txt|map)$/;
 
 export function checkDist(dir) {
@@ -22,6 +29,7 @@ export function checkDist(dir) {
       if (statSync(path).isDirectory()) { walk(path); continue; }
       const rel = path.slice(dir.length + 1);
       if (/playground/i.test(rel)) problems.push(`${rel}: playground file in the production build`);
+      if (INTENTIONAL_PAGES.test(rel)) continue;
       if (!TEXT.test(name)) continue;
       const text = readFileSync(path, 'utf8');
       for (const m of MARKERS) if (text.includes(m)) problems.push(`${rel}: contains dev-only "${m}"`);
